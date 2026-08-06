@@ -13,6 +13,7 @@ const stats = require(path.join(__dirname, '..', 'js', 'stats.js'));
 const account = require(path.join(__dirname, '..', 'js', 'account.js'));
 const syncmod = require(path.join(__dirname, '..', 'js', 'sync.js'));
 const md = require(path.join(__dirname, '..', 'js', 'markdown.js'));
+const report = require(path.join(__dirname, '..', 'js', 'report.js'));
 
 const subjects = [
   { name: '数学' }, { name: '语文' }, { name: '英语' },
@@ -157,6 +158,35 @@ test('行内代码与引用渲染', () => {
   const html = md.render('> 老师通知\n\n使用 `Ctrl+N` 导入');
   assert.ok(html.includes('<blockquote>老师通知</blockquote>'));
   assert.ok(html.includes('<code>Ctrl+N</code>'));
+});
+
+console.log('\n📊 统计报告卡片测试（v0.21.0）');
+
+test('报告卡片 SVG 包含核心元素', () => {
+  const s = {
+    total: 10, completed: 6, active: 4, rate: 60, onTimeRate: 80, streak: 3,
+    focusTodayMinutes: 50, focusWeekMinutes: 120, focusTotalMinutes: 300, focusStreak: 2,
+    topUnfinished: [{ name: '数学', count: 2, weight: 6 }]
+  };
+  const svg = report.buildReportSvg(s, '本周', '2026-08-07', () => '#F4A8C6');
+  assert.ok(svg.startsWith('<svg'));
+  assert.ok(svg.includes('糖纸 · SugarPaper 统计报告'));
+  assert.ok(svg.includes('60%'));
+  assert.ok(svg.includes('80%'));
+  assert.ok(svg.includes('数学'));
+  assert.ok(svg.includes('2 项'));
+  assert.ok(svg.includes('专注（番茄钟）'));
+});
+
+test('报告卡片对特殊字符转义', () => {
+  const s = {
+    total: 1, completed: 0, active: 1, rate: 0, onTimeRate: null, streak: 0,
+    focusTodayMinutes: 0, focusWeekMinutes: 0, focusTotalMinutes: 0, focusStreak: 0,
+    topUnfinished: [{ name: '<b>数学</b>', count: 1, weight: 1 }]
+  };
+  const svg = report.buildReportSvg(s, '全部', '2026-08-07');
+  assert.ok(!svg.includes('<b>数学</b>'));
+  assert.ok(svg.includes('&lt;b&gt;数学&lt;/b&gt;'));
 });
 
 test('识别小初高 16 科默认词表（体育与健康/通用技术/综合实践活动等）', () => {

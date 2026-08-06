@@ -142,6 +142,7 @@
       '</div>' +
       '<span style="flex:1"></span>' +
       '<button class="btn small" data-action="export">' + S.icons.icon('upload', 13) + ' 导出统计报告</button>' +
+      '<button class="btn small soft-pink" data-action="export-image">' + S.icons.icon('image', 13) + ' 导出图片</button>' +
       '</div>';
 
     wrap.innerHTML = toolbar +
@@ -224,10 +225,42 @@
     S.ui.toast('统计报告已导出');
   }
 
+  /** 导出统计报告为 PNG 图片（v0.21.0）：SVG 报告卡片 → Canvas → PNG 下载 */
+  function exportImage() {
+    const range = g.App.state.statsRange;
+    const s = stats.compute(store.state, range);
+    const svg = S.report.buildReportSvg(s, RANGE_LABEL[range], util.todayStr(), (name) => store.getSubjectColor(name));
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+    const img = new Image();
+    img.onload = () => {
+      const scale = 2;
+      const w = 640;
+      const h = 880;
+      const canvas = document.createElement('canvas');
+      canvas.width = w * scale;
+      canvas.height = h * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = '糖纸-统计报告-' + util.todayStr() + '.png';
+      a.click();
+      S.ui.toast('📊 统计报告图片已导出');
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      S.ui.toast('图片生成失败，请重试');
+    };
+    img.src = url;
+  }
+
   function bind(wrap) {
     wrap.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (btn && btn.dataset.action === 'export') { exportReport(); return; }
+      if (btn && btn.dataset.action === 'export-image') { exportImage(); return; }
       const rangeBtn = e.target.closest('[data-range]');
       if (rangeBtn) {
         g.App.state.statsRange = rangeBtn.dataset.range;

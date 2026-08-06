@@ -184,6 +184,10 @@ async function main() {
   await page.locator('[data-range="today"]').click();
   await page.waitForTimeout(200);
   check('切换时间范围生效', (await page.locator('.cal-seg [data-range="today"]').getAttribute('class')).includes('active'));
+  const dlPromise = page.waitForEvent('download', { timeout: 8000 });
+  await page.locator('[data-action="export-image"]').click();
+  const dl = await dlPromise;
+  check('统计报告导出图片（PNG 下载）', dl.suggestedFilename().endsWith('.png'), dl.suggestedFilename());
 
   console.log('⚙️ 设置');
   await page.evaluate(() => window.App.navigate('settings'));
