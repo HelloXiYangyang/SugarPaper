@@ -1,0 +1,267 @@
+/* 糖纸 · SugarPaper —— 首页：任务列表（核心） */
+(function (g) {
+  'use strict';
+
+  const S = g.Sugar;
+  const util = S.util;
+  const store = S.store;
+
+  function activeCount() {
+    return store.state.tasks.filter((t) => !t.isDeleted && !t.isCompleted).length;
+  }
+
+  function filterTasks() {
+    const st = g.App.state;
+    let tasks = store.state.tasks.filter((t) => !t.isDeleted);
+    if (st.subject !== '全部') tasks = tasks.filter((t) => t.subject === st.subject);
+    if (st.priority !== 'all') tasks = tasks.filter((t) => t.priority === Number(st.priority));
+    const q = st.query.trim().toLowerCase();
+    if (q) tasks = tasks.filter((t) => (t.title + ' ' + (t.subtitle || '')).toLowerCase().includes(q));
+    return tasks;
+  }
+
+  function sortActive(list) {
+    return list.slice().sort((a, b) =>
+      (a.order || 0) - (b.order || 0) ||
+      (a.createdAt < b.createdAt ? -1 : 1));
+  }
+
+  function sortDone(list) {
+    return list.slice().sort((a, b) =>
+      (a.completedAt || a.updatedAt) < (b.completedAt || b.updatedAt) ? -1 : 1);
+  }
+
+  function dueTagHtml(t) {
+    if (!t.dueDate) return '';
+    const today = util.todayStr();
+    const overdue = !t.isCompleted && t.dueDate < today;
+    return '<span class="tag due' + (overdue ? ' overdue' : '') + '">' + S.icons.icon('calendar', 12) + ' ' + util.escapeHtml(util.fmtDate(t.dueDate)) +
+      (overdue ? ' 已逾期' : '') + '</span>';
+  }
+
+  function prioTagHtml(p) {
+    if (p === 2) return '<span class="tag pri-high">' + S.icons.icon('flag', 12) + ' 高</span>';
+    if (p === 0) return '<span class="tag pri-low">' + S.icons.icon('flag', 12) + ' 低</span>';
+    return '<span class="tag pri-mid">' + S.icons.icon('flag', 12) + ' 中</span>';
+  }
+
+  function cardHtml(t) {
+    const color = store.getSubjectColor(t.subject);
+    const cls = 'task-card reveal' + (t.isCompleted ? ' completed' : '');
+    const actions = t.isCompleted
+      ? '<button class="action undo" data-action="toggle">' + S.icons.icon('undo', 13) + ' 撤销</button>' +
+        '<button class="action edit" data-action="edit">' + S.icons.icon('edit', 13) + ' 编辑</button>' +
+        '<button class="action del" data-action="del">' + S.icons.icon('trash', 13) + ' 删除</button>' +
+        '<span class="grow"></span>' +
+        '<span class="tag done-time">' + S.icons.icon('check', 12) + ' ' + util.escapeHtml(util.fmtDateTime(t.completedAt)) + '</span>'
+      : '<button class="action done" data-action="toggle">' + S.icons.icon('check', 13) + ' 完成</button>' +
+        '<button class="action edit" data-action="edit">' + S.icons.icon('edit', 13) + '</button>' +
+        '<button class="action del" data-action="del">' + S.icons.icon('trash', 13) + '</button>' +
+        '<span class="grow"></span>' +
+        '<button class="action move" data-action="move-up" title="上移">' + S.icons.icon('chevron-up', 13) + '</button>' +
+        '<button class="action move" data-action="move-down" title="下移">' + S.icons.icon('chevron-down', 13) + '</button>';
+
+    const subjectHtml = t.subject
+      ? '<span class="task-subject-badge" style="--subject-color:' + color + '">' + util.escapeHtml(t.subject) + '</span>'
+      : '';
+    const subtitleHtml = t.subtitle
+      ? '<div class="task-subtitle">' + util.escapeHtml(t.subtitle) + '</div>'
+      : '';
+
+    return '<article class="' + cls + '" data-id="' + util.escapeHtml(t.id) + '"' +
+      ' style="--subject-color:' + color + '"' +
+      (t.isCompleted ? '' : ' draggable="true"') + '>' +
+      '<div class="task-top">' + subjectHtml + '<div class="task-title">' + util.escapeHtml(t.title) + '</div></div>' +
+      subtitleHtml +
+      '<div class="task-meta">' + prioTagHtml(t.priority) + dueTagHtml(t) + '</div>' +
+      '<div class="task-actions">' + actions + '</div>' +
+      '</article>';
+  }
+
+  function chipsHtml() {
+    const st = g.App.state;
+    const all = store.state.tasks.filter((t) => !t.isDeleted);
+    const counts = {};
+    all.forEach((t) => { counts[t.subject] = (counts[t.subject] || 0) + 1; });
+    const items = [];
+    items.push('<button class="chip' + (st.subject === '全部' ? ' active' : '') + '" data-subject="全部">' + S.icons.icon('sparkles', 13) + ' 全部<span class="count">' + all.length + '</span></button>');
+    store.state.subjects.filter((s) => s.enabled).forEach((s) => {
+      items.push('<button class="chip' + (st.subject === s.name ? ' active' : '') + '" data-subject="' + util.escapeHtml(s.name) + '">' +
+        '<span class="dot" style="background:' + s.color + '"></span>' +
+        util.escapeHtml(s.name) + '<span class="count">' + (counts[s.name] || 0) + '</span></button>');
+    });
+    return items.join('');
+  }
+
+  function groupHtml(label, iconName, count, listHtml, cls) {
+    return '<section class="task-group ' + cls + '">' +
+      '<div class="task-group-head"><span class="g-label">' + S.icons.icon(iconName, 15) + ' ' + util.escapeHtml(label) + '</span>' +
+      '<span class="g-count">' + count + '</span><span class="g-line"></span></div>' +
+      '<div class="task-list">' + listHtml + '</div></section>';
+  }
+
+  function render(wrap) {
+    const hadFocus = document.activeElement && document.activeElement.id === 'home-search';
+    const tasks = filterTasks();
+    const active = sortActive(tasks.filter((t) => !t.isCompleted));
+    const done = sortDone(tasks.filter((t) => t.isCompleted));
+    const allTasks = store.state.tasks.filter((t) => !t.isDeleted).length;
+
+    let html = '';
+    if (allTasks === 0) {
+      html =
+        '<div class="empty" style="margin-top:40px">' +
+        '<div class="big" style="color:var(--pink-strong)">' + S.icons.icon('candy', 46) + '</div>' +
+        '<b style="font-size:16px;color:var(--text)">欢迎使用糖纸</b><br>' +
+        '粘贴老师发的作业消息，一键解析成清单。<br>' +
+        '<button class="btn primary" data-action="import">' + S.icons.icon('file-text', 14) + ' 导入作业</button> ' +
+        '<button class="btn" data-action="sample">' + S.icons.icon('sparkles', 14) + ' 载入示例数据</button>' +
+        '</div>';
+      wrap.innerHTML = html;
+      bind(wrap);
+      return;
+    }
+
+    const chips =
+      '<div class="home-filterbar">' +
+      '<div class="search-row compact-search">' +
+      '<div class="search-box"><span class="s-icon">' + S.icons.icon('search', 14) + '</span><input id="home-search" placeholder="搜索作业..." value="' + util.escapeHtml(g.App.state.query) + '"></div>' +
+      '<select class="priority-select" id="home-prio">' +
+      '<option value="all"' + (g.App.state.priority === 'all' ? ' selected' : '') + '>全部优先级</option>' +
+      '<option value="2"' + (g.App.state.priority === '2' ? ' selected' : '') + '>高</option>' +
+      '<option value="1"' + (g.App.state.priority === '1' ? ' selected' : '') + '>中</option>' +
+      '<option value="0"' + (g.App.state.priority === '0' ? ' selected' : '') + '>低</option>' +
+      '</select></div>' +
+      '<div class="chips">' + chipsHtml() + '</div>' +
+      '</div>';
+
+    const activeHtml = active.length
+      ? active.map(cardHtml).join('')
+      : '<div class="empty"><div class="big">' + S.icons.icon('sparkles', 40) + '</div>太棒啦，这里空空如也！</div>';
+    const doneHtml = done.length
+      ? done.map(cardHtml).join('')
+      : '<div class="empty"><div class="big">' + S.icons.icon('sun', 40) + '</div>还没有完成的作业，加油！</div>';
+
+    html = chips +
+      '<div class="task-columns">' +
+      groupHtml('进行中', 'pin', active.length, activeHtml, 'ongoing') +
+      groupHtml('已完成', 'check', done.length, doneHtml, 'done') +
+      '</div>';
+
+    wrap.innerHTML = html;
+    bind(wrap);
+
+    if (hadFocus) {
+      const inp = wrap.querySelector('#home-search');
+      if (inp) {
+        inp.focus();
+        const len = inp.value.length;
+        inp.setSelectionRange(len, len);
+      }
+    }
+  }
+
+  function reorder(dragId, targetId) {
+    const actives = sortActive(store.state.tasks.filter((t) => !t.isDeleted && !t.isCompleted));
+    const from = actives.findIndex((t) => t.id === dragId);
+    const to = actives.findIndex((t) => t.id === targetId);
+    if (from < 0 || to < 0 || from === to) return;
+    const [item] = actives.splice(from, 1);
+    actives.splice(to, 0, item);
+    actives.forEach((t, i) => {
+      if (t.order !== i + 1) store.updateTask(t.id, { order: i + 1 });
+    });
+    g.App.renderView();
+  }
+
+  function bind(wrap) {
+    const search = wrap.querySelector('#home-search');
+    if (search) {
+      search.addEventListener('input', util.debounce((e) => {
+        g.App.state.query = e.target.value;
+        g.App.renderView();
+      }, 180));
+    }
+    const prio = wrap.querySelector('#home-prio');
+    if (prio) {
+      prio.addEventListener('change', (e) => {
+        g.App.state.priority = e.target.value;
+        g.App.renderView();
+      });
+    }
+    wrap.querySelectorAll('.chip').forEach((c) => {
+      c.addEventListener('click', () => {
+        g.App.state.subject = c.dataset.subject;
+        g.App.renderView();
+      });
+    });
+
+    wrap.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      if (action === 'import') { S.ui.modal.openImport(); return; }
+      if (action === 'sample') { g.App.loadSample(); return; }
+      const card = btn.closest('.task-card');
+      if (!card) return;
+      const id = card.dataset.id;
+      if (action === 'toggle') {
+        const before = activeCount();
+        card.classList.add('leaving');
+        setTimeout(() => {
+          store.toggleComplete(id);
+          if (before > 0 && activeCount() === 0) g.App.celebrate();
+        }, 230);
+      } else if (action === 'edit') {
+        S.ui.modal.openEdit(id);
+      } else if (action === 'del') {
+        const t = store.state.tasks.find((x) => x.id === id);
+        S.ui.modal.confirm({
+          title: '删除作业',
+          message: '确定删除「' + (t ? t.title : '') + '」吗？删除后可重新导入。',
+          confirmText: '删除',
+          danger: true,
+          onConfirm: () => store.deleteTask(id)
+        });
+      } else if (action === 'move-up') {
+        store.moveTask(id, -1);
+      } else if (action === 'move-down') {
+        store.moveTask(id, 1);
+      }
+    });
+
+    // 拖拽排序（桌面/平板）
+    let dragId = null;
+    wrap.addEventListener('dragstart', (e) => {
+      const card = e.target.closest('.task-card[draggable]');
+      if (!card) return;
+      dragId = card.dataset.id;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', dragId); } catch (err) { /* 忽略 */ }
+    });
+    wrap.addEventListener('dragend', (e) => {
+      const card = e.target.closest('.task-card');
+      if (card) card.classList.remove('dragging');
+      wrap.querySelectorAll('.task-card.drop-target').forEach((c) => c.classList.remove('drop-target'));
+      dragId = null;
+    });
+    wrap.addEventListener('dragover', (e) => {
+      const card = e.target.closest('.task-card[draggable]');
+      if (!card || !dragId || card.dataset.id === dragId) return;
+      e.preventDefault();
+      wrap.querySelectorAll('.task-card.drop-target').forEach((c) => c.classList.remove('drop-target'));
+      card.classList.add('drop-target');
+    });
+    wrap.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const card = e.target.closest('.task-card[draggable]');
+      if (card && dragId) reorder(dragId, card.dataset.id);
+      dragId = null;
+    });
+  }
+
+  g.Sugar = g.Sugar || {};
+  g.Sugar.ui = g.Sugar.ui || {};
+  g.Sugar.ui.home = { render, filterTasks, activeCount };
+})(typeof window !== 'undefined' ? window : globalThis);

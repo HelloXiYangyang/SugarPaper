@@ -1,0 +1,18 @@
+{
+  "name": "糖纸 · SugarPaper —— 作业管理助手",
+  "short_name": "糖纸",
+  "description": "让作业管理像糖果一样甜美简单。离线优先的作业管理助手。",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#FBF6F2",
+  "theme_color": "#F4B8CE",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

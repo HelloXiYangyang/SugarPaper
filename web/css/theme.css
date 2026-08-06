@@ -1,0 +1,94 @@
+/* ============================================================
+   糖纸 · SugarPaper —— 马卡龙主题 Token
+   低饱和马卡龙色系 · 浅色 / 深色
+   ============================================================ */
+
+:root {
+  /* 基础 */
+  --bg: #FBF6F2;
+  --surface: #FFFFFF;
+  --surface-2: #F7EEE9;
+  --surface-3: #F0E3DD;
+  --text: #463B45;
+  --text-2: #8C7E88;
+  --text-3: #B8AAB3;
+  --border: #EFE1DA;
+  --border-2: #E2D1C9;
+  --glass: rgba(255, 255, 255, 0.82);
+
+  /* 马卡龙色系 */
+  --pink: #F4B8CE;
+  --pink-strong: #E292B4;
+  --pink-soft: #FBE4EC;
+  --mint: #A9E0CB;
+  --mint-strong: #5FB894;
+  --mint-soft: #DEF3EA;
+  --sky: #B3D4F0;
+  --sky-strong: #6FA8D6;
+  --sky-soft: #E2EEF9;
+  --lavender: #C9C7F0;
+  --lavender-strong: #8F89D9;
+  --lavender-soft: #ECEBFA;
+  --peach: #FAD1B8;
+  --peach-strong: #E89A6B;
+  --peach-soft: #FDEBE0;
+  --yellow: #FBE6B9;
+  --yellow-strong: #D9A94A;
+  --yellow-soft: #FDF4DC;
+  --danger: #E58B8B;
+  --danger-strong: #D96A6A;
+  --danger-soft: #FBE6E6;
+  --success: #5FB894;
+
+  /* 阴影 / 圆角 */
+  --shadow-sm: 0 1px 3px rgba(122, 92, 104, 0.10);
+  --shadow-md: 0 6px 18px rgba(122, 92, 104, 0.13);
+  --shadow-lg: 0 18px 44px rgba(122, 92, 104, 0.22);
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 22px;
+
+  --font: "PingFang SC", "Microsoft YaHei", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --header-h: 62px;
+  --bottom-nav-h: 62px;
+}
+
+html[data-theme="dark"] {
+  --bg: #231D2B;
+  --surface: #2E2738;
+  --surface-2: #372F43;
+  --surface-3: #403750;
+  --text: #F1EAF0;
+  --text-2: #B7AABF;
+  --text-3: #85778F;
+  --border: #3D344A;
+  --border-2: #4C4159;
+  --glass: rgba(46, 39, 56, 0.82);
+
+  --pink: #D98FAF;
+  --pink-strong: #E6A6C0;
+  --pink-soft: #4A3345;
+  --mint: #7FBFA4;
+  --mint-strong: #8FD4B4;
+  --mint-soft: #2E3F3A;
+  --sky: #7FA8CB;
+  --sky-strong: #9CC3E2;
+  --sky-soft: #2E3A46;
+  --lavender: #9E9AD0;
+  --lavender-strong: #B6B2E4;
+  --lavender-soft: #3A3650;
+  --peach: #D9A583;
+  --peach-strong: #EDBFA0;
+  --peach-soft: #46352C;
+  --yellow: #D4B268;
+  --yellow-strong: #E8CB8A;
+  --yellow-soft: #403A28;
+  --danger: #D97F7F;
+  --danger-strong: #E89A9A;
+  --danger-soft: #452F2F;
+  --success: #8FD4B4;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.55);
+}
