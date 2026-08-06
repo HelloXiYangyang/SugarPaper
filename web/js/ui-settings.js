@@ -132,6 +132,8 @@
       '</select></span></div>' +
       '</div>' +
 
+      (S.ui.account ? S.ui.account.cardHtml() : '') +
+
       '<div class="settings-card reveal"><h3>数据安全网</h3>' +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('save', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">上次导出备份</div>' +
@@ -175,6 +177,7 @@
   }
 
   function bind(wrap) {
+    if (S.ui.account) S.ui.account.bind(wrap);
     wrap.querySelectorAll('input[data-toggle]').forEach((inp) => {
       inp.addEventListener('change', () => {
         patchSetting(inp.dataset.toggle, inp.checked);

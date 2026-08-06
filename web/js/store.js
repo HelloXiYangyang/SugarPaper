@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.15.0';
+  const APP_VERSION = '0.16.0';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -39,6 +39,7 @@
       tasks: [],
       notes: [],
       focusSessions: [],
+      account: null, // v0.16.0：无服务器账号 { pubkey, displayName, seedB64, mnemonic, version, lastSyncAt, devices }
       subjects: DEFAULT_SUBJECTS.map((s) => ({ ...s })),
       settings: {
         deviceName: '我的设备',
@@ -72,7 +73,12 @@
         lastExportAt: null,
         backupSnoozedAt: null,
         notifiedDue: {},
-        notifiedNotes: {}
+        notifiedNotes: {},
+        // v0.16.0：跨设备同步（S2）
+        sync: {
+          autoSync: false,
+          relays: ['wss://relay.damus.io', 'wss://nostr.wine', 'wss://relay.nostr.band']
+        }
       }
     };
   }
@@ -93,10 +99,16 @@
     // v0.15.0：深层合并嵌套配置，避免旧数据缺失新字段
     settings.pomodoro = Object.assign({}, base.settings.pomodoro, (d.settings && d.settings.pomodoro) || {});
     settings.focus = Object.assign({}, base.settings.focus, (d.settings && d.settings.focus) || {});
+    // v0.16.0：同步配置深层合并
+    settings.sync = Object.assign({}, base.settings.sync, (d.settings && d.settings.sync) || {});
+    if (!Array.isArray(settings.sync.relays) || !settings.sync.relays.length) {
+      settings.sync.relays = base.settings.sync.relays.slice();
+    }
     return {
       tasks: Array.isArray(d.tasks) ? d.tasks : base.tasks,
       notes: Array.isArray(d.notes) ? d.notes : base.notes,
       focusSessions: Array.isArray(d.focusSessions) ? d.focusSessions : base.focusSessions,
+      account: d.account ? Object.assign({}, base.account, d.account) : null,
       subjects,
       settings
     };
@@ -288,6 +300,37 @@
     return session;
   }
 
+  /* ---------- 账号（v0.16.0 / S2） ---------- */
+
+  function setAccount(acc) {
+    state.account = acc;
+    persist();
+    emit();
+    return acc;
+  }
+
+  function updateAccount(patch) {
+    if (!state.account) return null;
+    state.account = Object.assign({}, state.account, patch);
+    persist();
+    emit();
+    return state.account;
+  }
+
+  function clearAccount() {
+    state.account = null;
+    persist();
+    emit();
+  }
+
+  function replaceAll(data) {
+    if (Array.isArray(data.tasks)) state.tasks = data.tasks;
+    if (Array.isArray(data.notes)) state.notes = data.notes;
+    if (Array.isArray(data.focusSessions)) state.focusSessions = data.focusSessions;
+    persist();
+    emit();
+  }
+
   function toggleComplete(id) {
     const t = findTask(id);
     if (!t) return;
@@ -375,6 +418,7 @@
       tasks: state.tasks,
       notes: state.notes,
       focusSessions: state.focusSessions,
+      account: state.account,
       subjects: state.subjects,
       settings: state.settings
     }, null, 2);
@@ -386,10 +430,12 @@
     state.tasks = d.tasks.map((t) => normalizeTask(t));
     state.notes = Array.isArray(d.notes) ? d.notes.map((n) => normalizeNote(n)) : [];
     state.focusSessions = Array.isArray(d.focusSessions) ? d.focusSessions : [];
+    state.account = d.account ? Object.assign({}, defaultState().account, d.account) : null;
     state.subjects = Array.isArray(d.subjects) && d.subjects.length ? d.subjects : DEFAULT_SUBJECTS.map((s) => ({ ...s }));
     state.settings = Object.assign({}, defaultState().settings, d.settings || {});
     state.settings.pomodoro = Object.assign({}, defaultState().settings.pomodoro, (d.settings && d.settings.pomodoro) || {});
     state.settings.focus = Object.assign({}, defaultState().settings.focus, (d.settings && d.settings.focus) || {});
+    state.settings.sync = Object.assign({}, defaultState().settings.sync, (d.settings && d.settings.sync) || {});
     persist();
     emit();
   }
@@ -421,6 +467,10 @@
     toggleNotePin,
     toggleNoteArchive,
     addFocusSession,
+    setAccount,
+    updateAccount,
+    clearAccount,
+    replaceAll,
     toggleComplete,
     moveTask,
     importTasks,

@@ -280,6 +280,49 @@ async function main() {
   await page.waitForTimeout(250);
   check('统计页含专注卡片', (await page.locator('.stats-card', { hasText: '专注' }).count()) >= 1);
 
+  console.log('🔑 账号与同步（S2）');
+  await page.evaluate(() => window.App.navigate('settings'));
+  await page.waitForTimeout(250);
+  check('设置页含账号与同步卡片', (await page.locator('.settings-card', { hasText: '账号与同步' }).count()) >= 1);
+  check('未创建账号时显示创建入口', await page.locator('[data-action="create-account"]').count() === 1);
+  await page.locator('[data-action="create-account"]').click();
+  await page.waitForTimeout(1500); // 等待 PBKDF2 派生与弹窗
+  check('创建账号弹窗展示 12 词助记词', await page.locator('.mn-word').count() === 12);
+  const mnemonic = await page.evaluate(() =>
+    document.querySelector('.mn-grid').innerText.replace(/\d+\.\s*/g, '').replace(/\s+/g, ' ').trim());
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(400);
+  const pubkey = await page.evaluate(() => window.Sugar.store.state.account && window.Sugar.store.state.account.pubkey);
+  check('账号创建成功（生成公钥）', typeof pubkey === 'string' && pubkey.length >= 40);
+  check('账号卡片显示短 ID', (await page.locator('.settings-card', { hasText: '账号与同步' }).locator('.tag').count()) >= 1);
+  await page.locator('[data-action="backup-mnemonic"]').click();
+  await page.waitForTimeout(250);
+  check('备份助记词弹窗展示 12 词', await page.locator('.mn-word').count() === 12);
+  await page.locator('.modal-foot [data-action="close"]').click();
+  await page.waitForTimeout(150);
+  // 删除本地账号，回到未登录状态以测试恢复流程
+  await page.locator('[data-action="delete-account"]').click();
+  await page.waitForTimeout(200);
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(300);
+  check('删除本地账号后恢复创建入口', await page.locator('[data-action="restore-account"]').count() === 1);
+  await page.locator('[data-action="restore-account"]').click();
+  await page.waitForTimeout(250);
+  await page.locator('#restore-mnemonic').fill('bob yac xyz');
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(600);
+  check('错误助记词被拒绝（弹窗仍在）', await page.locator('#restore-mnemonic').count() === 1);
+  await page.evaluate(() => {
+    window.Sugar.sync.syncNow = () => { window.Sugar.sync.status.status = 'off'; window.Sugar.sync.status.lastError = null; };
+  });
+  await page.locator('#restore-mnemonic').fill(mnemonic);
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(900);
+  const pubkey2 = await page.evaluate(() => window.Sugar.store.state.account && window.Sugar.store.state.account.pubkey);
+  check('同一助记词恢复出同一公钥', pubkey2 === pubkey, pubkey + ' vs ' + pubkey2);
+  check('同步状态行存在', await page.locator('#sync-status').count() === 1);
+  check('立即同步按钮存在', await page.locator('[data-action="sync-now"]').count() === 1);
+
   console.log('💻 响应式布局');
   for (const [w, h, nav] of [[768, 1024, '.top-tabs'], [1024, 900, '.sidebar'], [1440, 900, '.sidebar'], [1700, 1000, '.right-panel']]) {
     await page.setViewportSize({ width: w, height: h });

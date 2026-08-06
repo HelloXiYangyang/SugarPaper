@@ -75,7 +75,8 @@ async function main() {
     ['import-modal', 390, 844, null],
     ['notes-mobile', 390, 844, 'notes'],
     ['notes-desktop', 1440, 900, 'notes'],
-    ['focus-mobile', 390, 844, null]
+    ['focus-mobile', 390, 844, null],
+    ['account-modal', 1440, 900, 'settings']
   ];
 
   for (const [name, w, h, view, theme] of shots) {
@@ -86,10 +87,15 @@ async function main() {
     if (name === 'focus-mobile') {
       await page.evaluate(() => window.Sugar.ui.focus.open(null));
     }
+    if (name === 'account-modal') {
+      await page.evaluate(() => window.Sugar.ui.account.openCreate());
+      await page.waitForTimeout(1400); // 等待 PBKDF2 派生与助记词弹窗
+    }
     await page.waitForTimeout(350);
     await page.screenshot({ path: path.join(outDir, name + '.png'), fullPage: false });
     if (name === 'import-modal') await page.evaluate(() => window.Sugar.ui.modal.closeAll());
     if (name === 'focus-mobile') await page.evaluate(() => window.Sugar.ui.focus.close());
+    if (name === 'account-modal') await page.evaluate(() => window.Sugar.ui.modal.closeAll());
     console.log('📸 ' + name + ' (' + w + 'x' + h + ')');
   }
 

@@ -10,6 +10,8 @@ const assert = require('assert');
 const path = require('path');
 const parser = require(path.join(__dirname, '..', 'js', 'parser.js'));
 const stats = require(path.join(__dirname, '..', 'js', 'stats.js'));
+const account = require(path.join(__dirname, '..', 'js', 'account.js'));
+const syncmod = require(path.join(__dirname, '..', 'js', 'sync.js'));
 
 const subjects = [
   { name: '数学' }, { name: '语文' }, { name: '英语' },
@@ -17,14 +19,26 @@ const subjects = [
 ];
 
 let passed = 0;
+const pending = [];
 function test(name, fn) {
   try {
-    fn();
-    passed++;
-    console.log('  ✅ ' + name);
+    const r = fn();
+    if (r && typeof r.then === 'function') {
+      pending.push(r.then(() => {
+        passed++;
+        console.log('  ✅ ' + name);
+      }).catch((e) => {
+        console.error('  ❌ ' + name);
+        console.error('     ' + (e && e.message ? e.message : e));
+        process.exitCode = 1;
+      }));
+    } else {
+      passed++;
+      console.log('  ✅ ' + name);
+    }
   } catch (e) {
     console.error('  ❌ ' + name);
-    console.error('     ' + e.message);
+    console.error('     ' + (e && e.message ? e.message : e));
     process.exitCode = 1;
   }
 }
@@ -197,4 +211,88 @@ test('专注统计：连续专注天数与科目聚合', () => {
   assert.strictEqual(s.focusSubjectTop[0].minutes, 75); // 25（今日）+ 50（昨日）；未完成会话不计
 });
 
-console.log('\n共 ' + passed + ' 项测试通过' + (process.exitCode ? '（存在失败）' : ''));
+console.log('\n🔑 账号与同步测试（v0.16.0）');
+
+test('助记词往返：熵 → 词 → 熵一致，且全部在词表中', () => {
+  const entropy = new Uint8Array(16);
+  for (let i = 0; i < 16; i++) entropy[i] = i + 1;
+  const words = account.entropyToMnemonic(entropy);
+  assert.strictEqual(words.length, 12);
+  assert.ok(words.every((w) => account.WORDS.includes(w)));
+  const back = account.mnemonicToEntropy(words);
+  assert.deepStrictEqual(Array.from(back), Array.from(entropy));
+});
+
+test('助记词生成确定性：相同熵 → 相同助记词', () => {
+  const e1 = new Uint8Array(16).fill(7);
+  const e2 = new Uint8Array(16).fill(7);
+  assert.deepStrictEqual(account.entropyToMnemonic(e1), account.entropyToMnemonic(e2));
+});
+
+test('无效助记词被拒绝', () => {
+  assert.throws(() => account.mnemonicToEntropy(['zzzz', 'x', 'y', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o']));
+  assert.throws(() => account.normalizeMnemonic('bob yac'));
+});
+
+test('账号创建与恢复：同一助记词得到同一公钥', async () => {
+  const created = await account.createAccount();
+  const restored = await account.restoreAccount(created.mnemonic.join(' '));
+  assert.strictEqual(restored.kp.pubkey, created.kp.pubkey);
+  assert.strictEqual(restored.seed.length, 32);
+});
+
+test('Ed25519 公钥推导符合 RFC 8032 测试向量', async () => {
+  const seed = account.hexToBytes('9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60');
+  const kp = await account.seedToKeyPair(seed);
+  assert.strictEqual(
+    account.bytesToHex(kp.publicKeyRaw),
+    'd75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a'
+  );
+});
+
+test('端到端加密解密往返', async () => {
+  const created = await account.createAccount();
+  const env = await account.encryptData({ tasks: [{ id: 'a', title: '数学作业' }] }, created.seed);
+  const plain = await account.decryptData(env, created.seed);
+  assert.strictEqual(plain.tasks[0].title, '数学作业');
+});
+
+test('签名验签：正确签名通过，篡改后拒绝', async () => {
+  const created = await account.createAccount();
+  const data = new TextEncoder().encode('hello-sugar');
+  const sig = await account.signBytes(created.kp.privateKey, data, 'b64');
+  assert.strictEqual(await account.verifyBytes(created.kp.pubkey, data, sig, false), true);
+  const bad = new TextEncoder().encode('hello-sugaX');
+  assert.strictEqual(await account.verifyBytes(created.kp.pubkey, bad, sig, false), false);
+});
+
+test('合并快照：后写覆盖 + 保留墓碑 + 补全新记录', () => {
+  const local = {
+    tasks: [
+      { id: 'a', title: '旧', updatedAt: '2026-01-01T00:00:00Z' },
+      { id: 'b', title: '本机新增', updatedAt: '2026-01-02T00:00:00Z' }
+    ],
+    notes: [{ id: 'n1', content: 'x', updatedAt: '2026-01-01T00:00:00Z' }],
+    focusSessions: []
+  };
+  const remote = {
+    tasks: [
+      { id: 'a', title: '新', updatedAt: '2026-01-03T00:00:00Z' },
+      { id: 'c', title: '远端新增', updatedAt: '2026-01-02T00:00:00Z' },
+      { id: 'd', title: '已删除', isDeleted: true, updatedAt: '2026-01-02T00:00:00Z' }
+    ],
+    notes: [{ id: 'n1', content: 'y', updatedAt: '2026-01-02T00:00:00Z' }],
+    focusSessions: []
+  };
+  const merged = syncmod.mergeSnapshot(local, remote);
+  assert.strictEqual(merged.tasks.length, 4);
+  assert.strictEqual(merged.tasks.find((t) => t.id === 'a').title, '新');
+  assert.ok(merged.tasks.find((t) => t.id === 'd').isDeleted);
+  assert.ok(merged.tasks.some((t) => t.id === 'b'));
+  assert.strictEqual(merged.notes[0].content, 'y');
+  assert.strictEqual(merged.changed, true);
+});
+
+Promise.all(pending).then(() => {
+  console.log('\n共 ' + passed + ' 项测试通过' + (process.exitCode ? '（存在失败）' : ''));
+});

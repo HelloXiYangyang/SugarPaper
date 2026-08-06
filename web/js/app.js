@@ -35,7 +35,10 @@
 
     init() {
       this.applyPrefs();
-      store.subscribe(() => this.render());
+      store.subscribe(() => {
+        this.render();
+        if (S.sync && typeof S.sync.scheduleSync === 'function') S.sync.scheduleSync();
+      });
       this.bindGlobalEvents();
       this.initReveal();
       this.bindScrollEffects();
