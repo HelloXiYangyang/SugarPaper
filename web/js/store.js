@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.21.0';
+  const APP_VERSION = '0.22.0';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -70,8 +70,13 @@
           // v0.17.0：叠加音混音（Noisli 式）
           mixSceneId: null,
           mixVolume: 0.4,
-          // v0.18.0：自定义声音场景（本地音频 dataURL，≤2MB）
+        // v0.18.0：自定义声音场景（本地音频 dataURL，≤2MB）
           customAudio: null
+        },
+        // v0.22.0：提醒时间自定义（前一晚 / 当天早上窗口起点）
+        reminder: {
+          eve: '20:00',
+          morning: '07:00'
         },
         // v0.15.0：数据安全网（自动备份提醒 / 已提醒标记）
         backupReminder: true,
@@ -111,6 +116,8 @@
     if (!Array.isArray(settings.sync.relays) || !settings.sync.relays.length) {
       settings.sync.relays = base.settings.sync.relays.slice();
     }
+    // v0.22.0：提醒配置深层合并
+    settings.reminder = Object.assign({}, base.settings.reminder, (d.settings && d.settings.reminder) || {});
     return {
       tasks: Array.isArray(d.tasks) ? d.tasks : base.tasks,
       notes: Array.isArray(d.notes) ? d.notes : base.notes,
@@ -178,7 +185,9 @@
       priority: input.priority == null ? 1 : input.priority,
       // v0.17.0：任务类型（written/recite/checkin）与家长确认标记
       taskType: input.taskType || (g.Sugar.parser && g.Sugar.parser.detectTaskType(text)) || 'written',
-      confirmed: !!input.confirmed
+      confirmed: !!input.confirmed,
+      // v0.22.0：作业图片附件（拍照存档，最多 4 张，dataURL 仅存本机）
+      images: Array.isArray(input.images) ? input.images.slice(0, 4) : []
     };
   }
 

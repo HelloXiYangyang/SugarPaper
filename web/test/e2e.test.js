@@ -189,6 +189,18 @@ async function main() {
   const dl = await dlPromise;
   check('统计报告导出图片（PNG 下载）', dl.suggestedFilename().endsWith('.png'), dl.suggestedFilename());
 
+  console.log('⏰ 提醒时间自定义（S8）');
+  await page.evaluate(() => window.App.navigate('settings'));
+  await page.waitForTimeout(250);
+  await page.locator('#reminder-eve').fill('21:30');
+  await page.locator('#reminder-eve').dispatchEvent('change');
+  await page.waitForTimeout(200);
+  check('前一晚提醒时间已更新', (await page.evaluate(() => window.Sugar.store.state.settings.reminder.eve)) === '21:30');
+  await page.locator('#reminder-morning').fill('06:30');
+  await page.locator('#reminder-morning').dispatchEvent('change');
+  await page.waitForTimeout(200);
+  check('早上提醒时间已更新', (await page.evaluate(() => window.Sugar.store.state.settings.reminder.morning)) === '06:30');
+
   console.log('⚙️ 设置');
   await page.evaluate(() => window.App.navigate('settings'));
   await page.waitForTimeout(200);
@@ -296,6 +308,21 @@ async function main() {
   await page.locator('.task-card:not(.completed) .action.confirm').first().click();
   await page.waitForTimeout(250);
   check('家长确认后显示已确认标记', (await page.locator('.tag.done-time', { hasText: '家长已确认' }).count()) >= 1);
+
+  console.log('📸 作业拍照存档（S8）');
+  await page.locator('.task-card:not(.completed) .action.edit').first().click();
+  await page.waitForTimeout(200);
+  check('任务编辑弹窗含图片附件入口', await page.locator('#task-image-file').count() === 1);
+  await page.setInputFiles('#task-image-file', {
+    name: 'hw.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64')
+  });
+  await page.waitForTimeout(500);
+  check('作业图片已压缩保存', await page.locator('#task-images .note-thumb').count() === 1);
+  await page.locator('.modal-foot [data-action="save"]').click();
+  await page.waitForTimeout(300);
+  check('任务卡显示作业图片缩略图', await page.locator('.task-card .task-img').count() >= 1);
 
   console.log('📝 便签');
   await page.evaluate(() => window.App.navigate('notes'));

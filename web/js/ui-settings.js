@@ -107,6 +107,14 @@
       '<div class="row-desc" id="fps-result">测量当前实际显示帧率</div></div>' +
       '<button class="btn small" data-action="fps-test">测一测</button></div>' +
       switchRow('bell', '通知提醒', '截止日期与便签提醒（浏览器支持时）', 'notifications') +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('clock', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">前一晚提醒时间</div>' +
+      '<div class="row-desc">截止前一天的晚上提醒（默认 20:00）</div></div>' +
+      '<span class="row-action"><input type="time" id="reminder-eve" value="' + (set.reminder.eve || '20:00') + '"></span></div>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('sun', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">当天早上提醒时间</div>' +
+      '<div class="row-desc">当天早上提醒窗口起点（持续 2 小时，默认 07:00）</div></div>' +
+      '<span class="row-action"><input type="time" id="reminder-morning" value="' + (set.reminder.morning || '07:00') + '"></span></div>' +
       switchRow('globe', '互联网模式', '跨网络同步（WebRTC · 规划中）', 'internetMode') +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('sparkles', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">主题</div>' +
@@ -222,6 +230,20 @@
       sceneSel.addEventListener('change', () => {
         patchSetting('focus.sceneId', sceneSel.value);
         S.ui.toast('默认场景已更新');
+      });
+    }
+    const reminderEve = wrap.querySelector('#reminder-eve');
+    if (reminderEve) {
+      reminderEve.addEventListener('change', () => {
+        store.updateSettings({ reminder: Object.assign({}, store.state.settings.reminder, { eve: reminderEve.value }) });
+        S.ui.toast('前一晚提醒时间已更新');
+      });
+    }
+    const reminderMorning = wrap.querySelector('#reminder-morning');
+    if (reminderMorning) {
+      reminderMorning.addEventListener('change', () => {
+        store.updateSettings({ reminder: Object.assign({}, store.state.settings.reminder, { morning: reminderMorning.value }) });
+        S.ui.toast('早上提醒时间已更新');
       });
     }
     if (g.navigator && g.navigator.storage && g.navigator.storage.estimate) {

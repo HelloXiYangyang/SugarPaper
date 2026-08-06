@@ -40,6 +40,11 @@
     const today = util.todayStr();
     const now = new Date();
     const minutes = now.getHours() * 60 + now.getMinutes();
+    // v0.22.0：提醒时间可配置（默认前一晚 20:00、当天早上 07:00 起 2 小时窗口）
+    const cfg = Object.assign({ eve: '20:00', morning: '07:00' }, store.state.settings.reminder || {});
+    const eveMin = util.parseClock(cfg.eve);
+    const morningEnd = util.parseClock(cfg.morning);
+    const morningWindowEnd = morningEnd == null ? null : morningEnd + 120;
     const due = dueMap();
     let changed = false;
 
@@ -51,15 +56,15 @@
         due['o:' + t.id] = true;
         changed = true;
       } else if (t.dueDate === today && !due['t:' + t.id]) {
-        // 当天早上 7:00-9:00 提醒一次
-        if (minutes >= 420 && minutes <= 540) {
+        // 当天早上提醒窗口（默认 07:00-09:00）
+        if (util.inReminderWindow(minutes, cfg.morning, morningWindowEnd)) {
           push('今天截止：' + t.title, util.fmtDate(t.dueDate) + ' · 记得完成');
           due['t:' + t.id] = true;
           changed = true;
         }
       } else if (t.dueDate === util.toISODate(util.addDays(util.parseDate(today), 1)) && !due['tm:' + t.id]) {
-        // 前一晚 20:00 后提醒
-        if (minutes >= 1200) {
+        // 前一晚提醒（默认 20:00 后）
+        if (eveMin != null && minutes >= eveMin) {
           push('明天截止：' + t.title, '提前安排，别拖到最后');
           due['tm:' + t.id] = true;
           changed = true;

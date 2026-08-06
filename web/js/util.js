@@ -54,6 +54,23 @@
     return 'long';
   }
 
+  /** 'HH:MM' → 当天分钟数；非法返回 null */
+  function parseClock(s) {
+    const m = String(s == null ? '' : s).match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return null;
+    const h = +m[1];
+    const min = +m[2];
+    if (h > 23 || min > 59) return null;
+    return h * 60 + min;
+  }
+
+  /** 当前分钟是否落在提醒窗口 [startStr, endMinutes) 内 */
+  function inReminderWindow(minutes, startStr, endMinutes) {
+    const s = parseClock(startStr);
+    if (s == null) return false;
+    return minutes >= s && minutes < (endMinutes == null ? s + 120 : endMinutes);
+  }
+
   /** 逾期天数（>=1）；未逾期返回 0 */
   function overdueDays(due) {
     if (!due) return 0;
@@ -141,8 +158,11 @@
 
   g.Sugar = g.Sugar || {};
   g.Sugar.util = {
-    toISODate, parseDate, addDays, todayStr, startOfWeek, endOfWeek, dueBucket, overdueDays, uuid,
+    toISODate, parseDate, addDays, todayStr, startOfWeek, endOfWeek, dueBucket, overdueDays, parseClock, inReminderWindow, uuid,
     escapeHtml, fmtDate, fmtDateShort, fmtDateTime, debounce, isSameDay, weekdayCn, pad,
     avatarHtml
   };
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { toISODate, parseDate, addDays, todayStr, startOfWeek, endOfWeek, dueBucket, overdueDays, parseClock, inReminderWindow, uuid, escapeHtml, fmtDate, fmtDateShort, fmtDateTime, isSameDay, weekdayCn, pad };
+  }
 })(typeof window !== 'undefined' ? window : globalThis);

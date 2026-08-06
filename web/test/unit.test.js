@@ -14,6 +14,7 @@ const account = require(path.join(__dirname, '..', 'js', 'account.js'));
 const syncmod = require(path.join(__dirname, '..', 'js', 'sync.js'));
 const md = require(path.join(__dirname, '..', 'js', 'markdown.js'));
 const report = require(path.join(__dirname, '..', 'js', 'report.js'));
+const util = require(path.join(__dirname, '..', 'js', 'util.js'));
 
 const subjects = [
   { name: '数学' }, { name: '语文' }, { name: '英语' },
@@ -187,6 +188,24 @@ test('报告卡片对特殊字符转义', () => {
   const svg = report.buildReportSvg(s, '全部', '2026-08-07');
   assert.ok(!svg.includes('<b>数学</b>'));
   assert.ok(svg.includes('&lt;b&gt;数学&lt;/b&gt;'));
+});
+
+console.log('\n⏰ 提醒时间工具测试（v0.22.0）');
+
+test('parseClock 解析与非法值', () => {
+  assert.strictEqual(util.parseClock('20:00'), 1200);
+  assert.strictEqual(util.parseClock('07:30'), 450);
+  assert.strictEqual(util.parseClock('25:00'), null);
+  assert.strictEqual(util.parseClock('abc'), null);
+});
+
+test('inReminderWindow 窗口判断', () => {
+  assert.strictEqual(util.inReminderWindow(1200, '20:00', 1320), true);
+  assert.strictEqual(util.inReminderWindow(1319, '20:00', 1320), true);
+  assert.strictEqual(util.inReminderWindow(1320, '20:00', 1320), false);
+  assert.strictEqual(util.inReminderWindow(420, '07:00'), true); // 默认 2 小时窗口
+  assert.strictEqual(util.inReminderWindow(540, '07:00'), false);
+  assert.strictEqual(util.inReminderWindow(500, 'bad'), false);
 });
 
 test('识别小初高 16 科默认词表（体育与健康/通用技术/综合实践活动等）', () => {

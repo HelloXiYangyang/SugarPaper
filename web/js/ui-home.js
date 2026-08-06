@@ -103,12 +103,17 @@
     const subtitleHtml = t.subtitle
       ? '<div class="task-subtitle">' + util.escapeHtml(t.subtitle) + '</div>'
       : '';
+    const imagesHtml = (t.images || []).length
+      ? '<div class="task-images">' + t.images.map((src) =>
+          '<img class="task-img" src="' + src + '" alt="作业图片" loading="lazy" data-action="view-task-image" data-src="' + src + '">').join('') + '</div>'
+      : '';
 
     return '<article class="' + cls + '" data-id="' + util.escapeHtml(t.id) + '"' +
       ' style="--subject-color:' + color + '"' +
       (t.isCompleted ? '' : ' draggable="true"') + '>' +
       '<div class="task-top">' + subjectHtml + '<div class="task-title">' + util.escapeHtml(t.title) + '</div></div>' +
       subtitleHtml +
+      imagesHtml +
       '<div class="task-meta">' + prioTagHtml(t.priority) + dueTagHtml(t) + typeBadge +
       (t.taskType === 'checkin' && t.confirmed ? '<span class="tag done-time">' + S.icons.icon('check', 12) + ' 家长已确认</span>' : '') +
       '</div>' +
@@ -310,6 +315,15 @@
         store.moveTask(id, -1);
       } else if (action === 'move-down') {
         store.moveTask(id, 1);
+      }
+      const timg = e.target.closest('[data-action="view-task-image"]');
+      if (timg) {
+        S.ui.modal.open({
+          title: '作业图片',
+          body: '<img src="' + timg.dataset.src + '" style="width:100%;border-radius:12px;display:block" alt="作业图片">',
+          footer: ''
+        });
+        return;
       }
     });
 

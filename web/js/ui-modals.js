@@ -227,7 +227,15 @@
       '<div class="field-row">' +
       '<div class="field"><label>截止日期</label><input type="date" id="edit-due"></div>' +
       (existing ? '<div class="field" style="display:flex;align-items:flex-end;padding-bottom:8px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="edit-done" style="width:16px;height:16px"> 已完成</label></div>' : '') +
-      '</div>';
+      '</div>' +
+      '<div class="field"><label>作业图片（可选，最多 4 张 · 拍照存档）</label>' +
+      '<div id="task-images" class="note-images"></div>' +
+      '<label class="avatar-upload" id="task-img-upload" for="task-image-file">' +
+      '<span class="au-icon">' + S.icons.icon('camera', 20) + '</span>' +
+      '<span class="au-title">点击添加图片</span>' +
+      '<span class="au-hint">自动压缩 · 仅存本机 · 随加密快照同步</span>' +
+      '</label>' +
+      '<input type="file" id="task-image-file" accept="image/*" hidden></div>';
 
     let prio = existing ? existing.priority : 1;
     function setPrio(p) {
@@ -237,6 +245,37 @@
       });
     }
     setPrio(prio);
+    let taskImages = existing ? (existing.images || []).slice() : [];
+    const taskImagesEl = () => dlg.bodyEl.querySelector('#task-images');
+    function renderTaskImages() {
+      const box = taskImagesEl();
+      if (!box) return;
+      box.innerHTML = taskImages.map((src, i) =>
+        '<span class="note-thumb" style="--i:' + i + '"><img src="' + src + '" alt="作业图片">' +
+        '<button type="button" class="note-thumb-del" data-task-img-del="' + i + '" title="移除">' + S.icons.icon('close', 11) + '</button></span>').join('');
+    }
+    renderTaskImages();
+    if (taskImagesEl()) {
+      taskImagesEl().addEventListener('click', (e) => {
+        const del = e.target.closest('[data-task-img-del]');
+        if (!del) return;
+        taskImages.splice(+del.dataset.taskImgDel, 1);
+        renderTaskImages();
+      });
+    }
+    const taskImgFile = dlg.bodyEl.querySelector('#task-image-file');
+    if (taskImgFile) {
+      taskImgFile.addEventListener('change', () => {
+        const f = taskImgFile.files && taskImgFile.files[0];
+        taskImgFile.value = '';
+        if (!f) return;
+        if (taskImages.length >= 4) { toast('最多添加 4 张图片'); return; }
+        readNoteImage(f, (dataUrl) => {
+          taskImages.push(dataUrl);
+          renderTaskImages();
+        });
+      });
+    }
 
     if (existing) {
       dlg.bodyEl.querySelector('#edit-title').value = existing.title;
@@ -281,7 +320,8 @@
         title,
         subtitle: dlg.bodyEl.querySelector('#edit-subtitle').value.trim(),
         priority: prio,
-        dueDate: dlg.bodyEl.querySelector('#edit-due').value || null
+        dueDate: dlg.bodyEl.querySelector('#edit-due').value || null,
+        images: taskImages
       };
       if (existing) {
         const done = dlg.bodyEl.querySelector('#edit-done').checked;
