@@ -341,13 +341,52 @@
       '</div></div>' +
       '<div class="field"><label>语音速记</label><button type="button" class="btn small soft-pink" data-voice data-target="note-content">' +
       S.icons.icon('mic', 13) + ' 语音输入（说作业、说通知）</button>' +
-      '<div style="font-size:12px;color:var(--text-3);margin-top:6px">识别结果自动填入内容框，可一键转成作业。</div></div>';
+      '<div style="font-size:12px;color:var(--text-3);margin-top:6px">识别结果自动填入内容框，可一键转成作业。</div></div>' +
+      '<div class="field"><label>图片附件（可选，最多 4 张）</label>' +
+      '<div id="note-images" class="note-images"></div>' +
+      '<label class="avatar-upload" id="note-img-upload" for="note-image-file">' +
+      '<span class="au-icon">' + S.icons.icon('image', 20) + '</span>' +
+      '<span class="au-title">点击添加图片</span>' +
+      '<span class="au-hint">自动压缩 · 仅存本机 · 随便签加密同步</span>' +
+      '</label>' +
+      '<input type="file" id="note-image-file" accept="image/*" hidden></div>';
     dlg.footEl.innerHTML =
       (existing ? '<button class="btn soft-pink" data-action="to-task">' + S.icons.icon('list', 13) + ' 转为作业</button>' : '') +
       '<button class="btn" data-action="cancel">取消</button>' +
       '<button class="btn primary" data-action="save">' + S.icons.icon('save', 13) + ' 保存</button>';
 
     let color = existing ? existing.color : colors[0];
+    let images = existing ? (existing.images || []).slice() : [];
+    const imagesEl = () => dlg.bodyEl.querySelector('#note-images');
+    function renderImages() {
+      const box = imagesEl();
+      if (!box) return;
+      box.innerHTML = images.map((src, i) =>
+        '<span class="note-thumb" style="--i:' + i + '"><img src="' + src + '" alt="附件">' +
+        '<button type="button" class="note-thumb-del" data-img-del="' + i + '" title="移除">' + S.icons.icon('close', 11) + '</button></span>').join('');
+    }
+    renderImages();
+    if (imagesEl()) {
+      imagesEl().addEventListener('click', (e) => {
+        const del = e.target.closest('[data-img-del]');
+        if (!del) return;
+        images.splice(+del.dataset.imgDel, 1);
+        renderImages();
+      });
+    }
+    const imgFile = dlg.bodyEl.querySelector('#note-image-file');
+    if (imgFile) {
+      imgFile.addEventListener('change', () => {
+        const f = imgFile.files && imgFile.files[0];
+        imgFile.value = '';
+        if (!f) return;
+        if (images.length >= 4) { toast('最多添加 4 张图片'); return; }
+        readNoteImage(f, (dataUrl) => {
+          images.push(dataUrl);
+          renderImages();
+        });
+      });
+    }
     dlg.bodyEl.querySelectorAll('.swatch').forEach((s) => {
       if (s.dataset.color === color) s.classList.add('active');
       s.addEventListener('click', () => {
@@ -383,7 +422,8 @@
         color,
         pinned: dlg.bodyEl.querySelector('#note-pinned').checked,
         tags: tag ? [tag] : [],
-        remindAt: remindVal ? new Date(remindVal).toISOString() : null
+        remindAt: remindVal ? new Date(remindVal).toISOString() : null,
+        images
       };
       if (existing) {
         store.updateNote(existing.id, patch);
@@ -402,6 +442,26 @@
     if (isNaN(d.getTime())) return '';
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
       'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  /** 便签图片压缩（v0.19.0）：最长边 512px，JPEG 0.8 */
+  function readNoteImage(file, cb) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = 512;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        cb(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => toast('图片读取失败，请换一张试试');
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   /** 语音速记（v0.18.0）：Web Speech API（zh-CN），浏览器不支持时隐藏按钮 */

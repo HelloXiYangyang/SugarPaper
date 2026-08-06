@@ -23,6 +23,7 @@
 > **v4.16 变更（2026-08-07）**：Web 版实现 S3 场景深化——解析器支持中文数字编号与打卡/背诵任务分类（`Task.taskType`）、导入未解析行提示；番茄钟新增呼吸引导与双音轨混音（`AppSettings.focus.mixSceneId/mixVolume`）；家庭模式（`AppSettings.familyProfiles` 成员档案切换 + `Task.confirmed` 家长确认）；统计新增准时完成率与科目欠账加权排行。
 > **v4.17 变更（2026-08-07）**：Web 版补全 S2 的 WebRTC 在线直连（P2P）——Nostr 中继交换信令（kind 19323）+ RTCPeerConnection DataChannel 直接互传加密快照；两端对称建链（negotiated id 0）与 glare 回滚；设置页直连状态与按钮；同步通道现为「中继云端桥 + 在线直连」双通道（详见《统一开发方案 v5.0》§5）。
 > **v4.18 变更（2026-08-07）**：Web 版实现 S4 输入与场景增强——语音速记（Web Speech API，`zh-CN`，便签与导入弹窗语音转文字，不支持时自动隐藏）；自定义声音场景（`AppSettings.focus.customAudio`，本地音频 ≤2MB，可作主场景或叠加音）。
+> **v4.19 变更（2026-08-07）**：Web 版实现 S5 离线能力与笔记增强——Service Worker 离线缓存（`web/sw.js`，PWA 真正离线可用）；便签图片附件（`Note.images`，最多 4 张，Canvas 压缩至最长边 512px，随加密快照同步）。
 
 ---
 

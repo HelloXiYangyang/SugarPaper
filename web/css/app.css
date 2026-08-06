@@ -646,6 +646,20 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 .note-actions .action:hover { transform: translateY(-1px); }
 .note-actions .action.del { background: var(--danger-soft); color: var(--danger-strong); }
 .note-archived-row { margin: 12px 0; }
+.note-images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.note-img {
+  width: 84px; height: 84px; object-fit: cover; border-radius: 10px;
+  cursor: pointer; border: 1px solid var(--border);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.note-img:hover { transform: scale(1.04); box-shadow: var(--shadow-sm); }
+.note-thumb { position: relative; display: inline-block; animation: fade-up .25s ease both; animation-delay: calc(var(--i, 0) * 40ms); }
+.note-thumb img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+.note-thumb-del {
+  position: absolute; top: -6px; right: -6px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--danger-strong); color: #fff;
+  display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm);
+}
 
 /* ---------- 统计：专注卡片（v0.15.0） ---------- */
 .focus-summary { display: flex; gap: 10px; }

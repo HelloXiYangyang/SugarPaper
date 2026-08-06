@@ -85,6 +85,18 @@ async function main() {
   await page.evaluate(() => window.App.loadSample());
   await page.waitForTimeout(300);
 
+  let swOk = false;
+  for (let i = 0; i < 10; i++) {
+    swOk = await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) return false;
+      const reg = await navigator.serviceWorker.getRegistration();
+      return !!reg;
+    });
+    if (swOk) break;
+    await page.waitForTimeout(300);
+  }
+  check('Service Worker 已注册（PWA 离线可用）', swOk);
+
   console.log('📱 首页（手机 390x844）');
   check('底部导航可见', await page.isVisible('.bottom-nav'));
   check('底部导航使用 SVG 图标', await page.locator('.bottom-nav svg.ico').count() === 5);
@@ -288,11 +300,20 @@ async function main() {
   await page.locator('[data-action="new-note"]').first().click();
   await page.waitForTimeout(200);
   check('便签编辑器含语音速记按钮', await page.locator('.modal [data-voice]').count() >= 1);
+  check('便签编辑器含图片附件入口', await page.locator('#note-image-file').count() === 1);
+  await page.setInputFiles('#note-image-file', {
+    name: 'memo.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64')
+  });
+  await page.waitForTimeout(500);
+  check('便签图片附件已压缩保存', await page.locator('#note-images .note-thumb').count() === 1);
   await page.locator('#note-title').fill('明天带彩纸');
   await page.locator('#note-content').fill('美术课需要');
   await page.locator('.modal-foot [data-action="save"]').click();
   await page.waitForTimeout(250);
   check('新建便签成功', await page.locator('.note-card').count() === 1);
+  check('便签卡片显示图片附件', await page.locator('.note-card .note-images img').count() >= 1);
   const tasksBefore = await page.evaluate(() => window.Sugar.store.state.tasks.filter((t) => !t.isDeleted).length);
   await page.locator('.note-card [data-action="to-task"]').click();
   await page.waitForTimeout(250);

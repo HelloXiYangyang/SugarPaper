@@ -233,6 +233,8 @@
       archived: !!input.archived,
       tags: Array.isArray(input.tags) ? input.tags.slice() : [],
       remindAt: input.remindAt || null,
+      // v0.19.0：图片附件（压缩后的 dataURL，随便签加密同步）
+      images: Array.isArray(input.images) ? input.images.slice(0, 4) : [],
       createdAt: input.createdAt || now,
       updatedAt: input.updatedAt || now,
       isDeleted: !!input.isDeleted

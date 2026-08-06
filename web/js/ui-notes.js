@@ -54,6 +54,10 @@
     const remind = n.remindAt
       ? '<span class="note-remind">' + S.icons.icon('bell', 12) + ' ' + util.escapeHtml(util.fmtDateTime(n.remindAt)) + '</span>'
       : '';
+    const images = (n.images || []).length
+      ? '<div class="note-images">' + n.images.map((src) =>
+          '<img class="note-img" src="' + src + '" alt="附件" loading="lazy" data-action="view-image" data-src="' + src + '">').join('') + '</div>'
+      : '';
     const pinCls = n.pinned ? ' pinned' : '';
     return '<article class="note-card reveal' + pinCls + '" data-id="' + util.escapeHtml(n.id) + '" style="--i:' + (i % 8) + '">' +
       '<i class="note-color-bar" style="background:' + color + '"></i>' +
@@ -63,6 +67,7 @@
       '<b class="note-title">' + util.escapeHtml(n.title || '（无标题）') + '</b>' +
       '</div>' +
       (n.content ? '<div class="note-content">' + util.escapeHtml(n.content) + '</div>' : '') +
+      images +
       '<div class="note-meta">' + tags + remind + '</div>' +
       '<div class="note-actions">' +
       '<button class="action" data-action="toggle-pin">' + S.icons.icon('pin', 13) + ' ' + (n.pinned ? '取消置顶' : '置顶') + '</button>' +
@@ -145,6 +150,15 @@
           danger: true,
           onConfirm: () => store.deleteNote(id)
         });
+      }
+      const img = e.target.closest('[data-action="view-image"]');
+      if (img) {
+        S.ui.modal.open({
+          title: '图片附件',
+          body: '<img src="' + img.dataset.src + '" style="width:100%;border-radius:12px;display:block" alt="附件">',
+          footer: ''
+        });
+        return;
       }
     });
   }
