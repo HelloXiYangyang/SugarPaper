@@ -322,7 +322,12 @@
       '<div class="field"><label>标题（选填）</label><input type="text" id="note-title" placeholder="例如：6月28日数学期末考" value="' +
       util.escapeHtml(existing ? existing.title : '') + '"></div>' +
       '<div class="field"><label>内容</label><textarea id="note-content" placeholder="随手记下考试安排、老师通知、明天带什么……">' +
-      util.escapeHtml(existing ? existing.content : '') + '</textarea></div>' +
+      util.escapeHtml(existing ? existing.content : '') + '</textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:6px">' +
+      '<button type="button" class="btn small md-mode active" data-md-mode="edit">编辑</button>' +
+      '<button type="button" class="btn small md-mode" data-md-mode="preview">预览</button>' +
+      '</div>' +
+      '<div id="note-preview" class="md-preview" hidden></div></div>' +
       '<div class="field"><label>颜色</label><div class="swatch-row">' + swatches + '</div></div>' +
       '<div class="field-row">' +
       '<div class="field"><label>标签</label><select id="note-tag">' +
@@ -357,6 +362,23 @@
 
     let color = existing ? existing.color : colors[0];
     let images = existing ? (existing.images || []).slice() : [];
+    // 编辑 / 预览切换（v0.20.0：Markdown 预览）
+    const contentEl = dlg.bodyEl.querySelector('#note-content');
+    const previewEl = dlg.bodyEl.querySelector('#note-preview');
+    dlg.bodyEl.querySelectorAll('[data-md-mode]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const mode = b.dataset.mdMode;
+        dlg.bodyEl.querySelectorAll('.md-mode').forEach((x) => x.classList.toggle('active', x === b));
+        const isPreview = mode === 'preview';
+        if (contentEl) contentEl.hidden = isPreview;
+        if (previewEl) {
+          previewEl.hidden = !isPreview;
+          if (isPreview) {
+            previewEl.innerHTML = S.markdown ? S.markdown.render(contentEl ? contentEl.value : '') : util.escapeHtml(contentEl ? contentEl.value : '');
+          }
+        }
+      });
+    });
     const imagesEl = () => dlg.bodyEl.querySelector('#note-images');
     function renderImages() {
       const box = imagesEl();

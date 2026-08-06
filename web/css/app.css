@@ -637,6 +637,31 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 .note-tag { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 9px; }
 .note-remind { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--text-3); }
 .note-actions { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+.note-content.md p { margin: 0 0 6px; }
+.note-content.md h1, .note-content.md h2, .note-content.md h3 { margin: 8px 0 4px; }
+.note-content.md h1 { font-size: 15px; }
+.note-content.md h2 { font-size: 14px; }
+.note-content.md h3 { font-size: 13px; }
+.note-content.md ul, .note-content.md ol { margin: 4px 0 6px; padding-left: 18px; }
+.note-content.md li { margin: 2px 0; }
+.note-content.md code { background: var(--surface-2); border-radius: 5px; padding: 1px 5px; font-size: 12px; font-family: ui-monospace, Consolas, monospace; }
+.note-content.md pre { margin: 6px 0; }
+.note-content.md pre code { display: block; padding: 8px 10px; overflow-x: auto; }
+.note-content.md blockquote { border-left: 3px solid var(--pink); padding-left: 10px; color: var(--text-2); margin: 6px 0; }
+.note-content.md a { color: var(--pink-strong); font-weight: 600; }
+.note-content.md .md-check { list-style: none; display: flex; gap: 6px; align-items: flex-start; margin-left: -18px; }
+.md-box {
+  width: 14px; height: 14px; border: 1.5px solid var(--text-3); border-radius: 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; flex: none; margin-top: 2px; color: #fff;
+}
+.md-check.checked .md-box { background: var(--mint-strong); border-color: var(--mint-strong); }
+.md-preview {
+  border: 1px dashed var(--border-2); border-radius: 12px; padding: 10px 12px;
+  min-height: 80px; background: var(--surface-2); font-size: 13px; line-height: 1.7; margin-top: 6px;
+}
+.md-preview ul, .md-preview ol { padding-left: 18px; margin: 4px 0; }
+.md-mode.active { background: var(--pink-soft); color: var(--pink-strong); }
 .note-actions .action {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 12px; font-weight: 700; border-radius: 999px; padding: 5px 10px;

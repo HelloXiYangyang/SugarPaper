@@ -12,6 +12,7 @@ const parser = require(path.join(__dirname, '..', 'js', 'parser.js'));
 const stats = require(path.join(__dirname, '..', 'js', 'stats.js'));
 const account = require(path.join(__dirname, '..', 'js', 'account.js'));
 const syncmod = require(path.join(__dirname, '..', 'js', 'sync.js'));
+const md = require(path.join(__dirname, '..', 'js', 'markdown.js'));
 
 const subjects = [
   { name: '数学' }, { name: '语文' }, { name: '英语' },
@@ -126,6 +127,36 @@ test('parseDetailed 返回未解析行提示（导入纠错）', () => {
   assert.strictEqual(d.tasks.length, 1);
   assert.ok(d.skipped.includes('（无编号的零散行）'));
   assert.ok(d.warnings.length >= 1);
+});
+
+test('解析待办清单 - [ ] / - [x]（v0.20.0）', () => {
+  const tasks = parser.parse('数学\n- [ ] 口算 2 页\n- [x] 订正错题', subjects);
+  assert.strictEqual(tasks.length, 2);
+  assert.strictEqual(tasks[0].isCompleted, false);
+  assert.strictEqual(tasks[1].isCompleted, true);
+});
+
+console.log('\n📝 Markdown 渲染测试（v0.20.0）');
+
+test('Markdown 转义 HTML 防注入', () => {
+  const html = md.render('<script>alert(1)</script>');
+  assert.ok(!html.includes('<script>alert'));
+  assert.ok(html.includes('&lt;script&gt;'));
+});
+
+test('标题/加粗/列表/待办清单/链接渲染', () => {
+  const html = md.render('# 明天安排\n\n- [ ] 数学口算\n- [x] 英语打卡\n\n**加粗** [链接](https://example.com)');
+  assert.ok(html.includes('<h1>明天安排</h1>'));
+  assert.ok(html.includes('<li class="md-check">'));
+  assert.ok(html.includes('<li class="md-check checked">'));
+  assert.ok(html.includes('<strong>加粗</strong>'));
+  assert.ok(html.includes('<a href="https://example.com"'));
+});
+
+test('行内代码与引用渲染', () => {
+  const html = md.render('> 老师通知\n\n使用 `Ctrl+N` 导入');
+  assert.ok(html.includes('<blockquote>老师通知</blockquote>'));
+  assert.ok(html.includes('<code>Ctrl+N</code>'));
 });
 
 test('识别小初高 16 科默认词表（体育与健康/通用技术/综合实践活动等）', () => {

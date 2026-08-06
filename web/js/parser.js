@@ -151,7 +151,7 @@
       if (isHeader[i] || !isHeuristicSubject(lines[i])) continue;
       // 启发式候选：其后 3 行内出现编号条目 → 视为科目行
       for (let j = i + 1; j <= Math.min(i + 3, lines.length - 1); j++) {
-        if (itemMatch[j]) {
+        if (itemMatch[j] || /^-\s*\[[ xX]\]/.test(lines[j])) {
           isHeader[i] = true;
           break;
         }
@@ -166,6 +166,25 @@
         currentSubject = line;
         sawAnySubject = true;
         lastTask = null;
+        continue;
+      }
+
+      // 待办清单（v0.20.0）：- [ ] / - [x] 优先于通用条目识别，勾选状态写入 isCompleted
+      const checkItem = line.match(/^-\s*\[([ xX])\]\s*(.+)$/);
+      if (checkItem) {
+        const title = cleanItemTitle(checkItem[2]);
+        if (!title) continue;
+        consumed.add(i);
+        result.push({
+          subject: currentSubject || (sawAnySubject ? currentSubject : '默认'),
+          title,
+          subtitle: '',
+          priority: extractPriority(title),
+          dueDate: extractDueDate(title),
+          taskType: detectTaskType(title),
+          isCompleted: checkItem[1] !== ' '
+        });
+        lastTask = result[result.length - 1];
         continue;
       }
 

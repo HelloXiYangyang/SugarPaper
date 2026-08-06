@@ -66,7 +66,8 @@
       (n.pinned ? '<span class="note-pin">' + S.icons.icon('pin', 13) + '</span>' : '') +
       '<b class="note-title">' + util.escapeHtml(n.title || '（无标题）') + '</b>' +
       '</div>' +
-      (n.content ? '<div class="note-content">' + util.escapeHtml(n.content) + '</div>' : '') +
+      (n.content ? '<div class="note-content md">' +
+        (S.markdown ? S.markdown.render(n.content) : util.escapeHtml(n.content)) + '</div>' : '') +
       images +
       '<div class="note-meta">' + tags + remind + '</div>' +
       '<div class="note-actions">' +

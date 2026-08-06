@@ -301,6 +301,7 @@ async function main() {
   await page.waitForTimeout(200);
   check('便签编辑器含语音速记按钮', await page.locator('.modal [data-voice]').count() >= 1);
   check('便签编辑器含图片附件入口', await page.locator('#note-image-file').count() === 1);
+  check('便签编辑器含 Markdown 预览切换', await page.locator('.modal .md-mode').count() === 2);
   await page.setInputFiles('#note-image-file', {
     name: 'memo.png',
     mimeType: 'image/png',
@@ -309,11 +310,13 @@ async function main() {
   await page.waitForTimeout(500);
   check('便签图片附件已压缩保存', await page.locator('#note-images .note-thumb').count() === 1);
   await page.locator('#note-title').fill('明天带彩纸');
-  await page.locator('#note-content').fill('美术课需要');
+  await page.locator('#note-content').fill('# 明天安排\n- [ ] 数学口算\n- [x] 英语打卡');
   await page.locator('.modal-foot [data-action="save"]').click();
   await page.waitForTimeout(250);
   check('新建便签成功', await page.locator('.note-card').count() === 1);
   check('便签卡片显示图片附件', await page.locator('.note-card .note-images img').count() >= 1);
+  check('便签卡片按 Markdown 渲染', await page.locator('.note-card .note-content.md h1').count() === 1);
+  check('待办清单勾选状态渲染', await page.locator('.note-card .md-check.checked').count() === 1);
   const tasksBefore = await page.evaluate(() => window.Sugar.store.state.tasks.filter((t) => !t.isDeleted).length);
   await page.locator('.note-card [data-action="to-task"]').click();
   await page.waitForTimeout(250);
