@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.14.0';
+  const APP_VERSION = '0.15.0';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -37,6 +37,8 @@
   function defaultState() {
     return {
       tasks: [],
+      notes: [],
+      focusSessions: [],
       subjects: DEFAULT_SUBJECTS.map((s) => ({ ...s })),
       settings: {
         deviceName: '我的设备',
@@ -49,7 +51,28 @@
         theme: 'classic', // 主题（七套平行）：classic / bluegreen / sunshine / rose / lavender / mint / dark
         avatar: null, // 头像：null=默认；emoji 字符串；data: 开头的图片 DataURL
         version: APP_VERSION,
-        lastSyncTime: null
+        lastSyncTime: null,
+        // v0.15.0：番茄钟配置
+        pomodoro: {
+          focusMin: 25,
+          shortBreakMin: 5,
+          longBreakMin: 15,
+          roundsBeforeLongBreak: 4,
+          autoStartBreak: false,
+          autoStartFocus: false,
+          soundOnFinish: true
+        },
+        // v0.15.0：专注场景偏好
+        focus: {
+          sceneId: 'pink-noise',
+          volume: 0.6
+        },
+        // v0.15.0：数据安全网（自动备份提醒 / 已提醒标记）
+        backupReminder: true,
+        lastExportAt: null,
+        backupSnoozedAt: null,
+        notifiedDue: {},
+        notifiedNotes: {}
       }
     };
   }
@@ -67,8 +90,13 @@
     if (d.settings && !d.settings.theme) {
       settings.theme = settings.darkMode ? 'dark' : (settings.palette || 'classic');
     }
+    // v0.15.0：深层合并嵌套配置，避免旧数据缺失新字段
+    settings.pomodoro = Object.assign({}, base.settings.pomodoro, (d.settings && d.settings.pomodoro) || {});
+    settings.focus = Object.assign({}, base.settings.focus, (d.settings && d.settings.focus) || {});
     return {
       tasks: Array.isArray(d.tasks) ? d.tasks : base.tasks,
+      notes: Array.isArray(d.notes) ? d.notes : base.notes,
+      focusSessions: Array.isArray(d.focusSessions) ? d.focusSessions : base.focusSessions,
       subjects,
       settings
     };
@@ -169,6 +197,97 @@
     emit();
   }
 
+  /* ---------- 便签（v0.15.0） ---------- */
+
+  function normalizeNote(input) {
+    const now = nowIso();
+    return {
+      id: input.id || g.Sugar.util.uuid(),
+      title: String(input.title || '').trim(),
+      content: String(input.content || ''),
+      color: input.color || '#F4B8CE',
+      pinned: !!input.pinned,
+      archived: !!input.archived,
+      tags: Array.isArray(input.tags) ? input.tags.slice() : [],
+      remindAt: input.remindAt || null,
+      createdAt: input.createdAt || now,
+      updatedAt: input.updatedAt || now,
+      isDeleted: !!input.isDeleted
+    };
+  }
+
+  function findNote(id) {
+    return state.notes.find((n) => n.id === id);
+  }
+
+  function addNote(input) {
+    const note = normalizeNote(input);
+    state.notes.push(note);
+    persist();
+    emit();
+    return note;
+  }
+
+  function updateNote(id, patch) {
+    const n = findNote(id);
+    if (!n) return null;
+    Object.assign(n, patch, { updatedAt: nowIso() });
+    if (patch.tags !== undefined && !Array.isArray(patch.tags)) n.tags = [];
+    persist();
+    emit();
+    return n;
+  }
+
+  function deleteNote(id) {
+    const n = findNote(id);
+    if (!n) return;
+    n.isDeleted = true;
+    n.updatedAt = nowIso();
+    persist();
+    emit();
+  }
+
+  function toggleNotePin(id) {
+    const n = findNote(id);
+    if (!n) return null;
+    n.pinned = !n.pinned;
+    n.updatedAt = nowIso();
+    persist();
+    emit();
+    return n;
+  }
+
+  function toggleNoteArchive(id) {
+    const n = findNote(id);
+    if (!n) return null;
+    n.archived = !n.archived;
+    n.updatedAt = nowIso();
+    persist();
+    emit();
+    return n;
+  }
+
+  /* ---------- 专注会话（v0.15.0） ---------- */
+
+  function addFocusSession(input) {
+    const now = nowIso();
+    const session = {
+      id: input.id || g.Sugar.util.uuid(),
+      taskId: input.taskId || null,
+      subject: input.subject || null,
+      sceneId: input.sceneId || null,
+      startAt: input.startAt || now,
+      endAt: input.endAt || now,
+      minutes: Math.max(1, Math.round(input.minutes || 1)),
+      completed: !!input.completed,
+      source: input.source || 'pomodoro'
+    };
+    state.focusSessions.push(session);
+    persist();
+    emit();
+    return session;
+  }
+
   function toggleComplete(id) {
     const t = findTask(id);
     if (!t) return;
@@ -254,6 +373,8 @@
       version: APP_VERSION,
       exportedAt: nowIso(),
       tasks: state.tasks,
+      notes: state.notes,
+      focusSessions: state.focusSessions,
       subjects: state.subjects,
       settings: state.settings
     }, null, 2);
@@ -263,8 +384,12 @@
     const d = typeof json === 'string' ? JSON.parse(json) : json;
     if (!d || !Array.isArray(d.tasks)) throw new Error('不是有效的糖纸备份文件');
     state.tasks = d.tasks.map((t) => normalizeTask(t));
+    state.notes = Array.isArray(d.notes) ? d.notes.map((n) => normalizeNote(n)) : [];
+    state.focusSessions = Array.isArray(d.focusSessions) ? d.focusSessions : [];
     state.subjects = Array.isArray(d.subjects) && d.subjects.length ? d.subjects : DEFAULT_SUBJECTS.map((s) => ({ ...s }));
     state.settings = Object.assign({}, defaultState().settings, d.settings || {});
+    state.settings.pomodoro = Object.assign({}, defaultState().settings.pomodoro, (d.settings && d.settings.pomodoro) || {});
+    state.settings.focus = Object.assign({}, defaultState().settings.focus, (d.settings && d.settings.focus) || {});
     persist();
     emit();
   }
@@ -290,6 +415,12 @@
     addTasks,
     updateTask,
     deleteTask,
+    addNote,
+    updateNote,
+    deleteNote,
+    toggleNotePin,
+    toggleNoteArchive,
+    addFocusSession,
     toggleComplete,
     moveTask,
     importTasks,

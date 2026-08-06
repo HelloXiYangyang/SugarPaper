@@ -147,6 +147,20 @@
       '<div class="progress-ring-wrap">' + ringHtml(s.rate, 'ringGradMain') + '<div class="summary-list">' + summary + '</div></div>' +
       '<div style="font-size:12px;color:var(--text-3);margin-top:10px">' + S.icons.icon('save', 12) + ' ' + rangeNote + '</div></div>' +
 
+      '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('clock', 15) + '</span>专注（番茄钟）</h3>' +
+      '<div class="focus-summary">' +
+      '<div class="focus-num"><b>' + s.focusTodayMinutes + '</b><span>今日分钟</span></div>' +
+      '<div class="focus-num"><b>' + s.focusTodayCount + '</b><span>今日番茄</span></div>' +
+      '<div class="focus-num"><b>' + s.focusStreak + '</b><span>连续天数</span></div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text-3);margin-top:10px">本周专注 ' + s.focusWeekMinutes + ' 分钟 · ' + s.focusWeekCount + ' 个番茄；累计 ' + s.focusTotalMinutes + ' 分钟</div>' +
+      (s.focusSubjectTop.length
+        ? '<div class="top3-list" style="margin-top:10px">' + s.focusSubjectTop.map((x) =>
+            '<div class="top3-item"><span class="dot" style="background:' + store.getSubjectColor(x.name) + '"></span>' +
+            util.escapeHtml(x.name) + '<span class="cnt">' + x.minutes + ' 分钟</span></div>').join('') + '</div>'
+        : '<div style="font-size:12px;color:var(--text-3);margin-top:10px">还没有专注记录，从任务卡「专注」开始你的第一个番茄吧</div>') +
+      '</div>' +
+
       '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('chart-pie', 15) + '</span>科目分布（饼图）</h3>' + pieHtml(s.subjectDist) + '</div>' +
 
       '<div class="stats-card span-2 reveal"><h3><span class="e">' + S.icons.icon('chart-bar', 15) + '</span>每日完成趋势（柱状图）</h3>' + barsHtml(s.barTrend) + '</div>' +
@@ -180,6 +194,12 @@
       '  已完成：' + s.completed + ' 项（' + s.rate + '%）',
       '  进行中：' + s.active + ' 项',
       '  连续完成天数：' + s.streak + ' 天',
+      '',
+      '【专注】',
+      '  今日专注：' + s.focusTodayMinutes + ' 分钟（' + s.focusTodayCount + ' 个番茄）',
+      '  本周专注：' + s.focusWeekMinutes + ' 分钟（' + s.focusWeekCount + ' 个番茄）',
+      '  累计专注：' + s.focusTotalMinutes + ' 分钟',
+      '  连续专注天数：' + s.focusStreak + ' 天',
       '',
       '【科目分布】',
       ...s.subjectDist.map((x) => '  ' + x.name + '：' + x.count + ' 项（' + x.pct + '%）'),

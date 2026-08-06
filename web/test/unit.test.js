@@ -160,4 +160,41 @@ test('周趋势与月趋势结构', () => {
   assert.ok(s.monthTrend.length >= 28);
 });
 
+console.log('\n🍅 专注统计测试（v0.15.0）');
+
+function mkFocusState() {
+  const iso = (daysAgo) => {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  };
+  return {
+    tasks: [],
+    focusSessions: [
+      { id: '1', taskId: 'a', subject: '数学', endAt: iso(0), minutes: 25, completed: true, source: 'pomodoro' },
+      { id: '2', subject: '语文', endAt: iso(0), minutes: 25, completed: true, source: 'pomodoro' },
+      { id: '3', subject: '数学', endAt: iso(1), minutes: 50, completed: true, source: 'pomodoro' },
+      { id: '4', subject: '英语', endAt: iso(3), minutes: 25, completed: true, source: 'countdown' },
+      { id: '5', subject: '数学', endAt: iso(3), minutes: 25, completed: false, source: 'pomodoro' }
+    ]
+  };
+}
+
+test('专注统计：今日/累计分钟与番茄数（未完成不计）', () => {
+  const s = stats.compute(mkFocusState(), 'week');
+  assert.strictEqual(s.focusTodayMinutes, 50);
+  assert.strictEqual(s.focusTodayCount, 2);
+  assert.ok(s.focusWeekMinutes >= 50 && s.focusWeekMinutes <= 125);
+  assert.strictEqual(s.focusTotalCount, 4);
+  assert.strictEqual(s.focusTotalMinutes, 125);
+});
+
+test('专注统计：连续专注天数与科目聚合', () => {
+  const s = stats.compute(mkFocusState(), 'week');
+  assert.ok(s.focusStreak >= 2);
+  assert.strictEqual(s.focusSubjectTop[0].name, '数学');
+  assert.strictEqual(s.focusSubjectTop[0].minutes, 75); // 25（今日）+ 50（昨日）；未完成会话不计
+});
+
 console.log('\n共 ' + passed + ' 项测试通过' + (process.exitCode ? '（存在失败）' : ''));

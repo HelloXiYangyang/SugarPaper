@@ -35,6 +35,33 @@
     return x;
   }
 
+  function endOfWeek(d) {
+    return addDays(startOfWeek(d), 6);
+  }
+
+  /**
+   * 截止时间分级：overdue(已逾期) / today(今天) / tomorrow(明天) / week(本周内) / long(本周以后或未设置)
+   * @param {string|null|undefined} due ISO 日期（YYYY-MM-DD）
+   * @returns {string}
+   */
+  function dueBucket(due) {
+    if (!due) return 'long';
+    const today = todayStr();
+    if (due < today) return 'overdue';
+    if (due === today) return 'today';
+    if (due === toISODate(addDays(parseDate(today), 1))) return 'tomorrow';
+    if (due <= toISODate(endOfWeek(new Date()))) return 'week';
+    return 'long';
+  }
+
+  /** 逾期天数（>=1）；未逾期返回 0 */
+  function overdueDays(due) {
+    if (!due) return 0;
+    const today = parseDate(todayStr());
+    const d = parseDate(due);
+    return Math.max(0, Math.round((today - d) / 86400000));
+  }
+
   function uuid() {
     if (g.crypto && typeof g.crypto.randomUUID === 'function') {
       return g.crypto.randomUUID();
@@ -114,7 +141,7 @@
 
   g.Sugar = g.Sugar || {};
   g.Sugar.util = {
-    toISODate, parseDate, addDays, todayStr, startOfWeek, uuid,
+    toISODate, parseDate, addDays, todayStr, startOfWeek, endOfWeek, dueBucket, overdueDays, uuid,
     escapeHtml, fmtDate, fmtDateShort, fmtDateTime, debounce, isSameDay, weekdayCn, pad,
     avatarHtml
   };

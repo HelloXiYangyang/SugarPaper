@@ -26,6 +26,8 @@
     'chevron-down': '<path d="m6 10 6 6 6-6"/>',
     'chevron-left': '<path d="m14 6-6 6 6 6"/>',
     'chevron-right': '<path d="m10 6 6 6-6 6"/>',
+    pause: '<path d="M8 5v14M16 5v14"/>',
+    music: '<path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
     flag: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
     download: '<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
     upload: '<path d="M12 15V3M7 8l5-5 5 5M4 21h16"/>',

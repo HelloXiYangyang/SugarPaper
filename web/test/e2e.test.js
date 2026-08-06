@@ -62,13 +62,14 @@ async function main() {
 
   console.log('📱 首页（手机 390x844）');
   check('底部导航可见', await page.isVisible('.bottom-nav'));
-  check('底部导航使用 SVG 图标', await page.locator('.bottom-nav svg.ico').count() === 4);
-  check('导航不再使用 emoji 图标', (await page.locator('.bottom-nav').innerText()).replace(/\s+/g, '') === '首页日历统计我的');
+  check('底部导航使用 SVG 图标', await page.locator('.bottom-nav svg.ico').count() === 5);
+  check('导航不再使用 emoji 图标', (await page.locator('.bottom-nav').innerText()).replace(/\s+/g, '') === '首页便签日历统计我的');
   check('顶栏品牌 Logo 使用应用图标', await page.locator('#topbar .brand img.brand-logo[src="icon.svg"]').count() === 1);
   check('加载示例后共有 9 张任务卡', await page.locator('.task-card').count() === 9);
   check('进度胶囊显示 33%', (await page.locator('.progress-pill').innerText()).includes('33%'));
-  check('进行中 6 项', (await page.locator('.task-group.ongoing .g-count').innerText()) === '6');
-  check('已完成 3 项', (await page.locator('.task-group.done .g-count').innerText()) === '3');
+  check('进行中任务合计 6 项', await page.locator('.task-card:not(.completed)').count() === 6);
+  check('已完成任务 3 项', await page.locator('.task-card.completed').count() === 3);
+  check('已渲染截止分级组头', await page.locator('.task-group.due-today, .task-group.due-week, .task-group.due-long').count() >= 1);
   check('科目 Chip 已渲染（全部 + 16 科）', await page.locator('.chip').count() === 17);
   check('包含“体育与健康”科目 Chip', await page.locator('.chip[data-subject="体育与健康"]').count() === 1);
 
@@ -76,10 +77,10 @@ async function main() {
   check('无横向溢出', overflow <= 0, '溢出 ' + overflow + 'px');
 
   console.log('🖱 交互');
-  await page.locator('.task-group.ongoing .action.done').first().click();
+  await page.locator('.task-card:not(.completed) .action.done').first().click();
   await page.waitForTimeout(450); // 等待完成滑出动画（240ms）后分组切换
-  check('点击完成 → 进行中减为 5', (await page.locator('.task-group.ongoing .g-count').innerText()) === '5');
-  check('点击完成 → 已完成增为 4', (await page.locator('.task-group.done .g-count').innerText()) === '4');
+  check('点击完成 → 进行中减为 5', await page.locator('.task-card:not(.completed)').count() === 5);
+  check('点击完成 → 已完成增为 4', await page.locator('.task-card.completed').count() === 4);
 
   await page.locator('#home-search').fill('试卷');
   await page.waitForTimeout(300);
@@ -236,6 +237,48 @@ async function main() {
   const totalAfter = await page.locator('.task-card').count();
   check('追加导入后任务增加 3 项', totalAfter === 12, '实际 ' + totalAfter);
   check('弹窗已关闭', (await page.locator('.modal-mask').count()) === 0);
+
+  console.log('📝 便签');
+  await page.evaluate(() => window.App.navigate('notes'));
+  await page.waitForTimeout(250);
+  check('便签页已渲染', await page.locator('.notes-toolbar').count() === 1);
+  await page.locator('[data-action="new-note"]').first().click();
+  await page.waitForTimeout(200);
+  await page.locator('#note-title').fill('明天带彩纸');
+  await page.locator('#note-content').fill('美术课需要');
+  await page.locator('.modal-foot [data-action="save"]').click();
+  await page.waitForTimeout(250);
+  check('新建便签成功', await page.locator('.note-card').count() === 1);
+  const tasksBefore = await page.evaluate(() => window.Sugar.store.state.tasks.filter((t) => !t.isDeleted).length);
+  await page.locator('.note-card [data-action="to-task"]').click();
+  await page.waitForTimeout(250);
+  const hasPreview = await page.locator('.modal-mask').count();
+  if (hasPreview) {
+    await page.locator('.modal-foot [data-action="ok"]').click();
+    await page.waitForTimeout(250);
+  }
+  const tasksAfter = await page.evaluate(() => window.Sugar.store.state.tasks.filter((t) => !t.isDeleted).length);
+  check('便签转作业成功（任务增加）', tasksAfter > tasksBefore, tasksBefore + ' → ' + tasksAfter);
+
+  console.log('🍅 番茄钟与专注场景');
+  await page.evaluate(() => window.App.navigate('home'));
+  await page.waitForTimeout(200);
+  await page.locator('.task-card:not(.completed) [data-action="focus"]').first().click();
+  await page.waitForTimeout(250);
+  check('专注覆盖层打开', await page.locator('#focus-root').count() === 1);
+  check('专注场景卡片 >= 6', (await page.locator('.scene-card').count()) >= 6, '实际 ' + (await page.locator('.scene-card').count()));
+  await page.locator('#focus-start').click();
+  await page.waitForTimeout(2200);
+  const timeText = await page.locator('#focus-time').innerText();
+  check('计时器走动（25:00 已变化）', timeText !== '25:00', timeText);
+  await page.locator('[data-focus="close"]').click();
+  await page.waitForTimeout(200);
+  check('专注覆盖层关闭', await page.locator('#focus-root').count() === 0);
+
+  console.log('📊 专注统计');
+  await page.evaluate(() => window.App.navigate('stats'));
+  await page.waitForTimeout(250);
+  check('统计页含专注卡片', (await page.locator('.stats-card', { hasText: '专注' }).count()) >= 1);
 
   console.log('💻 响应式布局');
   for (const [w, h, nav] of [[768, 1024, '.top-tabs'], [1024, 900, '.sidebar'], [1440, 900, '.sidebar'], [1700, 1000, '.right-panel']]) {

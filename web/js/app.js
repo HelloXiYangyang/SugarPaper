@@ -13,11 +13,12 @@
 
   const TABS = [
     { id: 'home', icon: 'home', label: '首页' },
+    { id: 'notes', icon: 'file-text', label: '便签' },
     { id: 'calendar', icon: 'calendar', label: '日历' },
     { id: 'stats', icon: 'chart-bar', label: '统计' },
     { id: 'settings', icon: 'user', label: '我的' }
   ];
-  const VIEW_ORDER = ['home', 'calendar', 'stats', 'settings'];
+  const VIEW_ORDER = ['home', 'notes', 'calendar', 'stats', 'settings'];
 
   const App = {
     state: {
@@ -27,7 +28,9 @@
       priority: 'all',
       calMode: 'month',
       calSelected: util.todayStr(),
-      statsRange: 'week'
+      statsRange: 'week',
+      noteTag: '全部',
+      showArchivedNotes: false
     },
 
     init() {
@@ -36,6 +39,7 @@
       this.bindGlobalEvents();
       this.initReveal();
       this.bindScrollEffects();
+      S.reminders.init();
       this.render();
       // 后台测量实际刷新率，供「跟随系统」档位使用
       this.detectFps().then((fps) => {
@@ -164,7 +168,10 @@
         '<div class="ring-text" style="position:relative"><b>' + s.rate + '%</b></div></div>' +
         '<div style="font-size:11px;color:var(--text-3);margin-top:6px">完成 ' + s.completed + '/' + s.total + ' 项</div></div>' +
         '<div class="mini-card"><h4>' + S.icons.icon('chart-bar', 14) + ' 近 7 天完成量</h4><div class="mini-bars">' + bars + '</div></div>' +
-        '<div class="mini-card"><h4>' + S.icons.icon('flame', 14) + ' 连续完成</h4><div style="font-size:20px;font-weight:800">' + s.streak + ' 天</div></div>';
+        '<div class="mini-card"><h4>' + S.icons.icon('flame', 14) + ' 连续完成</h4><div style="font-size:20px;font-weight:800">' + s.streak + ' 天</div></div>' +
+        '<div class="mini-card"><h4>' + S.icons.icon('clock', 14) + ' 今日专注</h4>' +
+        '<div style="font-size:20px;font-weight:800">' + s.focusTodayMinutes + ' 分钟</div>' +
+        '<div style="font-size:11px;color:var(--text-3);margin-top:4px">' + s.focusTodayCount + ' 个番茄 · 本周 ' + s.focusWeekMinutes + ' 分钟</div></div>';
     },
 
     renderView(prev) {
@@ -179,6 +186,7 @@
         wrap.classList.add('view-enter-' + dir);
       }
       if (this.state.view === 'home') S.ui.home.render(wrap);
+      else if (this.state.view === 'notes') S.ui.notes.render(wrap);
       else if (this.state.view === 'calendar') S.ui.calendar.render(wrap);
       else if (this.state.view === 'stats') S.ui.stats.render(wrap);
       else if (this.state.view === 'settings') S.ui.settings.render(wrap);
@@ -252,9 +260,10 @@
           const el = wideSearch() || document.getElementById('home-search');
           if (el) el.focus();
         } else if (k === '1') { e.preventDefault(); this.navigate('home'); }
-        else if (k === '2') { e.preventDefault(); this.navigate('calendar'); }
-        else if (k === '3') { e.preventDefault(); this.navigate('stats'); }
-        else if (k === '4') { e.preventDefault(); this.navigate('settings'); }
+        else if (k === '2') { e.preventDefault(); this.navigate('notes'); }
+        else if (k === '3') { e.preventDefault(); this.navigate('calendar'); }
+        else if (k === '4') { e.preventDefault(); this.navigate('stats'); }
+        else if (k === '5') { e.preventDefault(); this.navigate('settings'); }
       });
 
       window.addEventListener('beforeunload', () => store.persist && store.persist());

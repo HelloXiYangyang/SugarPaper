@@ -245,6 +245,7 @@
     }
 
     dlg.footEl.innerHTML =
+      (existing ? '<button class="btn soft-pink" data-action="to-note">' + S.icons.icon('file-text', 13) + ' 转为便签</button>' : '') +
       '<button class="btn" data-action="cancel">取消</button>' +
       '<button class="btn primary" data-action="save">' + S.icons.icon('save', 13) + ' 保存</button>';
 
@@ -255,6 +256,17 @@
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
       if (btn.dataset.action === 'cancel') { dlg.close(); return; }
+      if (btn.dataset.action === 'to-note') {
+        store.addNote({
+          title: existing.title,
+          content: existing.subtitle || '',
+          tags: ['作业备忘'],
+          color: store.getSubjectColor(existing.subject)
+        });
+        toast('已转为便签（作业保留）');
+        dlg.close();
+        return;
+      }
       const title = dlg.bodyEl.querySelector('#edit-title').value.trim();
       if (!title) { toast('作业内容不能为空'); return; }
       const patch = {
@@ -282,8 +294,146 @@
     });
   }
 
+  /* ---------- 便签编辑器（v0.15.0） ---------- */
+  const NOTE_TEMPLATES = {
+    '考试安排': '【考试安排】\n科目：\n时间：\n地点：\n需要携带：',
+    '老师通知': '【老师通知】\n明天需要……',
+    '物品清单': '【物品清单】\n□ \n□ \n□ ',
+    '回执': '【家长签字回执】\n请家长签名：________'
+  };
+
+  function openNoteEditor(noteId) {
+    const existing = noteId ? store.state.notes.find((n) => n.id === noteId) : null;
+    const colors = S.ui.notes ? S.ui.notes.NOTE_COLORS : ['#F4B8CE', '#FBE6B9', '#BFE8C9', '#B3D4F0', '#C9C7F0', '#E8D5F0', '#FAD1B8', '#F0C9C9'];
+    const swatches = colors.map((c) =>
+      '<button type="button" class="swatch" data-color="' + c + '" style="background:' + c + '"></button>').join('');
+    const dlg = open({
+      title: existing ? '编辑便签' : '新建便签',
+      footer: ''
+    });
+    dlg.bodyEl.innerHTML =
+      '<div class="field"><label>标题（选填）</label><input type="text" id="note-title" placeholder="例如：6月28日数学期末考" value="' +
+      util.escapeHtml(existing ? existing.title : '') + '"></div>' +
+      '<div class="field"><label>内容</label><textarea id="note-content" placeholder="随手记下考试安排、老师通知、明天带什么……">' +
+      util.escapeHtml(existing ? existing.content : '') + '</textarea></div>' +
+      '<div class="field"><label>颜色</label><div class="swatch-row">' + swatches + '</div></div>' +
+      '<div class="field-row">' +
+      '<div class="field"><label>标签</label><select id="note-tag">' +
+      '<option value="">无标签</option>' +
+      (S.ui.notes ? S.ui.notes.NOTE_TAGS.map((t) =>
+        '<option value="' + util.escapeHtml(t) + '"' + (existing && existing.tags && existing.tags.includes(t) ? ' selected' : '') + '>' + util.escapeHtml(t) + '</option>').join('') : '') +
+      '</select></div>' +
+      '<div class="field"><label>提醒时间（可选）</label><input type="datetime-local" id="note-remind" value="' +
+      (existing && existing.remindAt ? toLocalInput(existing.remindAt) : '') + '"></div>' +
+      '</div>' +
+      '<div class="field"><label style="display:flex;align-items:center;gap:8px;cursor:pointer">' +
+      '<input type="checkbox" id="note-pinned" style="width:16px;height:16px"' + (existing && existing.pinned ? ' checked' : '') + '> 置顶</label></div>' +
+      '<div class="field"><label>模板</label><div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      Object.keys(NOTE_TEMPLATES).map((t) =>
+        '<button type="button" class="btn small" data-template="' + util.escapeHtml(t) + '">' + util.escapeHtml(t) + '</button>').join('') +
+      '</div></div>';
+    dlg.footEl.innerHTML =
+      (existing ? '<button class="btn soft-pink" data-action="to-task">' + S.icons.icon('list', 13) + ' 转为作业</button>' : '') +
+      '<button class="btn" data-action="cancel">取消</button>' +
+      '<button class="btn primary" data-action="save">' + S.icons.icon('save', 13) + ' 保存</button>';
+
+    let color = existing ? existing.color : colors[0];
+    dlg.bodyEl.querySelectorAll('.swatch').forEach((s) => {
+      if (s.dataset.color === color) s.classList.add('active');
+      s.addEventListener('click', () => {
+        color = s.dataset.color;
+        dlg.bodyEl.querySelectorAll('.swatch').forEach((x) => x.classList.remove('active'));
+        s.classList.add('active');
+      });
+    });
+    dlg.bodyEl.querySelectorAll('[data-template]').forEach((b) => {
+      b.addEventListener('click', () => {
+        dlg.bodyEl.querySelector('#note-content').value = NOTE_TEMPLATES[b.dataset.template];
+        dlg.bodyEl.querySelector('#note-title').focus();
+      });
+    });
+    dlg.footEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action === 'cancel') { dlg.close(); return; }
+      if (btn.dataset.action === 'to-task' && existing) {
+        noteToTask(existing.id);
+        dlg.close();
+        return;
+      }
+      const title = dlg.bodyEl.querySelector('#note-title').value.trim();
+      const content = dlg.bodyEl.querySelector('#note-content').value.trim();
+      if (!title && !content) { toast('便签内容不能为空'); return; }
+      const tag = dlg.bodyEl.querySelector('#note-tag').value;
+      const remindVal = dlg.bodyEl.querySelector('#note-remind').value;
+      const patch = {
+        title,
+        content,
+        color,
+        pinned: dlg.bodyEl.querySelector('#note-pinned').checked,
+        tags: tag ? [tag] : [],
+        remindAt: remindVal ? new Date(remindVal).toISOString() : null
+      };
+      if (existing) {
+        store.updateNote(existing.id, patch);
+        toast('便签已保存');
+      } else {
+        store.addNote(patch);
+        toast('便签已添加');
+      }
+      dlg.close();
+      g.App && g.App.render();
+    });
+  }
+
+  function toLocalInput(iso) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
+      'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  /** 便签 → 作业：优先复用解析引擎；解析不到时降级为单条任务 */
+  function noteToTask(noteId) {
+    const n = store.state.notes.find((x) => x.id === noteId);
+    if (!n) return;
+    const text = ((n.title || '') + '\n' + (n.content || '')).trim();
+    const tasks = S.parser.parse(text, store.state.subjects);
+    if (tasks.length) {
+      const items = tasks.map((t, i) => {
+        const color = store.getSubjectColor(t.subject);
+        return '<div class="p-item" style="--i:' + i + '"><span class="p-sub" style="background:' + color + '">' +
+          util.escapeHtml(t.subject) + '</span><span class="p-title">' + util.escapeHtml(t.title) + '</span></div>';
+      }).join('');
+      const dlg = open({
+        title: '便签转为作业',
+        body:
+          '<div style="font-size:13px;color:var(--text-2);margin-bottom:10px">解析到 <b>' + tasks.length + '</b> 项作业，将追加到作业清单：</div>' +
+          '<div class="preview-list">' + items + '</div>',
+        footer: ''
+      });
+      dlg.footEl.innerHTML =
+        '<button class="btn" data-action="cancel">取消</button>' +
+        '<button class="btn primary" data-action="ok">' + S.icons.icon('list', 13) + ' 追加为作业</button>';
+      dlg.footEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        if (btn.dataset.action === 'cancel') { dlg.close(); return; }
+        store.importTasks(tasks, 'append');
+        toast('已追加 ' + tasks.length + ' 项作业');
+        dlg.close();
+        g.App && g.App.render();
+      });
+      return;
+    }
+    const title = n.title || ((n.content || '').split('\n')[0] || '便签').slice(0, 30);
+    store.addTask({ subject: '默认', title, subtitle: n.content || '' });
+    toast('已转为作业');
+    g.App && g.App.render();
+  }
+
   g.Sugar = g.Sugar || {};
   g.Sugar.ui = g.Sugar.ui || {};
-  g.Sugar.ui.modal = { open, closeAll, confirm, prompt, openImport, openEdit };
+  g.Sugar.ui.modal = { open, closeAll, confirm, prompt, openImport, openEdit, openNoteEditor, noteToTask };
   g.Sugar.ui.toast = toast;
 })(typeof window !== 'undefined' ? window : globalThis);

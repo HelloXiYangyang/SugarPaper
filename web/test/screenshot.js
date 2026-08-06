@@ -72,7 +72,10 @@ async function main() {
     ['settings-mobile', 390, 844, 'settings'],
     ['theme-bluegreen', 1440, 900, 'settings', 'bluegreen'],
     ['theme-dark', 1440, 900, 'settings', 'dark'],
-    ['import-modal', 390, 844, null]
+    ['import-modal', 390, 844, null],
+    ['notes-mobile', 390, 844, 'notes'],
+    ['notes-desktop', 1440, 900, 'notes'],
+    ['focus-mobile', 390, 844, null]
   ];
 
   for (const [name, w, h, view, theme] of shots) {
@@ -80,9 +83,13 @@ async function main() {
     if (view) await page.evaluate((v) => window.App.navigate(v), view);
     if (theme) await page.evaluate((t) => window.Sugar.store.updateSettings({ theme: t }), theme);
     if (name === 'import-modal') await page.evaluate(() => window.Sugar.ui.modal.openImport());
+    if (name === 'focus-mobile') {
+      await page.evaluate(() => window.Sugar.ui.focus.open(null));
+    }
     await page.waitForTimeout(350);
     await page.screenshot({ path: path.join(outDir, name + '.png'), fullPage: false });
     if (name === 'import-modal') await page.evaluate(() => window.Sugar.ui.modal.closeAll());
+    if (name === 'focus-mobile') await page.evaluate(() => window.Sugar.ui.focus.close());
     console.log('📸 ' + name + ' (' + w + 'x' + h + ')');
   }
 

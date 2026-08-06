@@ -36,12 +36,33 @@
       (a.completedAt || a.updatedAt) < (b.completedAt || b.updatedAt) ? -1 : 1);
   }
 
+  // 截止分级（v0.15.0）：逾期置顶，依次为今天 / 明天 / 本周 / 长期
+  const DUE_GROUPS = [
+    { key: 'overdue', label: '已逾期', icon: 'flame', cls: 'due-overdue' },
+    { key: 'today', label: '今天', icon: 'sun', cls: 'due-today' },
+    { key: 'tomorrow', label: '明天', icon: 'clock', cls: 'due-tomorrow' },
+    { key: 'week', label: '本周', icon: 'calendar', cls: 'due-week' },
+    { key: 'long', label: '长期', icon: 'list', cls: 'due-long' }
+  ];
+
+  function sortActiveByDue(list) {
+    const order = { overdue: 0, today: 1, tomorrow: 2, week: 3, long: 4 };
+    return list.slice().sort((a, b) => {
+      const ba = order[util.dueBucket(a.dueDate)];
+      const bb = order[util.dueBucket(b.dueDate)];
+      if (ba !== bb) return ba - bb;
+      if ((b.priority || 0) !== (a.priority || 0)) return (b.priority || 0) - (a.priority || 0);
+      return (a.order || 0) - (b.order || 0) || (a.createdAt < b.createdAt ? -1 : 1);
+    });
+  }
+
   function dueTagHtml(t) {
     if (!t.dueDate) return '';
     const today = util.todayStr();
     const overdue = !t.isCompleted && t.dueDate < today;
+    const days = overdue ? util.overdueDays(t.dueDate) : 0;
     return '<span class="tag due' + (overdue ? ' overdue' : '') + '">' + S.icons.icon('calendar', 12) + ' ' + util.escapeHtml(util.fmtDate(t.dueDate)) +
-      (overdue ? ' 已逾期' : '') + '</span>';
+      (overdue ? ' 已逾期 ' + days + ' 天' : '') + '</span>';
   }
 
   function prioTagHtml(p) {
@@ -59,7 +80,8 @@
         '<button class="action del" data-action="del">' + S.icons.icon('trash', 13) + ' 删除</button>' +
         '<span class="grow"></span>' +
         '<span class="tag done-time">' + S.icons.icon('check', 12) + ' ' + util.escapeHtml(util.fmtDateTime(t.completedAt)) + '</span>'
-      : '<button class="action done" data-action="toggle">' + S.icons.icon('check', 13) + ' 完成</button>' +
+      : '<button class="action focus" data-action="focus">' + S.icons.icon('clock', 13) + ' 专注</button>' +
+        '<button class="action done" data-action="toggle">' + S.icons.icon('check', 13) + ' 完成</button>' +
         '<button class="action edit" data-action="edit">' + S.icons.icon('edit', 13) + '</button>' +
         '<button class="action del" data-action="del">' + S.icons.icon('trash', 13) + '</button>' +
         '<span class="grow"></span>' +
@@ -98,6 +120,23 @@
     return items.join('');
   }
 
+  // 数据安全网（v0.15.0）：超过 7 天未导出时在首页提示
+  function backupBannerHtml() {
+    const set = store.state.settings;
+    const active = store.state.tasks.filter((t) => !t.isDeleted).length;
+    if (!set.backupReminder || !active) return '';
+    if (set.backupSnoozedAt === util.todayStr()) return '';
+    const last = set.lastExportAt ? new Date(set.lastExportAt).getTime() : 0;
+    const days = last ? Math.max(0, Math.floor((Date.now() - last) / 86400000)) : null;
+    if (days !== null && days < 7) return '';
+    return '<div class="backup-banner reveal">' +
+      '<span class="bb-text">' + S.icons.icon('save', 14) + ' ' +
+      (days === null ? '你还没有导出过备份，建议导出一份以防数据丢失' : '距上次备份已 ' + days + ' 天，建议导出一份备份') + '</span>' +
+      '<button class="btn small soft-pink" data-action="export">立即备份</button>' +
+      '<button class="icon-btn" data-action="snooze" title="今天先不了">' + S.icons.icon('close', 13) + '</button>' +
+      '</div>';
+  }
+
   function groupHtml(label, iconName, count, listHtml, cls) {
     return '<section class="task-group ' + cls + '">' +
       '<div class="task-group-head"><span class="g-label">' + S.icons.icon(iconName, 15) + ' ' + util.escapeHtml(label) + '</span>' +
@@ -108,7 +147,7 @@
   function render(wrap) {
     const hadFocus = document.activeElement && document.activeElement.id === 'home-search';
     const tasks = filterTasks();
-    const active = sortActive(tasks.filter((t) => !t.isCompleted));
+    const active = sortActiveByDue(tasks.filter((t) => !t.isCompleted));
     const done = sortDone(tasks.filter((t) => t.isCompleted));
     const allTasks = store.state.tasks.filter((t) => !t.isDeleted).length;
 
@@ -140,16 +179,23 @@
       '<div class="chips">' + chipsHtml() + '</div>' +
       '</div>';
 
+    const activeGroups = DUE_GROUPS
+      .map((g) => {
+        const list = active.filter((t) => util.dueBucket(t.dueDate) === g.key);
+        if (!list.length) return '';
+        return groupHtml(g.label, g.icon, list.length, list.map(cardHtml).join(''), g.cls);
+      })
+      .join('');
     const activeHtml = active.length
-      ? active.map(cardHtml).join('')
+      ? activeGroups
       : '<div class="empty"><div class="big">' + S.icons.icon('sparkles', 40) + '</div>太棒啦，这里空空如也！</div>';
     const doneHtml = done.length
       ? done.map(cardHtml).join('')
       : '<div class="empty"><div class="big">' + S.icons.icon('sun', 40) + '</div>还没有完成的作业，加油！</div>';
 
-    html = chips +
+    html = backupBannerHtml() + chips +
       '<div class="task-columns">' +
-      groupHtml('进行中', 'pin', active.length, activeHtml, 'ongoing') +
+      activeHtml +
       groupHtml('已完成', 'check', done.length, doneHtml, 'done') +
       '</div>';
 
@@ -207,6 +253,23 @@
       const action = btn.dataset.action;
       if (action === 'import') { S.ui.modal.openImport(); return; }
       if (action === 'sample') { g.App.loadSample(); return; }
+      if (action === 'export') {
+        const blob = new Blob([store.exportJSON()], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = '糖纸-备份-' + util.todayStr() + '.json';
+        link.click();
+        URL.revokeObjectURL(link.href);
+        store.updateSettings({ lastExportAt: new Date().toISOString() });
+        S.ui.toast('📤 数据已导出');
+        g.App.renderView();
+        return;
+      }
+      if (action === 'snooze') {
+        store.updateSettings({ backupSnoozedAt: util.todayStr() });
+        g.App.renderView();
+        return;
+      }
       const card = btn.closest('.task-card');
       if (!card) return;
       const id = card.dataset.id;
@@ -219,6 +282,8 @@
         }, 230);
       } else if (action === 'edit') {
         S.ui.modal.openEdit(id);
+      } else if (action === 'focus') {
+        S.ui.focus.open(id);
       } else if (action === 'del') {
         const t = store.state.tasks.find((x) => x.id === id);
         S.ui.modal.confirm({

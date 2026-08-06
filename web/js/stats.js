@@ -135,6 +135,36 @@
       ? Math.round(weekTrend.reduce((s, d) => s + (d.count ? 100 : 0), 0) / weekTrend.length)
       : 0;
 
+    // 专注统计（v0.15.0）：来自番茄钟 / 倒计时 / 无限专注的已完成会话
+    const sessions = (state.focusSessions || []).filter((s) => s.completed);
+    const focusToday = sessions.filter((s) => toDateStr(new Date(s.endAt)) === today);
+    const focusWeek = sessions.filter((s) => {
+      const d = new Date(s.endAt);
+      return d >= weekStart && d <= now;
+    });
+    const focusTodayMinutes = focusToday.reduce((sum, s) => sum + (s.minutes || 0), 0);
+    const focusWeekMinutes = focusWeek.reduce((sum, s) => sum + (s.minutes || 0), 0);
+    const focusTotalMinutes = sessions.reduce((sum, s) => sum + (s.minutes || 0), 0);
+
+    // 连续专注天数（含今天；今天还没有则从昨天起算）
+    let focusStreak = 0;
+    let fCursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const hasOn = (d) => sessions.some((s) => toDateStr(new Date(s.endAt)) === toDateStr(d));
+    if (!hasOn(fCursor)) fCursor = addDays(fCursor, -1);
+    while (hasOn(fCursor)) {
+      focusStreak++;
+      fCursor = addDays(fCursor, -1);
+    }
+
+    const focusBySubject = {};
+    sessions.forEach((s) => {
+      if (s.subject) focusBySubject[s.subject] = (focusBySubject[s.subject] || 0) + (s.minutes || 0);
+    });
+    const focusSubjectTop = Object.keys(focusBySubject)
+      .map((name) => ({ name, minutes: focusBySubject[name] }))
+      .sort((a, b) => b.minutes - a.minutes)
+      .slice(0, 3);
+
     const barTrend = range === 'today' ? dailyTrend.slice(-1)
       : range === 'week' ? weekTrend
         : range === 'month' ? monthTrend
@@ -155,6 +185,14 @@
       weekCompleted: countCompletedOn(tasks, today) + weekTrend.slice(0, -1).reduce((s, d) => s + d.count, 0),
       streak,
       weekRate,
+      focusTodayMinutes,
+      focusTodayCount: focusToday.length,
+      focusWeekMinutes,
+      focusWeekCount: focusWeek.length,
+      focusTotalMinutes,
+      focusTotalCount: sessions.length,
+      focusStreak,
+      focusSubjectTop,
       dailyTrend,
       weekTrend,
       monthTrend,

@@ -37,11 +37,35 @@
   }
 
   function switchRow(iconName, title, desc, key) {
-    const checked = store.state.settings[key] ? ' checked' : '';
+    const checked = getSetting(key) ? ' checked' : '';
     return '<div class="settings-row"><span class="row-icon">' + S.icons.icon(iconName, 15) + '</span>' +
       '<div class="row-body"><div class="row-title">' + title + '</div>' +
       '<div class="row-desc">' + desc + '</div></div>' +
       '<span class="row-action switch"><input type="checkbox" data-toggle="' + key + '"' + checked + '><span class="track"></span><span class="thumb"></span></span></div>';
+  }
+
+  function getSetting(key) {
+    return key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), store.state.settings);
+  }
+
+  function patchSetting(key, val) {
+    const ks = key.split('.');
+    if (ks.length === 1) {
+      store.updateSettings({ [ks[0]]: val });
+    } else {
+      const inner = Object.assign({}, store.state.settings[ks[0]] || {});
+      inner[ks[1]] = val;
+      store.updateSettings({ [ks[0]]: inner });
+    }
+  }
+
+  function segRow(iconName, title, desc, id, options, attr, activeVal) {
+    return '<div class="settings-row"><span class="row-icon">' + S.icons.icon(iconName, 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">' + title + '</div>' +
+      '<div class="row-desc">' + desc + '</div></div>' +
+      '<span class="row-action seg" id="' + id + '">' +
+      options.map((v) => '<button data-' + attr + '="' + v + '"' + (activeVal === v ? ' class="active"' : '') + '>' + v + '</button>').join('') +
+      '</span></div>';
   }
 
   function subjectRowHtml(s, i) {
@@ -82,7 +106,7 @@
       '<div class="row-body"><div class="row-title">流畅度自测</div>' +
       '<div class="row-desc" id="fps-result">测量当前实际显示帧率</div></div>' +
       '<button class="btn small" data-action="fps-test">测一测</button></div>' +
-      switchRow('bell', '通知提醒', '截止日期提醒（浏览器支持时）', 'notifications') +
+      switchRow('bell', '通知提醒', '截止日期与便签提醒（浏览器支持时）', 'notifications') +
       switchRow('globe', '互联网模式', '跨网络同步（WebRTC · 规划中）', 'internetMode') +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('sparkles', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">主题</div>' +
@@ -91,6 +115,32 @@
       THEMES.map((p) =>
         '<button class="palette-swatch' + (set.theme === p[0] ? ' active' : '') + '" data-theme-swatch="' + p[0] + '" title="' + p[1] + '" style="background:' + p[2] + '"></button>').join('') +
       '</span></div>' +
+      '</div>' +
+
+      '<div class="settings-card reveal"><h3>🍅 番茄钟与专注场景</h3>' +
+      segRow('clock', '专注时长', '一个番茄的时长（分钟）', 'pomo-focus-seg', [25, 45, 60], 'pomo-focus', set.pomodoro.focusMin) +
+      segRow('moon', '短休息', '专注之间的短休息（分钟）', 'pomo-break-seg', [5, 10, 15], 'pomo-break', set.pomodoro.shortBreakMin) +
+      segRow('sun', '长休息', '每 4 轮番茄后的长休息（分钟）', 'pomo-long-seg', [15, 20, 30], 'pomo-long', set.pomodoro.longBreakMin) +
+      switchRow('bolt', '自动进入休息', '专注结束自动开始休息（否则暂停等待）', 'pomodoro.autoStartBreak') +
+      switchRow('bell', '完成提示音', '番茄完成时播放提示音', 'pomodoro.soundOnFinish') +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('music', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">默认专注场景</div>' +
+      '<div class="row-desc">开始专注时自动播放的声音环境</div></div>' +
+      '<span class="row-action"><select id="focus-scene">' +
+      (S.ui.focus ? S.ui.focus.SCENES.filter((s) => !s.disabled).map((s) =>
+        '<option value="' + s.id + '"' + (set.focus.sceneId === s.id ? ' selected' : '') + '>' + s.emoji + ' ' + util.escapeHtml(s.name) + '</option>').join('') : '') +
+      '</select></span></div>' +
+      '</div>' +
+
+      '<div class="settings-card reveal"><h3>数据安全网</h3>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('save', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">上次导出备份</div>' +
+      '<div class="row-desc" id="last-export-time">' + (set.lastExportAt ? util.fmtDateTime(set.lastExportAt) : '从未导出') + '</div></div>' +
+      '<button class="btn small soft-pink" data-action="export-data">立即备份</button></div>' +
+      switchRow('bell', '自动备份提醒', '超过 7 天未导出时在首页提示', 'backupReminder') +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('save', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">存储用量</div>' +
+      '<div class="row-desc" id="storage-usage">计算中…</div></div></div>' +
       '</div>' +
 
       '<div class="settings-card reveal"><h3>数据管理</h3>' +
@@ -127,13 +177,64 @@
   function bind(wrap) {
     wrap.querySelectorAll('input[data-toggle]').forEach((inp) => {
       inp.addEventListener('change', () => {
-        store.updateSettings({ [inp.dataset.toggle]: inp.checked });
+        patchSetting(inp.dataset.toggle, inp.checked);
         g.App.applyPrefs();
         if (inp.dataset.toggle === 'notifications' && inp.checked && g.Notification && g.Notification.requestPermission) {
           g.Notification.requestPermission();
         }
       });
     });
+
+    const pomoFocus = wrap.querySelector('#pomo-focus-seg');
+    if (pomoFocus) {
+      pomoFocus.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-pomo-focus]');
+        if (!btn) return;
+        patchSetting('pomodoro.focusMin', +btn.dataset.pomoFocus);
+        g.App.renderView();
+      });
+    }
+    const pomoBreak = wrap.querySelector('#pomo-break-seg');
+    if (pomoBreak) {
+      pomoBreak.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-pomo-break]');
+        if (!btn) return;
+        patchSetting('pomodoro.shortBreakMin', +btn.dataset.pomoBreak);
+        g.App.renderView();
+      });
+    }
+    const pomoLong = wrap.querySelector('#pomo-long-seg');
+    if (pomoLong) {
+      pomoLong.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-pomo-long]');
+        if (!btn) return;
+        patchSetting('pomodoro.longBreakMin', +btn.dataset.pomoLong);
+        g.App.renderView();
+      });
+    }
+    const sceneSel = wrap.querySelector('#focus-scene');
+    if (sceneSel) {
+      sceneSel.addEventListener('change', () => {
+        patchSetting('focus.sceneId', sceneSel.value);
+        S.ui.toast('默认场景已更新');
+      });
+    }
+    if (g.navigator && g.navigator.storage && g.navigator.storage.estimate) {
+      g.navigator.storage.estimate().then((est) => {
+        const el = wrap.querySelector('#storage-usage');
+        if (!el) return;
+        const used = est.usage || 0;
+        const quota = est.quota || 0;
+        const usedKb = (used / 1024).toFixed(0);
+        const quotaMb = (quota / 1024 / 1024).toFixed(0);
+        const pct = quota ? Math.round((used / quota) * 100) : 0;
+        el.innerHTML = '已用 ' + usedKb + ' KB / 可用约 ' + quotaMb + ' MB（' + pct + '%）' +
+          (pct > 80 ? ' · <span style="color:var(--danger-strong)">空间紧张，建议导出备份</span>' : '');
+      }).catch(() => {
+        const el = wrap.querySelector('#storage-usage');
+        if (el) el.textContent = '当前浏览器不支持估算';
+      });
+    }
 
     const fpsSeg = wrap.querySelector('#fps-seg');
     if (fpsSeg) {
@@ -185,7 +286,9 @@
           link.download = '糖纸-备份-' + util.todayStr() + '.json';
           link.click();
           URL.revokeObjectURL(link.href);
+          store.updateSettings({ lastExportAt: new Date().toISOString() });
           S.ui.toast('📤 数据已导出');
+          g.App.renderView();
         } else if (a === 'import-data') {
           wrap.querySelector('#import-file').click();
         } else if (a === 'sample') {
