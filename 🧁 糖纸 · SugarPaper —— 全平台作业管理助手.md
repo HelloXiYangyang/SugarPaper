@@ -21,6 +21,7 @@
 > **v4.14 变更（2026-08-06）**：Web 版实现 S1 本地增强包——首页截止分级（已逾期/今天/明天/本周/长期）与逾期置顶、便签模块（置顶/归档/颜色/标签/模板/转作业）、提醒引擎（截止+便签）、数据安全网（备份提醒+存储用量）、番茄钟与 Web Audio 合成白噪音专注场景 v1、专注统计；数据模型新增 `Note` / `FocusSession` 与 `pomodoro` / `focus` / `backupReminder` 等设置；导航升级为 5 Tab（首页/便签/日历/统计/我的）；本版总纲为《统一开发方案 v5.0》，后续各平台开发以其为准。
 > **v4.15 变更（2026-08-07）**：Web 版实现 S2 无服务器账号与云端同步——12 词助记词即账号（PBKDF2 → Ed25519，AES-256-GCM 端到端加密 + 签名验签）、Nostr 中继云端桥（加密快照拉取/推送、按 updatedAt 逐条合并）、账号创建/恢复/备份助记词/中继配置/设备管理界面；数据模型新增 `Account` / `Device` / `SyncChannelConfig`（Web 版先落地 account + settings.sync）；WebRTC 在线直连列为后续通道；同步协议详见《统一开发方案 v5.0》§5。
 > **v4.16 变更（2026-08-07）**：Web 版实现 S3 场景深化——解析器支持中文数字编号与打卡/背诵任务分类（`Task.taskType`）、导入未解析行提示；番茄钟新增呼吸引导与双音轨混音（`AppSettings.focus.mixSceneId/mixVolume`）；家庭模式（`AppSettings.familyProfiles` 成员档案切换 + `Task.confirmed` 家长确认）；统计新增准时完成率与科目欠账加权排行。
+> **v4.17 变更（2026-08-07）**：Web 版补全 S2 的 WebRTC 在线直连（P2P）——Nostr 中继交换信令（kind 19323）+ RTCPeerConnection DataChannel 直接互传加密快照；两端对称建链（negotiated id 0）与 glare 回滚；设置页直连状态与按钮；同步通道现为「中继云端桥 + 在线直连」双通道（详见《统一开发方案 v5.0》§5）。
 
 ---
 

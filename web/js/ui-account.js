@@ -70,6 +70,12 @@
       '<div class="row-desc" id="sync-status">' + statusText() + ' · 上次同步 ' + lastSync +
       (S.sync.status.lastError ? ' · ' + util.escapeHtml(S.sync.status.lastError) : '') + '</div></div>' +
       '<button class="btn small" data-action="sync-now">立即同步</button></div>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('bolt', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">在线直连（P2P）</div>' +
+      '<div class="row-desc" id="direct-status">' + util.escapeHtml(S.sync.directStatusText()) + '</div></div>' +
+      '<button class="btn small" data-action="direct-sync">' +
+      (S.sync.direct.status === 'off' || S.sync.direct.status === 'error' ? '直连' : '停止') +
+      '</button></div>' +
       switchRow('bolt', '自动同步', '数据变化后自动同步到云端桥（中继）', 'sync.autoSync') +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('paperclip', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">同步中继</div>' +
@@ -306,6 +312,12 @@
         });
       } else if (a === 'sync-now') {
         S.sync.syncNow();
+      } else if (a === 'direct-sync') {
+        if (S.sync.direct.status === 'off' || S.sync.direct.status === 'error') {
+          S.sync.directSync();
+        } else {
+          S.sync.stopDirect();
+        }
       } else if (a === 'configure-relays') {
         openRelays();
       } else if (a === 'add-family') {
