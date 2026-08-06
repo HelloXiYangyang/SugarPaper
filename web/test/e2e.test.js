@@ -259,6 +259,30 @@ async function main() {
   await page.waitForTimeout(250);
   check('恢复经典白', await page.evaluate(() => document.documentElement.dataset.theme === 'light' && document.documentElement.dataset.palette === 'classic'));
 
+  console.log('🧑‍🏫 教师模式（S11）');
+  await page.locator('[data-action="open-teacher"]').click();
+  await page.waitForTimeout(250);
+  check('教师模式弹窗打开', await page.locator('#t-subject').count() === 1);
+  await page.locator('#t-subject').selectOption('数学');
+  await page.locator('#t-title').fill('试卷一张');
+  await page.locator('#t-due').fill('2026-08-08');
+  await page.locator('[data-action="t-add"]').click();
+  await page.waitForTimeout(150);
+  await page.locator('#t-title').fill('默写判定方法');
+  await page.locator('[data-action="t-add"]').click();
+  await page.waitForTimeout(150);
+  check('已添加两条作业条目', await page.locator('.teacher-chip').count() === 2);
+  await page.locator('[data-action="t-generate"]').click();
+  await page.waitForTimeout(150);
+  const teacherOut = await page.locator('#t-output').inputValue();
+  check('生成文本含科目行与编号', teacherOut.includes('数学') && teacherOut.includes('1.试卷一张（8月8日交）') && teacherOut.includes('2.默写判定方法'));
+  const dlT = page.waitForEvent('download', { timeout: 8000 });
+  await page.locator('.modal-foot [data-action="download"]').click();
+  const dlTxt = await dlT;
+  check('下载作业文本 .txt', dlTxt.suggestedFilename().endsWith('.txt'), dlTxt.suggestedFilename());
+  await page.locator('.modal-foot [data-action="close"]').click();
+  await page.waitForTimeout(150);
+
   console.log('🖼 头像');
   check('默认头像为喜羊羊图片', await page.locator('#topbar [data-nav="settings"] img.avatar[src="assets/avatar-default.jpg"]').count() === 1);
   await page.locator('[data-action="change-avatar"]').click();

@@ -15,6 +15,7 @@ const syncmod = require(path.join(__dirname, '..', 'js', 'sync.js'));
 const md = require(path.join(__dirname, '..', 'js', 'markdown.js'));
 const report = require(path.join(__dirname, '..', 'js', 'report.js'));
 const util = require(path.join(__dirname, '..', 'js', 'util.js'));
+const teacher = require(path.join(__dirname, '..', 'js', 'teacher.js'));
 
 const subjects = [
   { name: '数学' }, { name: '语文' }, { name: '英语' },
@@ -230,6 +231,22 @@ test('dayMarkers：考试便签与专注分钟', () => {
   const mk2 = stats.dayMarkers(notes, sessions, yesterday);
   assert.strictEqual(mk2.exam, false);
   assert.strictEqual(mk2.focusMin, 30);
+});
+
+console.log('\n🧑‍🏫 教师模式测试（v0.25.0）');
+
+test('buildHomeworkText 按科目分组生成标准格式', () => {
+  const text = teacher.buildHomeworkText([
+    { subject: '数学', title: '试卷一张', dueDate: '2026-08-08', priority: 1 },
+    { subject: '数学', title: '默写判定方法', priority: 2 },
+    { subject: '语文', title: '背诵《望岳》', priority: 0 }
+  ]);
+  const lines = text.split('\n');
+  assert.strictEqual(lines[0], '数学');
+  assert.strictEqual(lines[1], '1.试卷一张（8月8日交）');
+  assert.strictEqual(lines[2], '2.默写判定方法（必做）');
+  assert.strictEqual(lines[3], '语文');
+  assert.strictEqual(lines[4], '1.背诵《望岳》（选做）');
 });
 
 test('识别小初高 16 科默认词表（体育与健康/通用技术/综合实践活动等）', () => {

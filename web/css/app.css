@@ -703,6 +703,31 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 }
 .task-img:hover { transform: scale(1.06); box-shadow: var(--shadow-sm); }
 
+/* ---------- 教师模式（v0.25.0） ---------- */
+.teacher-hint {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--sky-strong);
+  background: var(--sky-soft); border: 1px solid var(--sky);
+  border-radius: 10px; padding: 8px 10px; margin-bottom: 12px; line-height: 1.5;
+}
+.teacher-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.teacher-row select, .teacher-row input[type="text"], .teacher-row input[type="date"] {
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 10px; padding: 8px 10px; font-size: 13px; outline: none;
+}
+.teacher-row input[type="text"] { flex: 1; min-width: 180px; }
+.teacher-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.teacher-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 5px 8px 5px 12px; font-size: 12px; font-weight: 600;
+}
+.teacher-chip button {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface-3); color: var(--text-2);
+}
+
 /* ---------- 统计：专注卡片（v0.15.0） ---------- */
 .focus-summary { display: flex; gap: 10px; }
 .focus-num { flex: 1; background: var(--surface-2); border-radius: 12px; padding: 12px 8px; text-align: center; }

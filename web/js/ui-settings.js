@@ -144,6 +144,13 @@
       (S.ui.account ? S.ui.account.cardHtml() : '') +
       (S.ui.account ? S.ui.account.familyCardHtml() : '') +
 
+      '<div class="settings-card reveal"><h3>🧑‍🏫 教师模式</h3>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('file-text', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">布置作业</div>' +
+      '<div class="row-desc">按标准格式排好作业，复制/下载发到班级群；学生粘贴进糖纸即可一键导入</div></div>' +
+      '<button class="btn small soft-pink" data-action="open-teacher">打开</button></div>' +
+      '</div>' +
+
       '<div class="settings-card reveal"><h3>数据安全网</h3>' +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('save', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">上次导出备份</div>' +
@@ -330,6 +337,8 @@
           });
         } else if (a === 'add-subject') {
           openSubjectModal();
+        } else if (a === 'open-teacher') {
+          S.ui.teacher.openTeacherModal();
         }
         return;
       }
