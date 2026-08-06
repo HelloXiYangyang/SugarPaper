@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /* 糖纸 · SugarPaper —— 统计引擎（纯函数，可单测） */
 (function (g) {
   'use strict';

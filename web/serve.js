@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 // 极简静态服务器：node serve.js [port]
 const http = require('http');
 const fs = require('fs');

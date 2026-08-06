@@ -296,4 +296,36 @@ web/
 
 ---
 
+## 📜 开源协议
+
+本项目基于 **GNU Affero General Public License v3.0（AGPLv3）** 开源发布，完整协议文本见 [LICENSE](./LICENSE)。
+
+您可以自由使用、修改与分发本项目，但须遵守 AGPLv3 相关条款；若将本项目（或其修改版）作为网络服务对外提供，需按协议要求公开对应的完整源代码。
+
+### 版权声明维护规范
+
+每个源码文件（HTML / CSS / JS / SVG / 测试脚本等）顶部必须包含版权声明，且格式统一如下。**缺少以下声明的源码文件，一律按此格式补充；新增源码文件也必须自带该声明。**
+
+JS / CSS / 测试脚本：
+
+```c
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+```
+
+HTML / SVG：
+
+```html
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+```
+
+> 注：JSON 等不支持注释的文件（如 `manifest.webmanifest`）属于豁免项，不强制添加。
+
+---
+
 *维护者：Kun（按 PRD v4.0 逐步实施）*

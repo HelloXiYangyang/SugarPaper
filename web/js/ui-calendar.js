@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /* 糖纸 · SugarPaper —— 日历视图（月 / 周） */
 (function (g) {
   'use strict';

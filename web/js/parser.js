@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /* 糖纸 · SugarPaper —— 文本解析引擎
    粘贴老师消息 → 科目行 / 编号条目 / 子行 → 结构化任务列表
    纯正则实现，无外部依赖。 */

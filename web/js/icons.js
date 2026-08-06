@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /* 糖纸 · SugarPaper —— 自绘 SVG 矢量图标库
    统一 24×24 视口；描边图标 stroke=currentColor，头像为填充图标。 */
 (function (g) {

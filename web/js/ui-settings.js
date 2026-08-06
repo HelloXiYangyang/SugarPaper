@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /* 糖纸 · SugarPaper —— 设置页（我的） */
 (function (g) {
   'use strict';

@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 /* 文档同步校验：node test/verify_docs.js
    确认 16 科默认学科 + 头像 + 动态动画已同步到 Web 代码 / PRD / README */
 'use strict';
