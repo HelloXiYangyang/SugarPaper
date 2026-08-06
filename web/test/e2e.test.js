@@ -150,12 +150,7 @@ async function main() {
   console.log('⚙️ 设置');
   await page.evaluate(() => window.App.navigate('settings'));
   await page.waitForTimeout(200);
-  await page.locator('input[data-toggle="darkMode"]').check();
-  await page.waitForTimeout(200);
-  const theme = await page.evaluate(() => document.documentElement.dataset.theme);
-  check('深色模式切换生效', theme === 'dark', 'theme=' + theme);
-  await page.locator('input[data-toggle="darkMode"]').uncheck();
-  await page.waitForTimeout(150);
+  check('主题选择器渲染 7 套', await page.locator('#theme-picker .palette-swatch').count() === 7);
   check('科目管理列表渲染 16 科', await page.locator('.subject-row').count() === 16);
   await page.locator('input[data-toggle="animations"]').uncheck();
   await page.waitForTimeout(200);
@@ -188,34 +183,27 @@ async function main() {
   check('帧率切换自动（跟随系统）生效', ['60', '90', '120', '144'].includes(autoFps));
   check('流畅度自测按钮存在', await page.locator('[data-action="fps-test"]').count() === 1);
   check('关于页展示实际应用图标', await page.locator('.about-icon').count() === 1);
+  await page.locator('[data-theme-swatch="dark"]').click();
+  await page.waitForTimeout(250);
+  check('切到暗色主题生效', await page.evaluate(() => document.documentElement.dataset.theme === 'dark'));
+  await page.locator('[data-theme-swatch="bluegreen"]').click();
+  await page.waitForTimeout(250);
+  check('切到清新蓝绿生效', await page.evaluate(() => document.documentElement.dataset.palette === 'bluegreen'));
+  const paletteBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  check('背景色随配色变化', paletteBg === 'rgb(242, 250, 247)');
+  await page.locator('[data-theme-swatch="classic"]').click();
+  await page.waitForTimeout(250);
+  check('恢复经典白', await page.evaluate(() => document.documentElement.dataset.theme === 'light' && document.documentElement.dataset.palette === 'classic'));
 
   console.log('🖼 头像');
+  check('默认头像为喜羊羊图片', await page.locator('#topbar [data-nav="settings"] img.avatar[src="assets/avatar-default.jpg"]').count() === 1);
   await page.locator('[data-action="change-avatar"]').click();
   await page.waitForTimeout(200);
-  check('头像弹窗打开（含 emoji 库）', await page.locator('.avatar-grid .avatar-option').count() >= 16);
-  await page.locator('.avatar-option[data-avatar="🦊"]').click();
-  await page.locator('.modal-foot [data-action="save"]').click();
-  await page.waitForTimeout(250);
-  const avatarVal = await page.evaluate(() => window.Sugar.store.state.settings.avatar);
-  check('头像保存为 🦊', avatarVal === '🦊');
-  check('顶栏显示新头像', (await page.locator('#topbar [data-nav="settings"]').innerText()).includes('🦊'));
-  check('设备卡片显示新头像', (await page.locator('.device-card').innerText()).includes('🦊'));
-  await page.locator('[data-action="change-avatar"]').click();
-  await page.waitForTimeout(200);
-  check('头像弹窗含自绘 SVG 头像区', await page.locator('.avatar-option[data-avatar="svg:cat"]').count() === 1);
-  await page.locator('.avatar-option[data-avatar="svg:cat"]').click();
-  await page.locator('.modal-foot [data-action="save"]').click();
-  await page.waitForTimeout(250);
-  const avatarSvg = await page.evaluate(() => window.Sugar.store.state.settings.avatar);
-  check('自绘 SVG 头像保存为 svg:cat', avatarSvg === 'svg:cat');
-  check('顶栏显示 SVG 头像', await page.locator('#topbar [data-nav="settings"] svg.ico-avatar').count() === 1);
-  await page.locator('[data-action="change-avatar"]').click();
-  await page.waitForTimeout(200);
-  await page.locator('.modal-foot [data-action="reset"]').click();
-  await page.locator('.modal-foot [data-action="save"]').click();
-  await page.waitForTimeout(250);
-  const avatarReset = await page.evaluate(() => window.Sugar.store.state.settings.avatar);
-  check('恢复默认头像生效', avatarReset === null);
+  check('头像弹窗无内置 emoji 选项', await page.locator('.avatar-option').count() === 0);
+  check('头像弹窗显示默认头像', await page.locator('.avatar-preview img[src="assets/avatar-default.jpg"]').count() === 1);
+  check('头像弹窗含点击/拖拽上传区', await page.locator('#avatar-upload').count() === 1);
+  await page.locator('.modal-foot [data-action="close"]').click();
+  await page.waitForTimeout(150);
   await page.locator('[data-action="change-avatar"]').click();
   await page.waitForTimeout(200);
   await page.setInputFiles('#avatar-file', {
@@ -223,17 +211,15 @@ async function main() {
     mimeType: 'image/png',
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64')
   });
-  await page.waitForTimeout(400);
-  await page.locator('.modal-foot [data-action="save"]').click();
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(500);
   const avatarImg = await page.evaluate(() => window.Sugar.store.state.settings.avatar);
   check('自定义图片上传并压缩保存', typeof avatarImg === 'string' && avatarImg.startsWith('data:image/jpeg'));
-  check('顶栏显示图片头像', await page.locator('#topbar [data-nav="settings"] img.avatar').count() === 1);
+  check('顶栏显示上传的头像', await page.locator('#topbar [data-nav="settings"] img.avatar').count() === 1);
   await page.locator('[data-action="change-avatar"]').click();
   await page.waitForTimeout(200);
   await page.locator('.modal-foot [data-action="reset"]').click();
-  await page.locator('.modal-foot [data-action="save"]').click();
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(250);
+  check('恢复默认头像（喜羊羊）', await page.locator('#topbar [data-nav="settings"] img.avatar[src="assets/avatar-default.jpg"]').count() === 1);
 
   console.log('📥 导入弹窗');
   await page.evaluate(() => window.Sugar.ui.modal.openImport());

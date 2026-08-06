@@ -488,23 +488,35 @@ input, select, textarea { font-family: inherit; color: inherit; }
 .avatar-lg { width: 54px; height: 54px; font-size: 28px; border-radius: 18px; }
 .icon-btn .avatar { pointer-events: none; }
 
-.avatar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 8px; }
-.avatar-option {
-  font-size: 26px; padding: 9px 0; border-radius: 12px; cursor: pointer;
-  background: var(--surface-2); border: 2px solid transparent;
-  transition: transform .18s cubic-bezier(.34, 1.4, .64, 1), border-color .18s ease, background .18s ease;
-  animation: fade-up .25s ease both;
-  animation-delay: calc(var(--i, 0) * 15ms);
-}
-.avatar-option:hover { transform: scale(1.08); background: var(--surface-3); }
-.avatar-option.active { border-color: var(--pink); background: var(--pink-soft); }
-.avatar-option .ico-avatar { color: var(--text-2); }
-.avatar-option.active .ico-avatar { color: var(--pink-strong); }
 .avatar-preview {
   display: flex; align-items: center; gap: 10px; margin-top: 8px;
   padding: 10px 12px; background: var(--surface-2); border-radius: 12px;
   font-size: 13px; color: var(--text-2);
 }
+.avatar-upload {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 24px 16px 20px; border: 2px dashed var(--border-2); border-radius: var(--radius);
+  cursor: pointer; text-align: center; margin-top: 6px;
+  transition: border-color .2s ease, background .2s ease, transform .15s ease;
+}
+.avatar-upload:hover, .avatar-upload.dragover {
+  border-color: var(--pink);
+  background: var(--pink-soft);
+  transform: translateY(-1px);
+}
+.avatar-upload .au-icon {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--pink-soft), var(--lavender-soft));
+  color: var(--pink-strong);
+  transition: transform .22s cubic-bezier(.34, 1.4, .64, 1), box-shadow .22s ease;
+}
+.avatar-upload:hover .au-icon, .avatar-upload.dragover .au-icon {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+.avatar-upload .au-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.avatar-upload .au-hint { font-size: 12px; color: var(--text-3); }
 .device-name { font-size: 16px; font-weight: 800; }
 .device-meta { font-size: 12px; color: var(--text-2); margin-top: 3px; line-height: 1.6; }
 
@@ -544,6 +556,16 @@ input, select, textarea { font-family: inherit; color: inherit; }
 .seg button.active { background: var(--surface); color: var(--pink-strong); box-shadow: var(--shadow-sm); }
 .seg button:active { transform: scale(.94); }
 
+.palettes { display: flex; gap: 8px; }
+.palette-swatch {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform .18s cubic-bezier(.34, 1.4, .64, 1), border-color .18s ease, box-shadow .18s ease;
+}
+.palette-swatch:hover { transform: scale(1.14); }
+.palette-swatch.active { border-color: var(--text-2); box-shadow: 0 0 0 2px var(--surface), var(--shadow-sm); }
+
 /* ---------- 帧率模式：120 帧档位缩短动画时长（更快更跟手） ---------- */
 html[data-fps="120"] .switch .track, html[data-fps="120"] .switch .track::before, html[data-fps="120"] .switch .track::after { transition-duration: .24s; }
 html[data-fps="120"] .switch .thumb { transition-duration: .24s, .2s; }
@@ -551,7 +573,7 @@ html[data-fps="120"] .view-enter-up, html[data-fps="120"] .view-enter-left, html
 html[data-fps="120"] .reveal { transition-duration: .36s, .36s; }
 html[data-fps="120"] .cal-cell { animation-duration: .26s; }
 html[data-fps="120"] .pie-canvas path { animation-duration: .45s; }
-html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data-fps="120"] .avatar-option, html[data-fps="120"] .preview-list .p-item { animation-duration: .24s; }
+html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data-fps="120"] .preview-list .p-item { animation-duration: .24s; }
 
 .subject-row { display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-top: 1px solid var(--border); }
 .subject-row:first-of-type { border-top: none; }

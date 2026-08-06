@@ -46,11 +46,14 @@
 
     applyPrefs() {
       const set = store.state.settings;
-      document.documentElement.dataset.theme = set.darkMode ? 'dark' : 'light';
+      const theme = set.theme || 'classic';
+      const isDark = theme === 'dark';
+      document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+      document.documentElement.dataset.palette = isDark ? 'classic' : theme;
       document.documentElement.classList.toggle('no-anim', !set.animations);
       document.documentElement.dataset.fps = this.resolveFps();
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute('content', set.darkMode ? '#231D2B' : '#FBF6F2');
+      if (meta) meta.setAttribute('content', isDark ? '#231D2B' : '#FBF6F2');
     },
 
     resolveFps() {

@@ -93,7 +93,7 @@
   }
 
   /**
-   * 头像 HTML：null=自绘 SVG 默认头像；svg:名称=自绘 SVG 头像；emoji 字符串；data: 开头的自定义图片
+   * 头像 HTML：null=默认头像图片（assets/avatar-default.jpg）；svg:名称=自绘 SVG 头像；emoji 字符串；data: 开头的自定义图片
    * @param {string|null} avatar
    * @param {string} cls 额外类名（如 avatar-sm / avatar-lg）
    */
@@ -106,7 +106,8 @@
       return '<span class="' + base + '">' + g.Sugar.icons.avatar(avatar.slice(4), 26) + '</span>';
     }
     if (!avatar) {
-      return '<span class="' + base + '">' + g.Sugar.icons.avatar('person', 26) + '</span>';
+      // 默认头像：项目内置的喜羊羊图片
+      return '<img class="' + base + '" src="assets/avatar-default.jpg" alt="默认头像">';
     }
     return '<span class="' + base + '">' + escapeHtml(avatar) + '</span>';
   }

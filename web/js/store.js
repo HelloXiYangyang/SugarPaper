@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.13.2';
+  const APP_VERSION = '0.14.0';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -39,12 +39,14 @@
       tasks: [],
       subjects: DEFAULT_SUBJECTS.map((s) => ({ ...s })),
       settings: {
-        darkMode: false,
         deviceName: '我的设备',
         notifications: false,
         internetMode: false,
         animations: true, // 动画总开关（false 时禁用全部动画）
         frameRate: 'auto', // 帧率模式：auto(跟随系统) / 60 / 120
+        darkMode: false, // 兼容旧数据（迁移到 theme 后不再使用）
+        palette: 'classic', // 兼容旧数据（迁移到 theme 后不再使用）
+        theme: 'classic', // 主题（七套平行）：classic / bluegreen / sunshine / rose / lavender / mint / dark
         avatar: null, // 头像：null=默认；emoji 字符串；data: 开头的图片 DataURL
         version: APP_VERSION,
         lastSyncTime: null
@@ -60,10 +62,15 @@
     DEFAULT_SUBJECTS.forEach((s) => {
       if (!subjects.some((x) => x.name === s.name)) subjects.push({ ...s });
     });
+    // v0.14.0：旧版 darkMode / palette 迁移为独立 theme（七套平行主题）
+    const settings = Object.assign({}, base.settings, d.settings || {});
+    if (d.settings && !d.settings.theme) {
+      settings.theme = settings.darkMode ? 'dark' : (settings.palette || 'classic');
+    }
     return {
       tasks: Array.isArray(d.tasks) ? d.tasks : base.tasks,
       subjects,
-      settings: Object.assign({}, base.settings, d.settings || {})
+      settings
     };
   }
 

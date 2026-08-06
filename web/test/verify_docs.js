@@ -146,6 +146,16 @@ if (!read('web/js/app.js').includes('icon.svg')) { failed++; console.error('  �
 else console.log('  ✅ 顶栏品牌 Logo 使用应用图标');
 if (!read('web/js/ui-settings.js').includes('icon.svg')) { failed++; console.error('  ❌ 关于页未展示实际应用图标'); }
 else console.log('  ✅ 关于页展示实际应用图标');
+if (read('web/js/ui-settings.js').includes('AVATAR_EMOJIS') || read('web/js/ui-settings.js').includes('avatar-option')) { failed++; console.error('  ❌ 头像弹窗仍含内置 emoji 选项'); }
+else console.log('  ✅ 内置 emoji 头像已移除');
+if (!read('web/js/ui-settings.js').includes('#avatar-file')) { failed++; console.error('  ❌ 头像上传功能缺失'); }
+else console.log('  ✅ 头像自定义上传已恢复');
+if (!read('web/js/ui-settings.js').includes('avatar-upload')) { failed++; console.error('  ❌ 头像上传区未实现'); }
+else console.log('  ✅ 头像上传区（点击/拖拽）已实现');
+if (!read('web/js/util.js').includes('avatar-default.jpg')) { failed++; console.error('  ❌ 默认头像未指向喜羊羊图片'); }
+else console.log('  ✅ 默认头像为喜羊羊图片');
+if (!fs.existsSync(path.join(ROOT, 'web', 'assets', 'avatar-default.jpg'))) { failed++; console.error('  ❌ 默认头像资源缺失'); }
+else console.log('  ✅ 默认头像资源存在（web/assets/avatar-default.jpg）');
 if (!read('web/icon.svg').includes('<svg')) { failed++; console.error('  ❌ PWA 图标文件缺失'); }
 else console.log('  ✅ PWA 图标文件存在（保留原糖果样式）');
 if (!prd.includes('v4.7 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.7 变更记录'); }
@@ -156,6 +166,51 @@ if (!readme.includes('v0.13.0')) { failed++; console.error('  ❌ README 缺少 
 else console.log('  ✅ README 含 v0.13.0 版本日志');
 if (!readme.includes('矢量图标')) { failed++; console.error('  ❌ README 缺少矢量图标说明'); }
 else console.log('  ✅ README 含矢量图标说明');
+if (!prd.includes('v4.8 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.8 变更记录'); }
+else console.log('  ✅ PRD 含 v4.8 变更记录');
+if (!prd.includes('头像（v4.11 收敛）')) { failed++; console.error('  ❌ PRD 缺少头像收敛规格'); }
+else console.log('  ✅ PRD 含头像收敛规格');
+if (!readme.includes('v0.13.3')) { failed++; console.error('  ❌ README 缺少 v0.13.3 版本日志'); }
+else console.log('  ✅ README 含 v0.13.3 版本日志');
+if (!prd.includes('v4.9 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.9 变更记录'); }
+else console.log('  ✅ PRD 含 v4.9 变更记录');
+if (!prd.includes('中性占位')) { failed++; console.error('  ❌ PRD 缺少中性占位规格'); }
+else console.log('  ✅ PRD 含中性占位规格');
+if (!readme.includes('v0.13.4')) { failed++; console.error('  ❌ README 缺少 v0.13.4 版本日志'); }
+else console.log('  ✅ README 含 v0.13.4 版本日志');
+if (!prd.includes('v4.10 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.10 变更记录'); }
+else console.log('  ✅ PRD 含 v4.10 变更记录');
+if (!prd.includes('avatar-default.jpg')) { failed++; console.error('  ❌ PRD 缺少默认头像图片说明'); }
+else console.log('  ✅ PRD 含默认头像图片说明');
+if (!readme.includes('v0.13.5')) { failed++; console.error('  ❌ README 缺少 v0.13.5 版本日志'); }
+else console.log('  ✅ README 含 v0.13.5 版本日志');
+if (!prd.includes('v4.11 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.11 变更记录'); }
+else console.log('  ✅ PRD 含 v4.11 变更记录');
+if (!readme.includes('v0.13.6')) { failed++; console.error('  ❌ README 缺少 v0.13.6 版本日志'); }
+else console.log('  ✅ README 含 v0.13.6 版本日志');
+if (!prd.includes('v4.12 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.12 变更记录'); }
+else console.log('  ✅ PRD 含 v4.12 变更记录');
+if (!readme.includes('v0.13.7')) { failed++; console.error('  ❌ README 缺少 v0.13.7 版本日志'); }
+else console.log('  ✅ README 含 v0.13.7 版本日志');
+console.log('🎨 主题配色同步检查');
+if (!read('web/js/store.js').includes('theme')) { failed++; console.error('  ❌ store.js 缺少 theme 字段'); }
+else console.log('  ✅ store.js 含 theme 字段');
+const themeCss = read('web/css/theme.css');
+for (const p of ['bluegreen', 'sunshine', 'rose', 'lavender', 'mint']) {
+  if (!themeCss.includes('data-palette="' + p + '"')) { failed++; console.error('  ❌ theme.css 缺少配色 ' + p); }
+}
+if (!themeCss.includes('data-palette')) { failed++; }
+else console.log('  ✅ theme.css 含多套马卡龙配色');
+if (!read('web/js/ui-settings.js').includes('theme-picker')) { failed++; console.error('  ❌ 设置页缺少主题选择器'); }
+else console.log('  ✅ 设置页含主题配色选择器');
+if (!prd.includes('v4.13 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.13 变更记录'); }
+else console.log('  ✅ PRD 含 v4.13 变更记录');
+if (!prd.includes('七套平行')) { failed++; console.error('  ❌ PRD 缺少主题规格'); }
+else console.log('  ✅ PRD 含主题规格（七套平行）');
+if (!readme.includes('v0.14.0')) { failed++; console.error('  ❌ README 缺少 v0.14.0 版本日志'); }
+else console.log('  ✅ README 含 v0.14.0 版本日志');
+if (!readme.includes('七套平行')) { failed++; console.error('  ❌ README 缺少主题说明'); }
+else console.log('  ✅ README 含主题说明（七套平行）');
 
 console.log(failed ? '\n共 ' + failed + ' 处不一致 ❌' : '\n全部同步一致 ✅');
 process.exit(failed ? 1 : 0);

@@ -17,14 +17,15 @@
     '#F0C9C9', '#FAD1B8', '#F5C4DC', '#F2D4A8',
     '#B8D8E8', '#C8D8C0', '#F0DEB8', '#D8C8F0'
   ];
-
-  const AVATAR_EMOJIS = [
-    '🧑', '👧', '👦', '👩', '👨', '🧒',
-    '👩‍🦰', '👨‍🦱', '👵', '👴',
-    '🐱', '🐶', '🦊', '🐻', '🐼', '🐰', '🦄', '🐨',
-    '🍓', '🍑', '🍬', '⭐'
+  const THEMES = [
+    ['classic', '经典白', 'linear-gradient(135deg,#FBF6F2,#F4B8CE)'],
+    ['bluegreen', '清新蓝绿', 'linear-gradient(135deg,#9ED8C6,#B0CFF0)'],
+    ['sunshine', '阳光黄桃', 'linear-gradient(135deg,#F8CE9E,#DFE3A0)'],
+    ['rose', '玫瑰粉', 'linear-gradient(135deg,#F5BCC4,#E0C4E8)'],
+    ['lavender', '梦幻紫', 'linear-gradient(135deg,#D5C8F2,#C9B8EC)'],
+    ['mint', '薄荷绿', 'linear-gradient(135deg,#BFE8C9,#A9E0CB)'],
+    ['dark', '暗色', 'linear-gradient(135deg,#2E2738,#4A3F47)']
   ];
-  const SVG_AVATARS = ['person', 'cat', 'fox', 'bear', 'star', 'heart', 'candy', 'sparkle'];
 
   function dataSize() {
     try {
@@ -81,9 +82,15 @@
       '<div class="row-body"><div class="row-title">流畅度自测</div>' +
       '<div class="row-desc" id="fps-result">测量当前实际显示帧率</div></div>' +
       '<button class="btn small" data-action="fps-test">测一测</button></div>' +
-      switchRow('moon', '深色模式', '切换马卡龙深色主题', 'darkMode') +
       switchRow('bell', '通知提醒', '截止日期提醒（浏览器支持时）', 'notifications') +
       switchRow('globe', '互联网模式', '跨网络同步（WebRTC · 规划中）', 'internetMode') +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('sparkles', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">主题</div>' +
+      '<div class="row-desc">5 套马卡龙配色 + 经典白 + 暗色，自由切换</div></div>' +
+      '<span class="row-action palettes" id="theme-picker">' +
+      THEMES.map((p) =>
+        '<button class="palette-swatch' + (set.theme === p[0] ? ' active' : '') + '" data-theme-swatch="' + p[0] + '" title="' + p[1] + '" style="background:' + p[2] + '"></button>').join('') +
+      '</span></div>' +
       '</div>' +
 
       '<div class="settings-card reveal"><h3>数据管理</h3>' +
@@ -134,6 +141,17 @@
         const btn = e.target.closest('[data-frame-rate]');
         if (!btn) return;
         store.updateSettings({ frameRate: btn.dataset.frameRate });
+        g.App.applyPrefs();
+        g.App.renderView();
+      });
+    }
+
+    const themePicker = wrap.querySelector('#theme-picker');
+    if (themePicker) {
+      themePicker.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-theme-swatch]');
+        if (!btn) return;
+        store.updateSettings({ theme: btn.dataset.themeSwatch });
         g.App.applyPrefs();
         g.App.renderView();
       });
@@ -270,6 +288,56 @@
   }
 
   /* ---------- 更换头像弹窗 ---------- */
+  function openAvatarModal() {
+    const current = store.state.settings.avatar;
+    const dlg = S.ui.modal.open({ title: '头像', footer: '' });
+    dlg.bodyEl.innerHTML =
+      '<div class="avatar-preview">' +
+      util.avatarHtml(current, 'avatar-lg') +
+      '<span>' + (current ? '当前为自定义头像' : '当前为默认头像') + '</span></div>' +
+      '<div class="field"><label>' + S.icons.icon('camera', 12) + ' 自定义头像</label>' +
+      '<label class="avatar-upload" id="avatar-upload" for="avatar-file">' +
+      '<span class="au-icon">' + S.icons.icon('upload', 22) + '</span>' +
+      '<span class="au-title">点击选择或拖拽图片上传</span>' +
+      '<span class="au-hint">自动压缩至 256×256 · 仅存本机</span>' +
+      '</label>' +
+      '<input type="file" id="avatar-file" accept="image/*" hidden></div>';
+    dlg.footEl.innerHTML =
+      '<button class="btn" data-action="close">关闭</button>' +
+      (current ? '<button class="btn soft-danger" data-action="reset">恢复默认头像</button>' : '');
+    const handleFile = (file) => {
+      if (!file) return;
+      compressImage(file, (dataUrl) => {
+        store.updateSettings({ avatar: dataUrl });
+        S.ui.toast('头像已更新');
+        dlg.close();
+      });
+    };
+    dlg.bodyEl.querySelector('#avatar-file').addEventListener('change', () => {
+      handleFile(dlg.bodyEl.querySelector('#avatar-file').files[0]);
+    });
+    const uploadZone = dlg.bodyEl.querySelector('#avatar-upload');
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      handleFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+    });
+    dlg.footEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action === 'reset') {
+        store.updateSettings({ avatar: null });
+        S.ui.toast('已恢复默认头像');
+        dlg.close();
+      }
+    });
+  }
+
   function compressImage(file, cb) {
     const reader = new FileReader();
     reader.onload = () => {
@@ -286,85 +354,10 @@
         ctx.drawImage(img, (size - dw) / 2, (size - dh) / 2, dw, dh);
         cb(canvas.toDataURL('image/jpeg', 0.85));
       };
-      img.onerror = () => S.ui.toast('❌ 图片读取失败，请换一张试试');
+      img.onerror = () => S.ui.toast('图片读取失败，请换一张试试');
       img.src = reader.result;
     };
     reader.readAsDataURL(file);
-  }
-
-  function openAvatarModal() {
-    const current = store.state.settings.avatar;
-    const dlg = S.ui.modal.open({ title: '更换头像', footer: '' });
-    const grid = AVATAR_EMOJIS.map((e, i) =>
-      '<button type="button" class="avatar-option' + (current === e ? ' active' : '') + '" style="--i:' + i + '" data-avatar="' + e + '">' + e + '</button>').join('');
-    const svgGrid = SVG_AVATARS.map((n, i) =>
-      '<button type="button" class="avatar-option svg' + (current === 'svg:' + n ? ' active' : '') + '" style="--i:' + (i + AVATAR_EMOJIS.length) + '" data-avatar="svg:' + n + '">' + S.icons.avatar(n, 26) + '</button>').join('');
-    dlg.bodyEl.innerHTML =
-      '<div class="field"><label>' + S.icons.icon('sparkles', 12) + ' 自绘头像</label><div class="avatar-grid">' + svgGrid + '</div></div>' +
-      '<div class="field"><label>' + S.icons.icon('user', 12) + ' 内置 emoji 头像</label><div class="avatar-grid">' + grid + '</div></div>' +
-      '<div class="field"><label>' + S.icons.icon('camera', 12) + ' 或上传本地图片（自动压缩至 256×256，仅存本机）</label>' +
-      '<input type="file" id="avatar-file" accept="image/*" hidden>' +
-      '<button class="btn soft-pink" data-action="upload">' + S.icons.icon('camera', 13) + ' 选择图片</button></div>' +
-      '<div class="avatar-preview" id="avatar-preview">' +
-      '当前：' + util.avatarHtml(current, 'avatar-sm') + '</div>';
-    dlg.footEl.innerHTML =
-      '<button class="btn" data-action="cancel">取消</button>' +
-      (current ? '<button class="btn soft-danger" data-action="reset">恢复默认</button>' : '') +
-      '<button class="btn primary" data-action="save">保存</button>';
-
-    let selected = current && !String(current).startsWith('data:') ? current : null;
-
-    function refreshPreview() {
-      const el = dlg.bodyEl.querySelector('#avatar-preview');
-      if (selected === null) {
-        el.innerHTML = '当前：' + util.avatarHtml(current, 'avatar-sm');
-      } else if (selected === '__default__') {
-        el.innerHTML = '选择：' + util.avatarHtml(null, 'avatar-sm') + '<span>将恢复为默认头像</span>';
-      } else {
-        el.innerHTML = '选择：' + util.avatarHtml(selected, 'avatar-sm');
-      }
-    }
-
-    dlg.bodyEl.querySelectorAll('.avatar-option').forEach((b) => {
-      b.addEventListener('click', () => {
-        selected = b.dataset.avatar;
-        dlg.bodyEl.querySelectorAll('.avatar-option').forEach((x) => x.classList.remove('active'));
-        b.classList.add('active');
-        refreshPreview();
-      });
-    });
-    dlg.bodyEl.querySelector('[data-action="upload"]').addEventListener('click', () => {
-      dlg.bodyEl.querySelector('#avatar-file').click();
-    });
-    dlg.bodyEl.querySelector('#avatar-file').addEventListener('change', () => {
-      const f = dlg.bodyEl.querySelector('#avatar-file').files[0];
-      if (!f) return;
-      compressImage(f, (dataUrl) => {
-        selected = dataUrl;
-        dlg.bodyEl.querySelectorAll('.avatar-option').forEach((x) => x.classList.remove('active'));
-        refreshPreview();
-        S.ui.toast('图片已加载，点击“保存”生效');
-      });
-    });
-    dlg.footEl.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      if (btn.dataset.action === 'cancel') { dlg.close(); return; }
-      if (btn.dataset.action === 'reset') {
-        selected = '__default__';
-        dlg.bodyEl.querySelectorAll('.avatar-option').forEach((x) => x.classList.remove('active'));
-        refreshPreview();
-        return;
-      }
-      if (btn.dataset.action === 'save') {
-        if (selected !== null) {
-          store.updateSettings({ avatar: selected === '__default__' ? null : selected });
-          S.ui.toast(selected === '__default__' ? '↩️ 已恢复默认头像' : '✅ 头像已更新');
-        }
-        dlg.close();
-      }
-    });
-    refreshPreview();
   }
 
   g.Sugar = g.Sugar || {};

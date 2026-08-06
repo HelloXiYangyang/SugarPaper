@@ -97,3 +97,73 @@ html[data-theme="dark"] {
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.42);
   --shadow-lg: 0 18px 44px rgba(0, 0, 0, 0.55);
 }
+
+/* ============================================================
+   马卡龙主题配色（设置页可自由切换）
+   经典粉紫(默认) / 清新蓝绿 / 阳光黄桃 / 玫瑰粉 / 梦幻紫
+   ============================================================ */
+
+/* ---------- 清新蓝绿 ---------- */
+html[data-palette="bluegreen"] {
+  --bg: #F2FAF7;
+  --surface-2: #E9F4F0;
+  --surface-3: #DCECE6;
+  --pink: #9ED8C6; --pink-strong: #55B39A; --pink-soft: #DDF2EA;
+  --mint: #A8D8E8; --mint-strong: #5FA8C9; --mint-soft: #E0F1F7;
+  --sky: #B0CFF0; --sky-strong: #6FA0D6; --sky-soft: #E3EFF9;
+  --lavender: #C3D9E8; --lavender-strong: #7FA6C0; --lavender-soft: #E4EFF6;
+  --peach: #F6D9B2; --peach-strong: #E2A468; --peach-soft: #FCEFE0;
+  --yellow: #F2E3A8; --yellow-strong: #CBAB4C; --yellow-soft: #FAF3DB;
+  --success: #55B39A;
+}
+/* ---------- 阳光黄桃 ---------- */
+html[data-palette="sunshine"] {
+  --bg: #FDF8EF;
+  --surface-2: #F7EFDF;
+  --surface-3: #EFE3CC;
+  --pink: #F8CE9E; --pink-strong: #E8A85F; --pink-soft: #FCEEDD;
+  --mint: #DFE3A0; --mint-strong: #B0B255; --mint-soft: #F4F3DA;
+  --sky: #B4D4EF; --sky-strong: #6FA0D4; --sky-soft: #E3EFF9;
+  --lavender: #EECBB8; --lavender-strong: #CE8F74; --lavender-soft: #F9E8DF;
+  --peach: #F9C9A8; --peach-strong: #E2976B; --peach-soft: #FCE8DA;
+  --yellow: #F7E2A2; --yellow-strong: #D1A846; --yellow-soft: #FAF2D8;
+  --success: #B0B255;
+}
+/* ---------- 玫瑰粉 ---------- */
+html[data-palette="rose"] {
+  --bg: #FDF4F5;
+  --surface-2: #F9E9EC;
+  --surface-3: #F2DADE;
+  --pink: #F5BCC4; --pink-strong: #E2889B; --pink-soft: #FCE6EA;
+  --mint: #B9DED0; --mint-strong: #63B294; --mint-soft: #E0F2EA;
+  --sky: #E8C4D4; --sky-strong: #D18AA6; --sky-soft: #FAE8EF;
+  --lavender: #E0C4E8; --lavender-strong: #A978C6; --lavender-soft: #F3E6F8;
+  --peach: #F6C8B0; --peach-strong: #E08E68; --peach-soft: #FCE8DC;
+  --yellow: #F6E0AE; --yellow-strong: #CFA44E; --yellow-soft: #FAF1DA;
+  --success: #63B294;
+}
+/* ---------- 梦幻紫 ---------- */
+html[data-palette="lavender"] {
+  --bg: #F8F5FD;
+  --surface-2: #F1ECF9;
+  --surface-3: #E6DCF1;
+  --pink: #D5C8F2; --pink-strong: #9F8FE0; --pink-soft: #EFEBFB;
+  --mint: #A9E0CB; --mint-strong: #5FB894; --mint-soft: #DEF3EA;
+  --sky: #C4CCF0; --sky-strong: #7F8FD4; --sky-soft: #E9EBFA;
+  --lavender: #C9B8EC; --lavender-strong: #8A71C9; --lavender-soft: #F0EAFB;
+  --peach: #F2C4D8; --peach-strong: #D98FAC; --peach-soft: #F9E8EF;
+  --yellow: #F4E2A8; --yellow-strong: #CDA94E; --yellow-soft: #FAF3DB;
+  --success: #5FB894;
+}
+html[data-palette="mint"] {
+  --bg: #F1FAF4;
+  --surface-2: #E4F3EA;
+  --surface-3: #D4EADB;
+  --pink: #BFE8C9; --pink-strong: #6FC79B; --pink-soft: #E4F5E9;
+  --mint: #A9E0CB; --mint-strong: #5FB894; --mint-soft: #DEF3EA;
+  --sky: #B3D4F0; --sky-strong: #6FA8D6; --sky-soft: #E2EEF9;
+  --lavender: #C9C7F0; --lavender-strong: #8F89D9; --lavender-soft: #ECEBFA;
+  --peach: #F6D9C4; --peach-strong: #E3A076; --peach-soft: #FCEEE3;
+  --yellow: #F2E6B8; --yellow-strong: #CBAB54; --yellow-soft: #FAF4DF;
+  --success: #5FB894;
+}

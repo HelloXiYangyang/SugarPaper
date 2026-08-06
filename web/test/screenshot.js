@@ -70,18 +70,23 @@ async function main() {
     ['stats-mobile', 390, 844, 'stats'],
     ['settings-desktop', 1440, 900, 'settings'],
     ['settings-mobile', 390, 844, 'settings'],
+    ['theme-bluegreen', 1440, 900, 'settings', 'bluegreen'],
+    ['theme-dark', 1440, 900, 'settings', 'dark'],
     ['import-modal', 390, 844, null]
   ];
 
-  for (const [name, w, h, view] of shots) {
+  for (const [name, w, h, view, theme] of shots) {
     await page.setViewportSize({ width: w, height: h });
     if (view) await page.evaluate((v) => window.App.navigate(v), view);
+    if (theme) await page.evaluate((t) => window.Sugar.store.updateSettings({ theme: t }), theme);
     if (name === 'import-modal') await page.evaluate(() => window.Sugar.ui.modal.openImport());
     await page.waitForTimeout(350);
     await page.screenshot({ path: path.join(outDir, name + '.png'), fullPage: false });
     if (name === 'import-modal') await page.evaluate(() => window.Sugar.ui.modal.closeAll());
     console.log('📸 ' + name + ' (' + w + 'x' + h + ')');
   }
+
+  await page.evaluate(() => window.Sugar.store.updateSettings({ theme: 'classic' }));
 
   console.log('\n页面错误：' + (errors.length ? '\n' + errors.join('\n') : '无 ✅'));
   await browser.close();
