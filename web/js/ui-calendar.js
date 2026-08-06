@@ -39,6 +39,8 @@
     const offset = (first.getDay() + 6) % 7; // 周一开头
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const byDate = tasksByDate();
+    const notes = store.state.notes || [];
+    const sessions = store.state.focusSessions || [];
     const cells = [];
 
     const weekdays = WEEK_CN.map((w) => '<div class="cal-weekday">' + w + '</div>').join('');
@@ -49,6 +51,13 @@
     for (let d = 1; d <= daysInMonth; d++) {
       const ds = year + '-' + util.pad(month + 1) + '-' + util.pad(d);
       const list = byDate[ds] || [];
+      const mk = S.stats.dayMarkers(notes, sessions, ds);
+      const markers = (mk.exam || mk.focusMin > 0)
+        ? '<div class="cal-markers">' +
+          (mk.exam ? '<span class="cal-exam" title="考试安排">' + S.icons.icon('flag', 10) + '</span>' : '') +
+          (mk.focusMin > 0 ? '<span class="cal-focus-min" title="专注 ' + mk.focusMin + ' 分钟">' + mk.focusMin + '</span>' : '') +
+          '</div>'
+        : '';
       const cls = 'cal-cell' +
         (ds === today ? ' today' : '') +
         (ds === selected ? ' selected' : '');
@@ -56,6 +65,7 @@
         '<div class="' + cls + '" data-date="' + ds + '" style="--i:' + idx + '">' +
         '<span class="day-num">' + d + '</span>' +
         (list.length ? dotsHtml(list) : '') +
+        markers +
         '</div>');
       idx++;
     }

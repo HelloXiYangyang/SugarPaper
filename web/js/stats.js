@@ -30,6 +30,20 @@
     return tasks.filter((t) => completedOn(t, dateStr)).length;
   }
 
+  /** 日历标记（v0.24.0）：某日期是否有考试安排便签 + 当日专注分钟 */
+  function dayMarkers(notes, sessions, dateStr) {
+    const exam = (notes || []).some((n) =>
+      !n.isDeleted &&
+      n.remindAt &&
+      toDateStr(new Date(n.remindAt)) === dateStr &&
+      ((n.tags || []).includes('考试安排') || /考试|测验|检测|期末/.test((n.title || '') + ' ' + (n.content || '')))
+    );
+    const focusMin = (sessions || [])
+      .filter((s) => s.completed && toDateStr(new Date(s.endAt)) === dateStr)
+      .reduce((sum, s) => sum + (s.minutes || 0), 0);
+    return { exam, focusMin };
+  }
+
   /**
    * 计算统计指标
    * @param {{tasks:Array}} state 数据状态
@@ -231,6 +245,6 @@
   }
 
   g.Sugar = g.Sugar || {};
-  g.Sugar.stats = { compute };
-  if (typeof module !== 'undefined' && module.exports) module.exports = { compute };
+  g.Sugar.stats = { compute, dayMarkers };
+  if (typeof module !== 'undefined' && module.exports) module.exports = { compute, dayMarkers };
 })(typeof window !== 'undefined' ? window : globalThis);

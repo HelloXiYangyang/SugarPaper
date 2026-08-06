@@ -163,6 +163,16 @@ async function main() {
   await page.locator('[data-mode="week"]').click();
   await page.waitForTimeout(200);
   check('周视图渲染', await page.locator('.cal-week-col').count() === 7);
+  await page.evaluate(() => {
+    window.Sugar.store.addNote({ title: '数学期末考', content: '带计算器', tags: ['考试安排'], remindAt: new Date().toISOString(), archived: true });
+    window.Sugar.store.addFocusSession({ endAt: new Date().toISOString(), minutes: 45, completed: true, source: 'pomodoro' });
+    window.App.navigate('calendar');
+  });
+  await page.waitForTimeout(250);
+  await page.locator('[data-mode="month"]').click();
+  await page.waitForTimeout(250);
+  check('日历显示考试安排标记', await page.locator('.cal-exam').count() >= 1);
+  check('日历显示专注分钟角标', await page.locator('.cal-focus-min').count() >= 1);
 
   console.log('📊 统计');
   await page.evaluate(() => window.App.navigate('stats'));

@@ -208,6 +208,30 @@ test('inReminderWindow 窗口判断', () => {
   assert.strictEqual(util.inReminderWindow(500, 'bad'), false);
 });
 
+console.log('\n📅 日历标记测试（v0.24.0）');
+
+test('dayMarkers：考试便签与专注分钟', () => {
+  const fmt = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const today = fmt(new Date());
+  const yest = new Date();
+  yest.setDate(yest.getDate() - 1);
+  const yesterday = fmt(yest);
+  const notes = [
+    { id: 'n1', title: '数学期末考', content: '', tags: ['考试安排'], remindAt: new Date().toISOString(), isDeleted: false },
+    { id: 'n2', title: '普通便签', content: '明天带彩纸', tags: [], remindAt: null, isDeleted: false }
+  ];
+  const sessions = [
+    { id: 's1', endAt: new Date().toISOString(), minutes: 45, completed: true },
+    { id: 's2', endAt: yest.toISOString(), minutes: 30, completed: true }
+  ];
+  const mk = stats.dayMarkers(notes, sessions, today);
+  assert.strictEqual(mk.exam, true);
+  assert.strictEqual(mk.focusMin, 45);
+  const mk2 = stats.dayMarkers(notes, sessions, yesterday);
+  assert.strictEqual(mk2.exam, false);
+  assert.strictEqual(mk2.focusMin, 30);
+});
+
 test('识别小初高 16 科默认词表（体育与健康/通用技术/综合实践活动等）', () => {
   const text =
     '体育与健康\n1.跑步 2 圈\n' +
