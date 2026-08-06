@@ -846,6 +846,9 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
 .field-row { display: flex; gap: 12px; }
 .field-row .field { flex: 1; }
+.import-drop { position: relative; }
+.import-drop.dragover textarea { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+.import-drop-hint { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-3); margin-top: 6px; }
 
 .prio-picker { display: flex; gap: 8px; }
 .prio-picker button { flex: 1; padding: 8px; border-radius: 10px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); color: var(--text-2); background: var(--surface-2); }

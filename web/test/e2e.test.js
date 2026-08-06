@@ -278,6 +278,21 @@ async function main() {
   console.log('📥 导入弹窗');
   await page.evaluate(() => window.Sugar.ui.modal.openImport());
   await page.waitForTimeout(200);
+  check('导入弹窗含从文件导入按钮', await page.locator('[data-action="import-file"]').count() === 1);
+  await page.setInputFiles('#import-file-input', {
+    name: '作业.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('数学\n1.口算 2 页\n2.订正错题', 'utf-8')
+  });
+  await page.waitForTimeout(300);
+  check('从文件导入填充文本', (await page.locator('#import-text').inputValue()).includes('口算 2 页'));
+  await page.evaluate(() => {
+    const dt = new DataTransfer();
+    dt.items.add(new File(['x'], 'hw.png', { type: 'image/png' }));
+    document.querySelector('#import-drop').dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true }));
+  });
+  await page.waitForTimeout(300);
+  check('拖入图片提示 OCR 暂不支持', (await page.locator('.toast').allTextContents()).some((t) => t.includes('OCR')));
   await page.locator('#import-text').fill('数学\n1.口算 2 页\n2.订正错题\n语文\n1.背诵古诗');
   await page.locator('[data-action="preview"]').click();
   await page.waitForTimeout(200);

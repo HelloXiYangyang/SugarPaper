@@ -125,13 +125,16 @@
       wide: true
     });
     dlg.bodyEl.innerHTML =
-      '<div class="field"><textarea id="import-text" placeholder="示例：&#10;数学&#10;1.试卷一张&#10;2.默写平行四边形判定方法&#10;写在一张纸上 周一收&#10;语文&#10;1.背《昆虫记》讲义&#10;2.抄古诗3遍"></textarea></div>' +
+      '<div class="field import-drop" id="import-drop"><textarea id="import-text" placeholder="示例：&#10;数学&#10;1.试卷一张&#10;2.默写平行四边形判定方法&#10;写在一张纸上 周一收&#10;语文&#10;1.背《昆虫记》讲义&#10;2.抄古诗3遍"></textarea>' +
+      '<div class="import-drop-hint">' + S.icons.icon('upload', 12) + ' 可拖拽 .txt 文件到此处直接解析</div></div>' +
       '<div style="display:flex;gap:8px;margin-bottom:12px">' +
       '<button class="btn soft-pink small" data-action="preview">' + S.icons.icon('eye', 13) + ' 预览解析</button>' +
       '<button class="btn small" data-action="sample">' + S.icons.icon('sparkles', 13) + ' 填入示例</button>' +
       '<button class="btn small" data-voice data-target="import-text" title="语音速记（浏览器支持时）">' + S.icons.icon('mic', 13) + ' 语音输入</button>' +
+      '<button class="btn small" data-action="import-file">' + S.icons.icon('file-text', 13) + ' 从文件导入</button>' +
       '</div>' +
-      '<div id="import-preview"></div>';
+      '<div id="import-preview"></div>' +
+      '<input type="file" id="import-file-input" accept=".txt,.md,text/plain" hidden>';
     dlg.footEl.innerHTML =
       '<button class="btn" data-action="cancel">' + S.icons.icon('close', 13) + ' 取消</button>' +
       '<button class="btn soft-pink" data-action="append">' + S.icons.icon('paperclip', 13) + ' 追加到末尾</button>' +
@@ -178,6 +181,49 @@
     });
     dlg.bodyEl.querySelector('[data-action="preview"]').addEventListener('click', renderPreview);
     initVoiceInput(dlg.bodyEl);
+    const importFileBtn = dlg.bodyEl.querySelector('[data-action="import-file"]');
+    const importFileInput = dlg.bodyEl.querySelector('#import-file-input');
+    if (importFileBtn && importFileInput) {
+      importFileBtn.addEventListener('click', () => importFileInput.click());
+      importFileInput.addEventListener('change', () => {
+        const f = importFileInput.files && importFileInput.files[0];
+        importFileInput.value = '';
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          textEl().value = String(reader.result || '');
+          renderPreview();
+        };
+        reader.readAsText(f, 'utf-8');
+      });
+    }
+    // 拖拽放置（v0.23.0）：.txt 直接填入解析；图片提示使用作业拍照存档
+    const dropZone = dlg.bodyEl.querySelector('#import-drop');
+    if (dropZone) {
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (!f) return;
+        if (/^text\//.test(f.type) || /\.(txt|md)$/i.test(f.name)) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            textEl().value = String(reader.result || '');
+            renderPreview();
+          };
+          reader.readAsText(f, 'utf-8');
+        } else if (/^image\//.test(f.type)) {
+          toast('图片 OCR 暂不支持（零依赖约束）——可添加为作业图片附件存档');
+        } else {
+          toast('请拖入文本文件（.txt / .md）');
+        }
+      });
+    }
     dlg.footEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -276,6 +322,7 @@
         });
       });
     }
+    initImageDrop('#task-img-upload', '#task-image-file');
 
     if (existing) {
       dlg.bodyEl.querySelector('#edit-title').value = existing.title;
@@ -449,6 +496,7 @@
         });
       });
     }
+    initImageDrop('#note-img-upload', '#note-image-file');
     dlg.bodyEl.querySelectorAll('.swatch').forEach((s) => {
       if (s.dataset.color === color) s.classList.add('active');
       s.addEventListener('click', () => {
@@ -524,6 +572,35 @@
       img.src = reader.result;
     };
     reader.readAsDataURL(file);
+  }
+
+  /** 图片上传区拖拽（v0.23.0）：把拖入的图片写入文件输入并触发 change */
+  function initImageDrop(zoneSel, inputSel) {
+    const zone = document.querySelector(zoneSel);
+    const input = document.querySelector(inputSel);
+    if (!zone || !input) return;
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const files = e.dataTransfer && e.dataTransfer.files;
+      const f = files && files[0];
+      if (!f) return;
+      if (/^image\//.test(f.type)) {
+        try {
+          input.files = files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        } catch (err) {
+          toast('拖拽读取失败，请用点击方式选择图片');
+        }
+      } else {
+        toast('请拖入图片文件');
+      }
+    });
   }
 
   /** 语音速记（v0.18.0）：Web Speech API（zh-CN），浏览器不支持时隐藏按钮 */
