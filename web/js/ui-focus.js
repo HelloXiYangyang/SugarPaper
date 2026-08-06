@@ -86,11 +86,10 @@
     return src;
   }
 
-  function startScene(id) {
-    stopScene();
+  /** 构建单个场景的音频节点（gain 为实际音量） */
+  function buildScene(id, gain) {
     const c = ensureCtx();
-    if (!c) return;
-    const vol = (store.state.settings.focus && store.state.settings.focus.volume) || 0.6;
+    if (!c || !gain || gain <= 0) return;
     const scene = SCENES.find((s) => s.id === id) || SCENES[0];
     if (scene.disabled) return;
 
@@ -98,7 +97,7 @@
       const src = loopNode(type);
       if (!src) return null;
       const g = c.createGain();
-      g.gain.value = gainVal * vol;
+      g.gain.value = gainVal * gain;
       let node = src;
       if (filter) {
         const f = c.createBiquadFilter();
@@ -125,7 +124,7 @@
         f.frequency.value = 1800 + Math.random() * 2400;
         f.Q.value = 8;
         const g = c.createGain();
-        g.gain.setValueAtTime((0.04 + Math.random() * 0.16) * vol, c.currentTime);
+        g.gain.setValueAtTime((0.04 + Math.random() * 0.16) * gain, c.currentTime);
         g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.05);
         src.connect(f); f.connect(g); g.connect(master);
         src.start(c.currentTime);
@@ -144,7 +143,7 @@
         f.type = 'highpass';
         f.frequency.value = 1600 + Math.random() * 1800;
         const g = c.createGain();
-        const peak = (0.05 + Math.random() * 0.2) * vol;
+        const peak = (0.05 + Math.random() * 0.2) * gain;
         g.gain.setValueAtTime(0, c.currentTime);
         g.gain.linearRampToValueAtTime(peak, c.currentTime + 0.015);
         g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.09);
@@ -158,6 +157,18 @@
       mk('pink', 0.4, { type: 'lowpass', freq: 900 });
     } else {
       mk(id === 'white-noise' ? 'white' : id === 'brown-noise' ? 'brown' : 'pink', 0.55, null);
+    }
+  }
+
+  /** 播放主场景 + 可选叠加场景（Noisli 式混音，v0.17.0） */
+  function startScene(id) {
+    stopScene();
+    const focus = store.state.settings.focus || {};
+    const base = focus.volume == null ? 0.6 : focus.volume;
+    buildScene(id, base);
+    const mix = focus.mixSceneId;
+    if (mix && mix !== id && SCENES.some((s) => s.id === mix && !s.disabled)) {
+      buildScene(mix, (focus.mixVolume == null ? 0.4 : focus.mixVolume) * base);
     }
   }
 
@@ -210,6 +221,7 @@
     round: 0,           // 本轮已完成的番茄数
     startedAt: null,
     scenePanel: false,
+    breath: false,
     _title: document.title
   };
 
@@ -235,6 +247,16 @@
     renderOverlay();
     const sceneId = (store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise';
     startScene(sceneId);
+  }
+
+  function toggleBreath(on) {
+    F.breath = on == null ? !F.breath : on;
+    if (F.overlay) {
+      const el = F.overlay.querySelector('.focus-breath');
+      if (el) el.classList.toggle('on', F.breath);
+      const btn = F.overlay.querySelector('[data-focus="breath"]');
+      if (btn) btn.classList.toggle('active', F.breath);
+    }
   }
 
   function close() {
@@ -398,6 +420,22 @@
       '</button>').join('');
   }
 
+  function mixRowHtml() {
+    const focus = store.state.settings.focus || {};
+    const options = ['<option value="">无（不叠加）</option>'].concat(
+      SCENES.filter((s) => !s.disabled).map((s) =>
+        '<option value="' + s.id + '"' + (focus.mixSceneId === s.id ? ' selected' : '') + '>' +
+        s.emoji + ' ' + util.escapeHtml(s.name) + '</option>')
+    ).join('');
+    return '<div class="mix-row">' +
+      '<span class="mix-label">' + S.icons.icon('music', 13) + ' 叠加音</span>' +
+      '<select id="focus-mix">' + options + '</select>' +
+      '<span class="vol-label">' + S.icons.icon('bell', 13) + '</span>' +
+      '<input type="range" id="focus-mix-volume" min="0" max="100" value="' +
+      Math.round(((focus.mixVolume == null ? 0.4 : focus.mixVolume)) * 100) + '">' +
+      '</div>';
+  }
+
   function renderOverlay() {
     const sceneId = (store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise';
     const scene = SCENES.find((s) => s.id === sceneId) || SCENES[0];
@@ -415,6 +453,7 @@
       '<button class="icon-btn" data-focus="close" title="结束并关闭 (Esc)">' + S.icons.icon('close', 15) + '</button>' +
       '</div></div>' +
       '<div class="focus-main">' +
+      '<div class="focus-breath"></div>' +
       '<div class="focus-ring-wrap">' +
       '<svg viewBox="0 0 240 240">' +
       '<circle class="focus-ring-bg" cx="120" cy="120" r="110"/>' +
@@ -439,8 +478,9 @@
       '<span class="scene-current">' + scene.emoji + ' ' + util.escapeHtml(scene.name) + '</span>' +
       '<span class="vol-label">' + S.icons.icon('bell', 13) + '</span>' +
       '<input type="range" id="focus-volume" min="0" max="100" value="' + Math.round(((store.state.settings.focus && store.state.settings.focus.volume) || 0.6) * 100) + '">' +
+      '<button class="icon-btn breath-btn" data-focus="breath" title="呼吸引导">' + S.icons.icon('target', 15) + '</button>' +
       '</div>' +
-      '<div class="focus-scene-panel" id="focus-scene-panel" hidden>' + sceneHtml() + '</div>' +
+      '<div class="focus-scene-panel" id="focus-scene-panel" hidden>' + sceneHtml() + mixRowHtml() + '</div>' +
       '</div>';
     document.body.appendChild(root);
     F.overlay = root;
@@ -457,6 +497,7 @@
         else if (a === 'pause') pause();
         else if (a === 'skip') skip();
         else if (a === 'end') close();
+        else if (a === 'breath') toggleBreath();
         else if (a === 'scene') {
           F.scenePanel = !F.scenePanel;
           const panel = root.querySelector('#focus-scene-panel');
@@ -474,6 +515,20 @@
         startScene(sc.dataset.scene);
       }
     });
+    const mixSel = root.querySelector('#focus-mix');
+    if (mixSel) {
+      mixSel.addEventListener('change', () => {
+        store.updateSettings({ focus: Object.assign({}, store.state.settings.focus, { mixSceneId: mixSel.value || null }) });
+        startScene((store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise');
+      });
+    }
+    const mixVol = root.querySelector('#focus-mix-volume');
+    if (mixVol) {
+      mixVol.addEventListener('input', () => {
+        store.updateSettings({ focus: Object.assign({}, store.state.settings.focus, { mixVolume: Number(mixVol.value) / 100 }) });
+        startScene((store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise');
+      });
+    }
     const vol = root.querySelector('#focus-volume');
     if (vol) {
       vol.addEventListener('input', () => {
@@ -491,5 +546,5 @@
 
   g.Sugar = g.Sugar || {};
   g.Sugar.ui = g.Sugar.ui || {};
-  g.Sugar.ui.focus = { open, close, SCENES, isOpen: () => !!F.overlay };
+  g.Sugar.ui.focus = { open, close, SCENES, toggleBreath, isOpen: () => !!F.overlay };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -105,6 +105,29 @@ test('子行也能补充截止日期与优先级', () => {
   assert.strictEqual(tasks[0].priority, 2);
 });
 
+test('解析中文数字编号：一、二、三', () => {
+  const tasks = parser.parse('数学\n一、试卷一张\n二、默写判定方法\n三、订正错题', subjects);
+  assert.strictEqual(tasks.length, 3);
+  assert.strictEqual(tasks[0].title, '试卷一张');
+  assert.strictEqual(tasks[1].title, '默写判定方法');
+});
+
+test('任务类型识别：打卡 / 背诵 / 书面（v0.17.0）', () => {
+  assert.strictEqual(parser.detectTaskType('每日英语打卡'), 'checkin');
+  assert.strictEqual(parser.detectTaskType('背诵古诗三首'), 'recite');
+  assert.strictEqual(parser.detectTaskType('试卷一张'), 'written');
+  const tasks = parser.parse('语文\n1.背诵《望岳》\n英语\n1.每日打卡', subjects);
+  assert.strictEqual(tasks[0].taskType, 'recite');
+  assert.strictEqual(tasks[1].taskType, 'checkin');
+});
+
+test('parseDetailed 返回未解析行提示（导入纠错）', () => {
+  const d = parser.parseDetailed('数学\n（无编号的零散行）\n1.试卷一张', subjects);
+  assert.strictEqual(d.tasks.length, 1);
+  assert.ok(d.skipped.includes('（无编号的零散行）'));
+  assert.ok(d.warnings.length >= 1);
+});
+
 test('识别小初高 16 科默认词表（体育与健康/通用技术/综合实践活动等）', () => {
   const text =
     '体育与健康\n1.跑步 2 圈\n' +
@@ -209,6 +232,52 @@ test('专注统计：连续专注天数与科目聚合', () => {
   assert.ok(s.focusStreak >= 2);
   assert.strictEqual(s.focusSubjectTop[0].name, '数学');
   assert.strictEqual(s.focusSubjectTop[0].minutes, 75); // 25（今日）+ 50（昨日）；未完成会话不计
+});
+
+test('准时率：完成日 ≤ 截止日 记为准时（v0.17.0）', () => {
+  const dateStr = (offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  };
+  const iso = (offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    d.setHours(18, 0, 0, 0);
+    return d.toISOString();
+  };
+  const state = {
+    tasks: [
+      { id: 'a', subject: '数学', isCompleted: true, isDeleted: false, dueDate: dateStr(-1), completedAt: iso(-1) },
+      { id: 'b', subject: '语文', isCompleted: true, isDeleted: false, dueDate: dateStr(-1), completedAt: iso(0) },
+      { id: 'c', subject: '英语', isCompleted: true, isDeleted: false, dueDate: null, completedAt: iso(-1) },
+      { id: 'd', subject: '物理', isCompleted: false, isDeleted: false, dueDate: dateStr(0) }
+    ]
+  };
+  const s = stats.compute(state, 'all');
+  assert.strictEqual(s.dueCompletedCount, 2);
+  assert.strictEqual(s.onTimeCount, 1);
+  assert.strictEqual(s.onTimeRate, 50);
+});
+
+test('科目欠账排行按未完成 + 逾期天数加权（v0.17.0）', () => {
+  const dateStr = (offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  };
+  const state = {
+    tasks: [
+      { id: 'a', subject: '数学', isCompleted: false, isDeleted: false, dueDate: dateStr(-2) },
+      { id: 'b', subject: '数学', isCompleted: false, isDeleted: false, dueDate: null },
+      { id: 'c', subject: '英语', isCompleted: false, isDeleted: false, dueDate: null },
+      { id: 'd', subject: '物理', isCompleted: false, isDeleted: false, dueDate: dateStr(-3) }
+    ]
+  };
+  const s = stats.compute(state, 'all');
+  assert.strictEqual(s.topUnfinished[0].name, '物理');
+  assert.strictEqual(s.topUnfinished[1].name, '数学');
+  assert.strictEqual(s.topUnfinished[2].name, '英语');
 });
 
 console.log('\n🔑 账号与同步测试（v0.16.0）');

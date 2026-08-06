@@ -84,6 +84,29 @@
       '</div>';
   }
 
+  function familyCardHtml() {
+    const profiles = store.state.settings.familyProfiles || [];
+    const rows = profiles.length
+      ? profiles.map((p) =>
+          '<div class="subject-row"><span class="dot" style="background:var(--lavender-strong)"></span>' +
+          '<span class="name">' + util.escapeHtml(p.label) + '</span>' +
+          '<span style="font-size:11px;color:var(--text-3)">' + util.escapeHtml(S.account.accountShortId(p.pubkey)) + '</span>' +
+          '<span class="sub-actions">' +
+          '<button class="btn small" data-action="switch-family" data-profile="' + util.escapeHtml(p.id) + '">切换</button>' +
+          '<button class="btn small soft-danger" data-action="remove-family" data-profile="' + util.escapeHtml(p.id) + '">' +
+          S.icons.icon('trash', 13) + '</button></span></div>').join('')
+      : '<div style="font-size:12px;color:var(--text-3);padding:4px 2px">还没有家庭成员档案</div>';
+    return '<div class="settings-card reveal"><h3>👨‍👩‍👧 家庭模式</h3>' +
+      '<div class="settings-row" style="align-items:flex-start"><span class="row-icon">' + S.icons.icon('user', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">家庭成员档案</div>' +
+      '<div class="row-desc">保存孩子/家人的助记词档案，一键切换账号代管；打卡类任务可在对应账号中确认</div>' +
+      '<div id="family-profiles">' + rows + '</div></div></div>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('plus', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">添加档案</div><div class="row-desc">输入成员助记词与昵称</div></div>' +
+      '<button class="btn small soft-pink" data-action="add-family">添加</button></div>' +
+      '</div>';
+  }
+
   async function saveAccount(result) {
     const acc = {
       pubkey: result.kp.pubkey,
@@ -207,6 +230,59 @@
     });
   }
 
+  function openAddFamily() {
+    const dlg = S.ui.modal.open({
+      title: '添加家庭成员',
+      body:
+        '<div class="field"><label>昵称（例如：小明）</label><input type="text" id="family-label" placeholder="小明"></div>' +
+        '<div class="field"><label>成员助记词（12 词）</label>' +
+        '<textarea id="family-mnemonic" placeholder="粘贴或输入成员账号的 12 词助记词" style="min-height:80px"></textarea></div>',
+      footer: ''
+    });
+    dlg.footEl.innerHTML =
+      '<button class="btn" data-action="cancel">取消</button>' +
+      '<button class="btn primary" data-action="ok">' + S.icons.icon('check', 13) + ' 保存档案</button>';
+    dlg.footEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      if (btn.dataset.action === 'cancel') { dlg.close(); return; }
+      const label = dlg.bodyEl.querySelector('#family-label').value.trim() || '家庭成员';
+      const mnemonic = dlg.bodyEl.querySelector('#family-mnemonic').value.trim();
+      if (!mnemonic) { S.ui.toast('请输入成员助记词'); return; }
+      S.account.restoreAccount(mnemonic).then((result) => {
+        store.addFamilyProfile({
+          label,
+          mnemonic: result.mnemonic.join(' '),
+          pubkey: result.kp.pubkey
+        });
+        S.ui.toast('✅ 已添加 ' + label + ' 的档案');
+        dlg.close();
+        g.App.renderView();
+      }).catch((err) => {
+        S.ui.toast('助记词无效：' + (err && err.message ? err.message : err));
+      });
+    });
+  }
+
+  function switchFamily(id) {
+    const p = (store.state.settings.familyProfiles || []).find((x) => x.id === id);
+    if (!p) return;
+    S.account.restoreAccount(p.mnemonic).then((result) => {
+      store.setAccount({
+        pubkey: result.kp.pubkey,
+        displayName: p.label,
+        seedB64: S.account.b64url(result.seed),
+        mnemonic: result.mnemonic.join(' '),
+        version: 1,
+        createdAt: new Date().toISOString(),
+        lastSyncAt: null,
+        devices: [{ id: util.uuid(), name: store.state.settings.deviceName, lastSyncAt: null }]
+      });
+      S.ui.toast('已切换到 ' + p.label + ' 的账号');
+      g.App.render();
+    }).catch((err) => S.ui.toast('切换失败：' + (err && err.message ? err.message : err)));
+  }
+
   function bind(wrap) {
     wrap.querySelectorAll('input[data-toggle="sync.autoSync"]').forEach((inp) => {
       inp.addEventListener('change', () => {
@@ -232,6 +308,22 @@
         S.sync.syncNow();
       } else if (a === 'configure-relays') {
         openRelays();
+      } else if (a === 'add-family') {
+        openAddFamily();
+      } else if (a === 'switch-family') {
+        switchFamily(btn.dataset.profile);
+      } else if (a === 'remove-family') {
+        const id = btn.dataset.profile;
+        S.ui.modal.confirm({
+          title: '删除成员档案',
+          message: '删除后需重新输入助记词才能切换该账号。确定删除吗？',
+          confirmText: '删除',
+          danger: true,
+          onConfirm: () => {
+            store.removeFamilyProfile(id);
+            S.ui.toast('成员档案已删除');
+          }
+        });
       } else if (a === 'remove-device') {
         const id = btn.dataset.device;
         S.ui.modal.confirm({
@@ -266,5 +358,5 @@
 
   g.Sugar = g.Sugar || {};
   g.Sugar.ui = g.Sugar.ui || {};
-  g.Sugar.ui.account = { cardHtml, bind, openCreate, openRestore, openBackup, openRelays };
+  g.Sugar.ui.account = { cardHtml, familyCardHtml, bind, openCreate, openRestore, openBackup, openRelays, openAddFamily, switchFamily };
 })(typeof window !== 'undefined' ? window : globalThis);

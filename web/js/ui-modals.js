@@ -145,7 +145,8 @@
         previewEl().innerHTML = '<div class="empty"><div class="big">' + S.icons.icon('list', 40) + '</div>粘贴后点击“预览解析”，自动识别科目与编号条目。</div>';
         return [];
       }
-      const tasks = S.parser.parse(text, store.state.subjects);
+      const detail = S.parser.parseDetailed(text, store.state.subjects);
+      const tasks = detail.tasks;
       if (!tasks.length) {
         previewEl().innerHTML = '<div class="empty"><div class="big">' + S.icons.icon('help', 40) + '</div>没有解析到任务，请检查文本格式。</div>';
         return [];
@@ -157,7 +158,11 @@
           (t.dueDate ? ' <span style="color:var(--peach-strong);display:inline-flex;align-items:center;gap:2px;font-size:11px">' + S.icons.icon('calendar', 11) + util.fmtDate(t.dueDate) + '</span>' : '') +
           '</span></div>';
       }).join('');
+      const warnings = detail.warnings.length
+        ? '<div class="parse-warning">' + S.icons.icon('help', 12) + ' ' + util.escapeHtml(detail.warnings.join('；')) + '</div>'
+        : '';
       previewEl().innerHTML =
+        warnings +
         '<div class="field"><label>' + S.icons.icon('list', 12) + ' 预览结果（' + tasks.length + ' 项）</label></div>' +
         '<div class="preview-list">' + items + '</div>';
       return tasks;

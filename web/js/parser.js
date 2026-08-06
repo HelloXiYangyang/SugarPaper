@@ -18,8 +18,8 @@
     '默认', '未分类', '综合'
   ];
 
-  // 编号条目：1. 1、 (1) ① - • 等
-  const ITEM_RE = /^\s*(?:(\d{1,3})[.、．.)）]|([①-⑳])|[-•·*])\s*(.+?)\s*$/;
+  // 编号条目：1. 1、 (1) ① - • 一、二、等
+  const ITEM_RE = /^\s*(?:(\d{1,3})[.、．.)）]|([①-⑳])|([一二三四五六七八九十百]+)[、.．]|[-•·*])\s*(.+?)\s*$/;
   // 作业动作词（用于启发式判断“这行不是科目行”）
   const TASK_WORDS = /题|卷|书|文|本|册|作业|抄|背|默|写|读|练|预习|复习|订正|检查|完成|背诵|听写|作文|古诗|讲义|试卷|练习|阅读|计算|画|做|准备|打印|下载|上传|提交|打卡/;
   // 行尾标点（句号/分号/冒号等 → 更像普通句子）
@@ -94,6 +94,18 @@
     return String(text || '').trim();
   }
 
+  /**
+   * 任务类型识别（v0.17.0）：打卡/签到 → checkin；背诵/朗读/预习/听写 → recite；其余 → written
+   * @param {string} text
+   * @returns {string}
+   */
+  function detectTaskType(text) {
+    const t = String(text || '');
+    if (/打卡|签到|每日打卡|接龙打卡/.test(t)) return 'checkin';
+    if (/背诵|朗读|熟读|预习|听写|默写|诵读/.test(t)) return 'recite';
+    return 'written';
+  }
+
   function isSubjectLine(line, subjectNames) {
     const t = line.trim();
     if (!t) return false;
@@ -116,11 +128,13 @@
    * @param {Array<{name:string}>} subjects 已配置科目（用于识别科目行）
    * @returns {Array<{subject:string,title:string,subtitle:string,priority:number,dueDate:string|null}>}
    */
-  function parse(text, subjects) {
+  function parseLines(text, subjects) {
     const subjectNames = (subjects || []).map((s) => s.name);
     const rawLines = String(text || '').split(/\r?\n/).map((l) => l.trim());
     const lines = rawLines.filter((l) => l.length > 0);
     const result = [];
+    const consumed = new Set();
+    const skipped = [];
     let currentSubject = null;
     let sawAnySubject = false;
     let lastTask = null;
@@ -148,6 +162,7 @@
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       if (isHeader[i]) {
+        consumed.add(i);
         currentSubject = line;
         sawAnySubject = true;
         lastTask = null;
@@ -156,14 +171,16 @@
 
       const m = itemMatch[i];
       if (m) {
-        const title = cleanItemTitle(m[3]);
+        const title = cleanItemTitle(m[4]);
         if (!title) continue;
+        consumed.add(i);
         const task = {
           subject: currentSubject || (sawAnySubject ? currentSubject : '默认'),
           title,
           subtitle: '',
           priority: extractPriority(title),
-          dueDate: extractDueDate(title)
+          dueDate: extractDueDate(title),
+          taskType: detectTaskType(title)
         };
         result.push(task);
         lastTask = task;
@@ -172,6 +189,7 @@
 
       // 非编号行 → 追加为上一个任务的子行（附加描述）
       if (lastTask) {
+        consumed.add(i);
         const more = extractDueDate(line);
         if (more && !lastTask.dueDate) lastTask.dueDate = more;
         const pri = extractPriority(line);
@@ -180,27 +198,46 @@
           ? lastTask.subtitle + '\n' + line
           : line;
       } else if (!sawAnySubject && result.length === 0) {
+        consumed.add(i);
         // 无任何结构信息：整段视为一个任务（兜底）
         const task = {
           subject: '默认',
           title: line,
           subtitle: '',
           priority: extractPriority(line),
-          dueDate: extractDueDate(line)
+          dueDate: extractDueDate(line),
+          taskType: detectTaskType(line)
         };
         result.push(task);
         lastTask = task;
       }
     }
 
+    // 未被消费的非空行 → 记录为“未解析行”（供导入纠错提示）
+    for (let i = 0; i < lines.length; i++) {
+      if (!consumed.has(i)) skipped.push(lines[i]);
+    }
+
     // 去掉标题为空的任务；为无科目任务补“默认”
-    return result.filter((t) => t.title).map((t) => ({
+    const tasks = result.filter((t) => t.title).map((t) => ({
       ...t,
       subject: t.subject || '默认'
     }));
+    const warnings = [];
+    if (!tasks.length && lines.length) warnings.push('没有解析到任何任务，请检查文本格式');
+    if (skipped.length) warnings.push('有 ' + skipped.length + ' 行未能解析：' + skipped.slice(0, 3).join(' / '));
+    return { tasks, skipped, warnings };
   }
 
-  const api = { parse, extractDueDate, extractPriority, isSubjectLine };
+  function parse(text, subjects) {
+    return parseLines(text, subjects).tasks;
+  }
+
+  function parseDetailed(text, subjects) {
+    return parseLines(text, subjects);
+  }
+
+  const api = { parse, parseDetailed, detectTaskType, extractDueDate, extractPriority, isSubjectLine };
   g.Sugar = g.Sugar || {};
   g.Sugar.parser = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

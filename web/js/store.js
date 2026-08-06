@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.16.0';
+  const APP_VERSION = '0.17.0';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -66,7 +66,10 @@
         // v0.15.0：专注场景偏好
         focus: {
           sceneId: 'pink-noise',
-          volume: 0.6
+          volume: 0.6,
+          // v0.17.0：叠加音混音（Noisli 式）
+          mixSceneId: null,
+          mixVolume: 0.4
         },
         // v0.15.0：数据安全网（自动备份提醒 / 已提醒标记）
         backupReminder: true,
@@ -78,7 +81,9 @@
         sync: {
           autoSync: false,
           relays: ['wss://relay.damus.io', 'wss://nostr.wine', 'wss://relay.nostr.band']
-        }
+        },
+        // v0.17.0：家庭模式——本机保存的家庭成员档案（助记词 + 昵称），可快捷切换账号代管
+        familyProfiles: []
       }
     };
   }
@@ -155,6 +160,7 @@
 
   function normalizeTask(input) {
     const now = nowIso();
+    const text = String((input.title || '') + ' ' + (input.subtitle || ''));
     return {
       id: input.id || g.Sugar.util.uuid(),
       subject: input.subject || '默认',
@@ -167,7 +173,10 @@
       isDeleted: !!input.isDeleted,
       completedAt: input.completedAt || (input.isCompleted ? now : null),
       dueDate: input.dueDate || null,
-      priority: input.priority == null ? 1 : input.priority
+      priority: input.priority == null ? 1 : input.priority,
+      // v0.17.0：任务类型（written/recite/checkin）与家长确认标记
+      taskType: input.taskType || (g.Sugar.parser && g.Sugar.parser.detectTaskType(text)) || 'written',
+      confirmed: !!input.confirmed
     };
   }
 
@@ -323,6 +332,26 @@
     emit();
   }
 
+  /* ---------- 家庭模式档案（v0.17.0） ---------- */
+
+  function addFamilyProfile(profile) {
+    const list = Array.isArray(state.settings.familyProfiles) ? state.settings.familyProfiles.slice() : [];
+    list.push({
+      id: profile.id || g.Sugar.util.uuid(),
+      label: profile.label || '家庭成员',
+      mnemonic: profile.mnemonic,
+      pubkey: profile.pubkey || '',
+      createdAt: profile.createdAt || nowIso()
+    });
+    updateSettings({ familyProfiles: list });
+    return list[list.length - 1];
+  }
+
+  function removeFamilyProfile(id) {
+    const list = (state.settings.familyProfiles || []).filter((p) => p.id !== id);
+    updateSettings({ familyProfiles: list });
+  }
+
   function replaceAll(data) {
     if (Array.isArray(data.tasks)) state.tasks = data.tasks;
     if (Array.isArray(data.notes)) state.notes = data.notes;
@@ -338,6 +367,17 @@
     t.isCompleted = !t.isCompleted;
     t.completedAt = t.isCompleted ? now : null;
     t.updatedAt = now;
+    persist();
+    emit();
+    return t;
+  }
+
+  /** 家长确认（打卡类任务）：确认/取消确认 */
+  function toggleConfirm(id) {
+    const t = findTask(id);
+    if (!t) return null;
+    t.confirmed = !t.confirmed;
+    t.updatedAt = nowIso();
     persist();
     emit();
     return t;
@@ -470,8 +510,11 @@
     setAccount,
     updateAccount,
     clearAccount,
+    addFamilyProfile,
+    removeFamilyProfile,
     replaceAll,
     toggleComplete,
+    toggleConfirm,
     moveTask,
     importTasks,
     getSubjectColor,

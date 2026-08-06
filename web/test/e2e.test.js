@@ -238,6 +238,23 @@ async function main() {
   check('追加导入后任务增加 3 项', totalAfter === 12, '实际 ' + totalAfter);
   check('弹窗已关闭', (await page.locator('.modal-mask').count()) === 0);
 
+  console.log('🏷 打卡任务与家长确认（S3）');
+  await page.evaluate(() => window.App.navigate('home'));
+  await page.waitForTimeout(200);
+  await page.evaluate(() => window.Sugar.ui.modal.openImport());
+  await page.waitForTimeout(200);
+  await page.locator('#import-text').fill('英语\n1.每日单词打卡');
+  await page.locator('[data-action="preview"]').click();
+  await page.waitForTimeout(200);
+  await page.locator('[data-action="append"]').click();
+  await page.waitForTimeout(250);
+  await page.evaluate(() => window.App.navigate('home'));
+  await page.waitForTimeout(250);
+  check('打卡任务显示打卡标签', await page.locator('.tag.task-checkin').count() >= 1);
+  await page.locator('.task-card:not(.completed) .action.confirm').first().click();
+  await page.waitForTimeout(250);
+  check('家长确认后显示已确认标记', (await page.locator('.tag.done-time', { hasText: '家长已确认' }).count()) >= 1);
+
   console.log('📝 便签');
   await page.evaluate(() => window.App.navigate('notes'));
   await page.waitForTimeout(250);
@@ -271,6 +288,12 @@ async function main() {
   await page.waitForTimeout(2200);
   const timeText = await page.locator('#focus-time').innerText();
   check('计时器走动（25:00 已变化）', timeText !== '25:00', timeText);
+  await page.locator('[data-focus="scene"]').click();
+  await page.waitForTimeout(200);
+  check('混音叠加音选择存在', await page.locator('#focus-mix').count() === 1);
+  await page.locator('[data-focus="breath"]').click();
+  await page.waitForTimeout(200);
+  check('呼吸引导可开启', await page.locator('.focus-breath.on').count() === 1);
   await page.locator('[data-focus="close"]').click();
   await page.waitForTimeout(200);
   check('专注覆盖层关闭', await page.locator('#focus-root').count() === 0);
@@ -322,6 +345,29 @@ async function main() {
   check('同一助记词恢复出同一公钥', pubkey2 === pubkey, pubkey + ' vs ' + pubkey2);
   check('同步状态行存在', await page.locator('#sync-status').count() === 1);
   check('立即同步按钮存在', await page.locator('[data-action="sync-now"]').count() === 1);
+
+  console.log('👨‍👩‍👧 家庭模式（S3）');
+  check('家庭模式卡片存在', (await page.locator('.settings-card', { hasText: '家庭模式' }).count()) >= 1);
+  await page.locator('[data-action="add-family"]').click();
+  await page.waitForTimeout(250);
+  await page.locator('#family-label').fill('小明');
+  await page.locator('#family-mnemonic').fill('bob yac xyz');
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(700);
+  check('无效助记词被拒绝（弹窗仍在）', await page.locator('#family-mnemonic').count() === 1);
+  await page.locator('#family-mnemonic').fill(mnemonic);
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(1000);
+  check('家庭成员档案已添加', await page.locator('#family-profiles .subject-row').count() === 1);
+  await page.locator('[data-action="switch-family"]').click();
+  await page.waitForTimeout(1000);
+  const switchedPub = await page.evaluate(() => window.Sugar.store.state.account && window.Sugar.store.state.account.pubkey);
+  check('切换到成员账号（同一助记词同一公钥）', switchedPub === pubkey2, switchedPub + ' vs ' + pubkey2);
+  await page.locator('[data-action="remove-family"]').click();
+  await page.waitForTimeout(200);
+  await page.locator('.modal-foot [data-action="ok"]').click();
+  await page.waitForTimeout(300);
+  check('成员档案已删除', await page.locator('#family-profiles .subject-row').count() === 0);
 
   console.log('💻 响应式布局');
   for (const [w, h, nav] of [[768, 1024, '.top-tabs'], [1024, 900, '.sidebar'], [1440, 900, '.sidebar'], [1700, 1000, '.right-panel']]) {

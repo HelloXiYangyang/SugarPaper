@@ -188,12 +188,17 @@
         void wrap.offsetWidth; // 强制 reflow 以重触发动画
         wrap.classList.add('view-enter-' + dir);
       }
-      if (this.state.view === 'home') S.ui.home.render(wrap);
-      else if (this.state.view === 'notes') S.ui.notes.render(wrap);
-      else if (this.state.view === 'calendar') S.ui.calendar.render(wrap);
-      else if (this.state.view === 'stats') S.ui.stats.render(wrap);
-      else if (this.state.view === 'settings') S.ui.settings.render(wrap);
-      this.observeReveals(wrap);
+      // 每次渲染使用全新子容器：避免常驻 wrap 上的事件监听器重复叠加
+      const box = document.createElement('div');
+      box.className = 'view-box';
+      wrap.innerHTML = '';
+      wrap.appendChild(box);
+      if (this.state.view === 'home') S.ui.home.render(box);
+      else if (this.state.view === 'notes') S.ui.notes.render(box);
+      else if (this.state.view === 'calendar') S.ui.calendar.render(box);
+      else if (this.state.view === 'stats') S.ui.stats.render(box);
+      else if (this.state.view === 'settings') S.ui.settings.render(box);
+      this.observeReveals(box);
     },
 
     initReveal() {

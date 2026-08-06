@@ -74,13 +74,22 @@
   function cardHtml(t) {
     const color = store.getSubjectColor(t.subject);
     const cls = 'task-card reveal' + (t.isCompleted ? ' completed' : '');
+    const typeBadge = t.taskType === 'checkin'
+      ? '<span class="tag task-checkin">' + S.icons.icon('check', 12) + ' 打卡</span>'
+      : t.taskType === 'recite'
+        ? '<span class="tag task-recite">' + S.icons.icon('book', 12) + ' 背诵</span>'
+        : '';
     const actions = t.isCompleted
       ? '<button class="action undo" data-action="toggle">' + S.icons.icon('undo', 13) + ' 撤销</button>' +
         '<button class="action edit" data-action="edit">' + S.icons.icon('edit', 13) + ' 编辑</button>' +
         '<button class="action del" data-action="del">' + S.icons.icon('trash', 13) + ' 删除</button>' +
         '<span class="grow"></span>' +
         '<span class="tag done-time">' + S.icons.icon('check', 12) + ' ' + util.escapeHtml(util.fmtDateTime(t.completedAt)) + '</span>'
-      : '<button class="action focus" data-action="focus">' + S.icons.icon('clock', 13) + ' 专注</button>' +
+      : (t.taskType === 'checkin'
+          ? '<button class="action confirm' + (t.confirmed ? ' confirmed' : '') + '" data-action="confirm">' +
+            S.icons.icon('check', 13) + (t.confirmed ? ' 已确认' : ' 确认') + '</button>'
+          : '') +
+        '<button class="action focus" data-action="focus">' + S.icons.icon('clock', 13) + ' 专注</button>' +
         '<button class="action done" data-action="toggle">' + S.icons.icon('check', 13) + ' 完成</button>' +
         '<button class="action edit" data-action="edit">' + S.icons.icon('edit', 13) + '</button>' +
         '<button class="action del" data-action="del">' + S.icons.icon('trash', 13) + '</button>' +
@@ -100,7 +109,9 @@
       (t.isCompleted ? '' : ' draggable="true"') + '>' +
       '<div class="task-top">' + subjectHtml + '<div class="task-title">' + util.escapeHtml(t.title) + '</div></div>' +
       subtitleHtml +
-      '<div class="task-meta">' + prioTagHtml(t.priority) + dueTagHtml(t) + '</div>' +
+      '<div class="task-meta">' + prioTagHtml(t.priority) + dueTagHtml(t) + typeBadge +
+      (t.taskType === 'checkin' && t.confirmed ? '<span class="tag done-time">' + S.icons.icon('check', 12) + ' 家长已确认</span>' : '') +
+      '</div>' +
       '<div class="task-actions">' + actions + '</div>' +
       '</article>';
   }
@@ -284,6 +295,8 @@
         S.ui.modal.openEdit(id);
       } else if (action === 'focus') {
         S.ui.focus.open(id);
+      } else if (action === 'confirm') {
+        store.toggleConfirm(id);
       } else if (action === 'del') {
         const t = store.state.tasks.find((x) => x.id === id);
         S.ui.modal.confirm({

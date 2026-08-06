@@ -13,6 +13,13 @@
   function addDays(d, n) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
   function startOfWeek(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const wd = (x.getDay() + 6) % 7; x.setDate(x.getDate() - wd); return x; }
 
+  function overdueDays(due) {
+    if (!due) return 0;
+    const t = parseDate(toDateStr(new Date()));
+    const d = parseDate(due);
+    return Math.max(0, Math.round((t - d) / 86400000));
+  }
+
   function completedOn(t, dateStr) {
     if (!t.completedAt) return false;
     const d = new Date(t.completedAt);
@@ -120,15 +127,27 @@
     const subjectTotal = subjectDist.reduce((s, x) => s + x.count, 0);
     subjectDist.forEach((x) => { x.pct = subjectTotal ? Math.round((x.count / subjectTotal) * 100) : 0; });
 
-    // 高频未完成科目 Top3
+    // 科目欠账排行（未完成 + 逾期天数加权，v0.17.0）
     const unCounts = {};
+    const unWeights = {};
     active.forEach((t) => {
       unCounts[t.subject] = (unCounts[t.subject] || 0) + 1;
+      unWeights[t.subject] = (unWeights[t.subject] || 0) + (1 + overdueDays(t.dueDate) * 2);
     });
     const topUnfinished = Object.keys(unCounts)
-      .map((name) => ({ name, count: unCounts[name], pri: maxPriorityOf(active, name) }))
-      .sort((a, b) => b.count - a.count)
+      .map((name) => ({
+        name,
+        count: unCounts[name],
+        pri: maxPriorityOf(active, name),
+        weight: Math.round(unWeights[name])
+      }))
+      .sort((a, b) => b.weight - a.weight || b.count - a.count)
       .slice(0, 3);
+
+    // 准时率（v0.17.0）：有截止日期的已完成任务中，完成日 ≤ 截止日的占比
+    const dueCompleted = completed.filter((t) => t.dueDate);
+    const onTimeCount = dueCompleted.filter((t) => toDateStr(new Date(t.completedAt)) <= t.dueDate).length;
+    const onTimeRate = dueCompleted.length ? Math.round((onTimeCount / dueCompleted.length) * 100) : null;
 
     // 周平均完成率（本周每日完成率均值）
     const weekRate = weekTrend.length
@@ -200,7 +219,10 @@
       barTrend,
       subjectDist,
       subjectTotal,
-      topUnfinished
+      topUnfinished,
+      onTimeRate,
+      onTimeCount,
+      dueCompletedCount: dueCompleted.length
     };
   }
 

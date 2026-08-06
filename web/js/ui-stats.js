@@ -123,12 +123,15 @@
         }).join('')
       : '<div class="empty"><div class="big">' + S.icons.icon('sparkles', 40) + '</div>没有未完成的作业</div>';
 
-    const summary =
+    let summary =
       '<div class="summary-item" style="--i:0"><span>' + S.icons.icon('book', 13) + ' 总任务数</span><b>' + s.total + '</b></div>' +
       '<div class="summary-item" style="--i:1"><span>' + S.icons.icon('check', 13) + ' 已完成</span><b class="ok">' + s.completed + '（' + s.rate + '%）</b></div>' +
       '<div class="summary-item" style="--i:2"><span>' + S.icons.icon('pin', 13) + ' 进行中</span><b class="no">' + s.active + '</b></div>' +
       '<div class="summary-item" style="--i:3"><span>' + S.icons.icon('flame', 13) + ' 连续完成天数</span><b>' + s.streak + ' 天</b></div>' +
       '<div class="summary-item" style="--i:4"><span>' + S.icons.icon('chart-line', 13) + ' 本周平均完成率</span><b>' + s.weekRate + '%</b></div>';
+    if (s.onTimeRate != null) {
+      summary += '<div class="summary-item" style="--i:5"><span>' + S.icons.icon('check', 13) + ' 准时完成率</span><b class="ok">' + s.onTimeRate + '%</b></div>';
+    }
 
     const toolbar =
       '<div class="stats-toolbar">' +
@@ -167,7 +170,7 @@
 
       '<div class="stats-card span-2 reveal"><h3><span class="e">' + S.icons.icon('chart-line', 15) + '</span>历史完成趋势（折线图 · 最近 8 周）</h3>' + lineHtml(s.weeklyTrend) + '</div>' +
 
-      '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('list', 15) + '</span>高频未完成科目 Top 3</h3>' +
+      '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('list', 15) + '</span>科目欠账排行（未完成 + 逾期加权）</h3>' +
       '<div class="top3-list">' + top3 + '</div></div>' +
 
       '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('calendar', 15) + '</span>' + RANGE_LABEL[range] + '一览</h3>' +
@@ -194,6 +197,7 @@
       '  已完成：' + s.completed + ' 项（' + s.rate + '%）',
       '  进行中：' + s.active + ' 项',
       '  连续完成天数：' + s.streak + ' 天',
+      (s.onTimeRate != null ? '  准时完成率：' + s.onTimeRate + '%（' + s.onTimeCount + '/' + s.dueCompletedCount + '）' : ''),
       '',
       '【专注】',
       '  今日专注：' + s.focusTodayMinutes + ' 分钟（' + s.focusTodayCount + ' 个番茄）',

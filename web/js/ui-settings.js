@@ -133,6 +133,7 @@
       '</div>' +
 
       (S.ui.account ? S.ui.account.cardHtml() : '') +
+      (S.ui.account ? S.ui.account.familyCardHtml() : '') +
 
       '<div class="settings-card reveal"><h3>数据安全网</h3>' +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('save', 15) + '</span>' +
