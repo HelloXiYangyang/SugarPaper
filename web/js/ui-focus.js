@@ -21,7 +21,8 @@
     { id: 'fireplace', name: '篝火', emoji: '🔥', color: '#F5A87A', grad: ['#FBE3D0', '#F5A87A'] },
     { id: 'library', name: '图书馆', emoji: '📚', color: '#D8C8A8', grad: ['#F2EBDD', '#D8C8A8'] },
     { id: 'forest', name: '森林鸟鸣', emoji: '🌲', color: '#A9E0CB', grad: ['#DFF2E8', '#A9E0CB'], disabled: true, hint: '音频素材待接入' },
-    { id: 'waves', name: '海浪', emoji: '🌊', color: '#8FC8E8', grad: ['#DCF0F8', '#8FC8E8'], disabled: true, hint: '音频素材待接入' }
+    { id: 'waves', name: '海浪', emoji: '🌊', color: '#8FC8E8', grad: ['#DCF0F8', '#8FC8E8'], disabled: true, hint: '音频素材待接入' },
+    { id: 'custom', name: '自定义声音', emoji: '🎵', color: '#F5C4DC', grad: ['#FBE4EE', '#F5C4DC'], custom: true }
   ];
 
   /* ---------- Web Audio：合成白噪音 ---------- */
@@ -29,6 +30,8 @@
   let master = null;
   let sceneNodes = [];
   let sceneTimers = [];
+  let customAudioEl = null;
+  let customRole = null; // 'primary' | 'mix'
 
   function ensureCtx() {
     try {
@@ -160,15 +163,57 @@
     }
   }
 
-  /** 播放主场景 + 可选叠加场景（Noisli 式混音，v0.17.0） */
+  /** 场景是否可用：自定义声音需已上传音频 */
+  function sceneUsable(id) {
+    if (id === 'custom') {
+      return !!(store.state.settings.focus && store.state.settings.focus.customAudio);
+    }
+    const s = SCENES.find((x) => x.id === id);
+    return !!s && !s.disabled;
+  }
+
+  function playCustomAudio(gain) {
+    stopCustomAudio();
+    const ca = store.state.settings.focus && store.state.settings.focus.customAudio;
+    if (!ca || !ca.dataUrl) return;
+    try {
+      const el = new Audio(ca.dataUrl);
+      el.loop = true;
+      el.volume = Math.max(0, Math.min(1, gain || 0.6));
+      el.play().catch(() => { /* 无音频设备时静默 */ });
+      customAudioEl = el;
+    } catch (e) { /* 忽略 */ }
+  }
+
+  function stopCustomAudio() {
+    if (customAudioEl) {
+      try { customAudioEl.pause(); } catch (e) { /* 忽略 */ }
+      customAudioEl = null;
+    }
+    customRole = null;
+  }
+
+  /** 播放主场景 + 可选叠加场景（Noisli 式混音，v0.17.0；自定义声音 v0.18.0） */
   function startScene(id) {
     stopScene();
+    stopCustomAudio();
     const focus = store.state.settings.focus || {};
     const base = focus.volume == null ? 0.6 : focus.volume;
-    buildScene(id, base);
+    if (id === 'custom') {
+      playCustomAudio(base);
+      customRole = 'primary';
+    } else {
+      buildScene(id, base);
+    }
     const mix = focus.mixSceneId;
-    if (mix && mix !== id && SCENES.some((s) => s.id === mix && !s.disabled)) {
-      buildScene(mix, (focus.mixVolume == null ? 0.4 : focus.mixVolume) * base);
+    if (mix && mix !== id && sceneUsable(mix)) {
+      const mv = (focus.mixVolume == null ? 0.4 : focus.mixVolume) * base;
+      if (mix === 'custom') {
+        playCustomAudio(mv);
+        customRole = 'mix';
+      } else {
+        buildScene(mix, mv);
+      }
     }
   }
 
@@ -262,6 +307,7 @@
   function close() {
     stopTimer();
     stopScene();
+    stopCustomAudio();
     F.overlay = null;
     document.title = F._title;
     const root = document.getElementById('focus-root');
@@ -411,21 +457,29 @@
 
   function sceneHtml() {
     const current = (store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise';
-    return SCENES.map((s) =>
-      '<button class="scene-card' + (s.id === current ? ' active' : '') + '" data-scene="' + s.id + '"' + (s.disabled ? ' disabled' : '') +
+    const custom = store.state.settings.focus && store.state.settings.focus.customAudio;
+    return SCENES
+      .filter((s) => !(s.custom && !custom))
+      .map((s) => {
+        const usable = sceneUsable(s.id);
+        const hint = s.custom ? '上传音频后可用' : (s.hint || '');
+        return '<button class="scene-card' + (s.id === current ? ' active' : '') + '" data-scene="' + s.id + '"' + (usable ? '' : ' disabled') +
       ' style="--scene-a:' + s.grad[0] + ';--scene-b:' + s.grad[1] + '">' +
       '<span class="scene-emoji">' + s.emoji + '</span>' +
-      '<span class="scene-name">' + util.escapeHtml(s.name) + '</span>' +
-      (s.disabled ? '<span class="scene-hint">' + util.escapeHtml(s.hint) + '</span>' : '') +
-      '</button>').join('');
+      '<span class="scene-name">' + (s.custom && custom ? util.escapeHtml(custom.name) : util.escapeHtml(s.name)) + '</span>' +
+      (usable ? '' : '<span class="scene-hint">' + util.escapeHtml(hint) + '</span>') +
+      '</button>';
+      }).join('');
   }
 
   function mixRowHtml() {
     const focus = store.state.settings.focus || {};
     const options = ['<option value="">无（不叠加）</option>'].concat(
-      SCENES.filter((s) => !s.disabled).map((s) =>
-        '<option value="' + s.id + '"' + (focus.mixSceneId === s.id ? ' selected' : '') + '>' +
-        s.emoji + ' ' + util.escapeHtml(s.name) + '</option>')
+      SCENES.filter((s) => sceneUsable(s.id)).map((s) => {
+        const name = s.custom && focus.customAudio ? focus.customAudio.name : s.name;
+        return '<option value="' + s.id + '"' + (focus.mixSceneId === s.id ? ' selected' : '') + '>' +
+          s.emoji + ' ' + util.escapeHtml(name) + '</option>';
+      })
     ).join('');
     return '<div class="mix-row">' +
       '<span class="mix-label">' + S.icons.icon('music', 13) + ' 叠加音</span>' +
@@ -434,6 +488,17 @@
       '<input type="range" id="focus-mix-volume" min="0" max="100" value="' +
       Math.round(((focus.mixVolume == null ? 0.4 : focus.mixVolume)) * 100) + '">' +
       '</div>';
+  }
+
+  function customAudioRowHtml() {
+    const ca = store.state.settings.focus && store.state.settings.focus.customAudio;
+    if (ca) {
+      return '<div class="mix-row"><span class="mix-label">🎵 ' + util.escapeHtml(ca.name) + '</span>' +
+        '<button class="btn small soft-danger" data-focus="remove-custom">删除</button></div>';
+    }
+    return '<div class="mix-row"><span class="mix-label">' + S.icons.icon('upload', 13) + ' 自定义声音</span>' +
+      '<label class="btn small" for="custom-audio-file">上传音频（≤2MB）</label>' +
+      '<input type="file" id="custom-audio-file" accept="audio/*" hidden></div>';
   }
 
   function renderOverlay() {
@@ -480,7 +545,7 @@
       '<input type="range" id="focus-volume" min="0" max="100" value="' + Math.round(((store.state.settings.focus && store.state.settings.focus.volume) || 0.6) * 100) + '">' +
       '<button class="icon-btn breath-btn" data-focus="breath" title="呼吸引导">' + S.icons.icon('target', 15) + '</button>' +
       '</div>' +
-      '<div class="focus-scene-panel" id="focus-scene-panel" hidden>' + sceneHtml() + mixRowHtml() + '</div>' +
+      '<div class="focus-scene-panel" id="focus-scene-panel" hidden>' + sceneHtml() + mixRowHtml() + customAudioRowHtml() + '</div>' +
       '</div>';
     document.body.appendChild(root);
     F.overlay = root;
@@ -498,6 +563,12 @@
         else if (a === 'skip') skip();
         else if (a === 'end') close();
         else if (a === 'breath') toggleBreath();
+        else if (a === 'remove-custom') {
+          store.updateSettings({ focus: Object.assign({}, store.state.settings.focus, { customAudio: null }) });
+          startScene((store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise');
+          refreshScenePanel(root);
+          return;
+        }
         else if (a === 'scene') {
           F.scenePanel = !F.scenePanel;
           const panel = root.querySelector('#focus-scene-panel');
@@ -515,6 +586,30 @@
         startScene(sc.dataset.scene);
       }
     });
+    bindPanelControls(root);
+    const vol = root.querySelector('#focus-volume');
+    if (vol) {
+      vol.addEventListener('input', () => {
+        const v = Number(vol.value) / 100;
+        const focus = Object.assign({}, store.state.settings.focus, { volume: v });
+        store.updateSettings({ focus });
+        if (master) master.gain.value = v;
+        if (customAudioEl) {
+          customAudioEl.volume = customRole === 'mix'
+            ? v * (focus.mixVolume == null ? 0.4 : focus.mixVolume)
+            : v;
+        }
+      });
+    }
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+    root.setAttribute('tabindex', '-1');
+    root.focus();
+  }
+
+  /** 绑定场景面板内的控件（混音选择/音量/自定义音频上传）；面板刷新后重新调用 */
+  function bindPanelControls(root) {
     const mixSel = root.querySelector('#focus-mix');
     if (mixSel) {
       mixSel.addEventListener('change', () => {
@@ -529,19 +624,37 @@
         startScene((store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise');
       });
     }
-    const vol = root.querySelector('#focus-volume');
-    if (vol) {
-      vol.addEventListener('input', () => {
-        const v = Number(vol.value) / 100;
-        store.updateSettings({ focus: Object.assign({}, store.state.settings.focus, { volume: v }) });
-        if (master) master.gain.value = v;
+    const file = root.querySelector('#custom-audio-file');
+    if (file) {
+      file.addEventListener('change', () => {
+        const f = file.files && file.files[0];
+        file.value = '';
+        if (!f) return;
+        if (!/^audio\//.test(f.type)) { S.ui.toast('请选择音频文件'); return; }
+        if (f.size > 2 * 1024 * 1024) { S.ui.toast('音频需小于 2MB'); return; }
+        const reader = new FileReader();
+        reader.onload = () => {
+          store.updateSettings({
+            focus: Object.assign({}, store.state.settings.focus, {
+              customAudio: { name: f.name, dataUrl: reader.result }
+            })
+          });
+          S.ui.toast('自定义声音已添加');
+          startScene((store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise');
+          refreshScenePanel(root);
+        };
+        reader.readAsDataURL(f);
       });
     }
-    root.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') close();
-    });
-    root.setAttribute('tabindex', '-1');
-    root.focus();
+  }
+
+  /** 刷新场景面板内容（上传/删除自定义声音后） */
+  function refreshScenePanel(root) {
+    const panel = root.querySelector('#focus-scene-panel');
+    if (panel) {
+      panel.innerHTML = sceneHtml() + mixRowHtml() + customAudioRowHtml();
+      bindPanelControls(root);
+    }
   }
 
   g.Sugar = g.Sugar || {};

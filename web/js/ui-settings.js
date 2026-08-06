@@ -127,8 +127,9 @@
       '<div class="row-body"><div class="row-title">默认专注场景</div>' +
       '<div class="row-desc">开始专注时自动播放的声音环境</div></div>' +
       '<span class="row-action"><select id="focus-scene">' +
-      (S.ui.focus ? S.ui.focus.SCENES.filter((s) => !s.disabled).map((s) =>
-        '<option value="' + s.id + '"' + (set.focus.sceneId === s.id ? ' selected' : '') + '>' + s.emoji + ' ' + util.escapeHtml(s.name) + '</option>').join('') : '') +
+      (S.ui.focus ? S.ui.focus.SCENES.filter((s) => !s.disabled && !(s.custom && !set.focus.customAudio)).map((s) =>
+        '<option value="' + s.id + '"' + (set.focus.sceneId === s.id ? ' selected' : '') + '>' + s.emoji + ' ' +
+        (s.custom && set.focus.customAudio ? util.escapeHtml(set.focus.customAudio.name) : util.escapeHtml(s.name)) + '</option>').join('') : '') +
       '</select></span></div>' +
       '</div>' +
 

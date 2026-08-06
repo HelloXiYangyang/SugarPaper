@@ -22,6 +22,28 @@ const MIME = {
   '.webmanifest': 'application/manifest+json; charset=utf-8'
 };
 
+function makeWav(seconds, sampleRate) {
+  seconds = seconds || 0.3;
+  sampleRate = sampleRate || 8000;
+  const numSamples = Math.floor(sampleRate * seconds);
+  const dataSize = numSamples * 2;
+  const buf = Buffer.alloc(44 + dataSize);
+  buf.write('RIFF', 0);
+  buf.writeUInt32LE(36 + dataSize, 4);
+  buf.write('WAVE', 8);
+  buf.write('fmt ', 12);
+  buf.writeUInt32LE(16, 16);
+  buf.writeUInt16LE(1, 20);
+  buf.writeUInt16LE(1, 22);
+  buf.writeUInt32LE(sampleRate, 24);
+  buf.writeUInt32LE(sampleRate * 2, 28);
+  buf.writeUInt16LE(2, 32);
+  buf.writeUInt16LE(16, 34);
+  buf.write('data', 36);
+  buf.writeUInt32LE(dataSize, 40);
+  return buf;
+}
+
 function startServer() {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
@@ -246,6 +268,7 @@ async function main() {
   await page.waitForTimeout(200);
   await page.evaluate(() => window.Sugar.ui.modal.openImport());
   await page.waitForTimeout(200);
+  check('导入弹窗含语音输入按钮', await page.locator('.modal [data-voice]').count() >= 1);
   await page.locator('#import-text').fill('英语\n1.每日单词打卡');
   await page.locator('[data-action="preview"]').click();
   await page.waitForTimeout(200);
@@ -264,6 +287,7 @@ async function main() {
   check('便签页已渲染', await page.locator('.notes-toolbar').count() === 1);
   await page.locator('[data-action="new-note"]').first().click();
   await page.waitForTimeout(200);
+  check('便签编辑器含语音速记按钮', await page.locator('.modal [data-voice]').count() >= 1);
   await page.locator('#note-title').fill('明天带彩纸');
   await page.locator('#note-content').fill('美术课需要');
   await page.locator('.modal-foot [data-action="save"]').click();
@@ -294,6 +318,14 @@ async function main() {
   await page.locator('[data-focus="scene"]').click();
   await page.waitForTimeout(200);
   check('混音叠加音选择存在', await page.locator('#focus-mix').count() === 1);
+  await page.setInputFiles('#custom-audio-file', { name: '雨声自定义.wav', mimeType: 'audio/wav', buffer: makeWav() });
+  await page.waitForTimeout(800);
+  const customAudio = await page.evaluate(() => window.Sugar.store.state.settings.focus.customAudio);
+  check('自定义声音已上传保存', !!customAudio && customAudio.name === '雨声自定义.wav');
+  check('自定义场景卡片出现', await page.locator('.scene-card[data-scene="custom"]').count() === 1);
+  await page.locator('.scene-card[data-scene="custom"]').click();
+  await page.waitForTimeout(200);
+  check('可切换到自定义声音场景', (await page.evaluate(() => window.Sugar.store.state.settings.focus.sceneId)) === 'custom');
   await page.locator('[data-focus="breath"]').click();
   await page.waitForTimeout(200);
   check('呼吸引导可开启', await page.locator('.focus-breath.on').count() === 1);

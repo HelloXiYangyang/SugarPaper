@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.17.1';
+  const APP_VERSION = '0.18.0';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -69,7 +69,9 @@
           volume: 0.6,
           // v0.17.0：叠加音混音（Noisli 式）
           mixSceneId: null,
-          mixVolume: 0.4
+          mixVolume: 0.4,
+          // v0.18.0：自定义声音场景（本地音频 dataURL，≤2MB）
+          customAudio: null
         },
         // v0.15.0：数据安全网（自动备份提醒 / 已提醒标记）
         backupReminder: true,

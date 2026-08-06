@@ -129,6 +129,7 @@
       '<div style="display:flex;gap:8px;margin-bottom:12px">' +
       '<button class="btn soft-pink small" data-action="preview">' + S.icons.icon('eye', 13) + ' 预览解析</button>' +
       '<button class="btn small" data-action="sample">' + S.icons.icon('sparkles', 13) + ' 填入示例</button>' +
+      '<button class="btn small" data-voice data-target="import-text" title="语音速记（浏览器支持时）">' + S.icons.icon('mic', 13) + ' 语音输入</button>' +
       '</div>' +
       '<div id="import-preview"></div>';
     dlg.footEl.innerHTML =
@@ -176,6 +177,7 @@
       renderPreview();
     });
     dlg.bodyEl.querySelector('[data-action="preview"]').addEventListener('click', renderPreview);
+    initVoiceInput(dlg.bodyEl);
     dlg.footEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -336,7 +338,10 @@
       '<div class="field"><label>模板</label><div style="display:flex;gap:8px;flex-wrap:wrap">' +
       Object.keys(NOTE_TEMPLATES).map((t) =>
         '<button type="button" class="btn small" data-template="' + util.escapeHtml(t) + '">' + util.escapeHtml(t) + '</button>').join('') +
-      '</div></div>';
+      '</div></div>' +
+      '<div class="field"><label>语音速记</label><button type="button" class="btn small soft-pink" data-voice data-target="note-content">' +
+      S.icons.icon('mic', 13) + ' 语音输入（说作业、说通知）</button>' +
+      '<div style="font-size:12px;color:var(--text-3);margin-top:6px">识别结果自动填入内容框，可一键转成作业。</div></div>';
     dlg.footEl.innerHTML =
       (existing ? '<button class="btn soft-pink" data-action="to-task">' + S.icons.icon('list', 13) + ' 转为作业</button>' : '') +
       '<button class="btn" data-action="cancel">取消</button>' +
@@ -357,6 +362,7 @@
         dlg.bodyEl.querySelector('#note-title').focus();
       });
     });
+    initVoiceInput(dlg.bodyEl);
     dlg.footEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -396,6 +402,55 @@
     if (isNaN(d.getTime())) return '';
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
       'T' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  /** 语音速记（v0.18.0）：Web Speech API（zh-CN），浏览器不支持时隐藏按钮 */
+  function initVoiceInput(root) {
+    root.querySelectorAll('[data-voice]').forEach((btn) => {
+      const SR = g.SpeechRecognition || g.webkitSpeechRecognition;
+      if (!SR) {
+        btn.hidden = true;
+        return;
+      }
+      const target = root.querySelector('#' + btn.dataset.target);
+      if (!target) return;
+      let rec = null;
+      const label = btn.innerHTML;
+      btn.addEventListener('click', () => {
+        if (rec) {
+          try { rec.stop(); } catch (e) { /* 忽略 */ }
+          return;
+        }
+        try {
+          rec = new SR();
+          rec.lang = 'zh-CN';
+          rec.interimResults = true;
+          rec.continuous = false;
+          let finalText = '';
+          rec.onresult = (e) => {
+            let interim = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+              const t = e.results[i][0].transcript;
+              if (e.results[i].isFinal) finalText += t;
+              else interim += t;
+            }
+            target.value = target.value + finalText + interim;
+          };
+          const done = () => {
+            rec = null;
+            btn.classList.remove('recording');
+            btn.innerHTML = label;
+          };
+          rec.onend = done;
+          rec.onerror = () => { done(); toast('语音识别失败，请重试'); };
+          rec.start();
+          btn.classList.add('recording');
+          btn.innerHTML = S.icons.icon('mic', 13) + ' 停止';
+        } catch (err) {
+          toast('无法启动语音识别');
+        }
+      });
+    });
   }
 
   /** 便签 → 作业：优先复用解析引擎；解析不到时降级为单条任务 */

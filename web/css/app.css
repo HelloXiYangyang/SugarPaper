@@ -107,6 +107,7 @@ input, select, textarea { font-family: inherit; color: inherit; }
 .btn.small { padding: 6px 12px; font-size: 13px; border-radius: 10px; }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn:active, .icon-btn:active { transform: scale(.94); }
+.btn.recording { background: var(--danger-soft); color: var(--danger-strong); border-color: var(--danger); }
 .chip:active { transform: scale(.93); }
 .task-actions .action:active { transform: scale(.92); }
 
