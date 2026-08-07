@@ -384,34 +384,27 @@ class _FocusPageState extends ConsumerState<FocusPage>
   }
 
   /// S12：专注页卡片容器（圆角 + 柔和阴影 + 可选渐变底色），
-  /// 让番茄钟 / 环境噪音 / 声音氛围各自成块，符合糖纸马卡龙风格。
+  /// 让番茄钟 / 环境噪音 / 声音氛围各自成块；风格与统计页卡片一致。
   Widget _focusCard({
     required SugarThemeData t,
     required String title,
     required String icon,
     String? subtitle,
-    Color? tint,
     required Widget child,
   }) {
     return Container(
       width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
       decoration: BoxDecoration(
-        gradient: tint == null
-            ? null
-            : LinearGradient(
-                colors: [t.surface, tint],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-        color: tint == null ? t.surface.withValues(alpha: 0.86) : null,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.65)),
+        color: t.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: t.border),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF7A5C68).withValues(alpha: 0.09),
-            blurRadius: 14,
-            offset: const Offset(0, 5),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -544,21 +537,11 @@ class _FocusPageState extends ConsumerState<FocusPage>
               s.startedAt.day == now.day;
         })
         .fold<int>(0, (sum, s) => sum + s.pomodoros);
-    final grads = _sceneGrads[_scene] ?? _sceneGrads['none']!;
-
     return Scaffold(
       backgroundColor: t.bg,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: grads,
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
+      body: SafeArea(
+        child: Stack(
+          children: [
             // 呼吸引导光晕
             if (_breathOn)
               AnimatedBuilder(
@@ -583,7 +566,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
               },
               ),
             ListView(
-              padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+              padding: const EdgeInsets.fromLTRB(14, 8, 14, 24),
               children: [
                 Row(
                   children: [
@@ -637,7 +620,6 @@ class _FocusPageState extends ConsumerState<FocusPage>
                   t: t,
                   title: '番茄钟',
                   icon: 'bolt',
-                  tint: t.pinkSoft.withValues(alpha: 0.45),
                   child: Column(
                     children: [
                       const SizedBox(height: 4),
@@ -792,7 +774,6 @@ class _FocusPageState extends ConsumerState<FocusPage>
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
                 _focusCard(
                   t: t,
                   title: '环境与噪音',
@@ -814,12 +795,10 @@ class _FocusPageState extends ConsumerState<FocusPage>
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
                 _focusCard(
                   t: t,
                   title: '声音与氛围',
                   icon: 'bell',
-                  tint: t.lavenderSoft.withValues(alpha: 0.4),
                   child: Column(
                     children: [
                       const SizedBox(height: 4),
@@ -945,8 +924,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
           ],
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
