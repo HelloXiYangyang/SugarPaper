@@ -1,6 +1,9 @@
-# 🧁 糖纸 · SugarPaper —— 全平台自动更新方案（零服务器）v1.0
+# 🧁 糖纸 · SugarPaper —— 零服务器全平台发布·自动更新·官网方案 v2.0
 
-> 目标：不租服务器、不自己建站、不买任何云服务，仅用 GitHub 的免费能力，实现 **Android / Windows / macOS / Linux / iOS / 鸿蒙 / Web PWA** 的版本检测与更新分发。
+> 目标：不租服务器、不自己建站、不买任何云服务，仅用 GitHub 的免费能力，同时实现三件事：
+> 1. **自动更新**：Android / Windows / macOS / Linux / iOS / 鸿蒙 / Web PWA 的版本检测与更新分发；
+> 2. **网页版上线**：把现有 `web/` PWA 部署到 GitHub Pages；
+> 3. **官网**：搭建官方网站（介绍 + 截图 + 各平台最新版下载按钮）。
 >
 > 前提条件：仓库必须保持 **公开**。公共仓库的 GitHub Actions 免费无限分钟、Releases 免费无限带宽；私有仓库每月只有约 2000 分钟构建额度。
 
@@ -8,7 +11,7 @@
 
 ## 1. 一句话结论
 
-**GitHub Releases 存安装包 + GitHub Pages 存一份很小的 update.json 元数据 + GitHub Actions 自动打包发布 = 零服务器自动更新。**
+**GitHub Releases 存安装包 + GitHub Pages 存 update.json 并托管官网与网页版 + GitHub Actions 自动打包与部署 = 零服务器的自动更新、官网、网页版，三合一。**
 
 三个组件全部是 GitHub 免费能力，不是"服务器"：
 
@@ -273,15 +276,157 @@ jobs:
 
 ---
 
-## 7. 分阶段落地路线
+## 9. 网页版上线与官网部署（零服务器）
 
-### 阶段 1（零证书、本周就能做）：Android + Windows + Linux + Web PWA
+### 9.1 关键问题：一个仓库能部署多个网站吗？
+
+**能，但有一个限制：**
+
+- 一个 GitHub 仓库只能发布**一个** GitHub Pages 站点；
+- 但一个站点内部可以用**子路径**放任意多个"网站"；
+- 想要两个完全独立的网址（各自绑不同域名），则需要**两个仓库**（都是免费的，不算服务器）。
+
+### 9.2 方案 A：单仓库子路径（推荐，现阶段直接用）
+
+一个 Pages 站点同时放官网和网页版：
+
+| 入口 | URL |
+| --- | --- |
+| 官网（根路径） | https://helloxiyangyang.github.io/SugarPaper/ |
+| 网页版（子路径） | https://helloxiyangyang.github.io/SugarPaper/app/ |
+
+优点：
+
+- 一个仓库、一套 Actions、一个部署，全免费；
+- 网页版现有代码已经全部使用相对路径（`register('sw.js')`、`start_url: "index.html"`、`./` 资源引用），**天然兼容子路径，几乎不用改**；
+- 以后买了自定义域名（如 sugarpaper.cn），子路径结构原样保留：`sugarpaper.cn/` 是官网、`sugarpaper.cn/app/` 是网页版。
+
+### 9.3 方案 B：多仓库独立站点（以后要独立域名时再拆）
+
+| 仓库 | 站点 URL |
+| --- | --- |
+| HelloXiYangyang/SugarPaper（本仓库） | https://helloxiyangyang.github.io/SugarPaper/ |
+| HelloXiYangyang/SugarPaper-Website（新建） | https://helloxiyangyang.github.io/SugarPaper-Website/ |
+
+- 每个仓库一个 Pages 站点，可各自绑一个自定义域名（如 www.sugarpaper.cn 与 app.sugarpaper.cn）；
+- 缺点：维护两个仓库、两套流水线；
+- 建议：现阶段用方案 A，等真有独立域名需求再拆，迁移成本很低（都是静态文件，拷贝目录即可）。
+
+### 9.4 官网设计
+
+官网源码放在本仓库的 `site/` 目录：
+
+```text
+site/                    # 官网源码
+  index.html             # 首页
+  css/theme.css          # 可复用糖纸主题色
+  js/downloads.js        # 下载区：读 updates/latest.json 自动渲染最新版按钮
+  assets/                # 截图、图标
+```
+
+页面结构（标准官网布局）：
+
+1. Hero 区：应用名 + slogan + 主下载按钮（自动指向最新版）；
+2. 功能亮点：作业管理、专注计时、统计、离线优先……
+3. 截图 / 演示区；
+4. 平台支持：Android / Windows / macOS / Linux / 鸿蒙 / Web；
+5. 下载区：按平台出按钮（Android APK、Windows exe、macOS dmg、Linux AppImage、HAP）；
+6. 更新日志：展示最近版本说明（可读 GitHub Releases 或 latest.json）；
+7. 常见问题 FAQ；
+8. 页脚：GitHub 仓库链接 + 开源许可（AGPL-3.0）。
+
+### 9.5 下载按钮如何"始终指向最新版"
+
+官网下载区**不写死版本号**，用 JS 读同一份 `updates/latest.json`（就是自动更新方案里的那份元数据）：
+
+```js
+// site/js/downloads.js（简化示意）
+fetch('/SugarPaper/updates/latest.json')
+  .then(r => r.json())
+  .then(data => {
+    const p = data.platforms;
+    document.querySelector('#dl-android').href = p.android.url;
+    document.querySelector('#dl-windows').href = p.windows.url;
+    document.querySelector('#dl-macos').href = p.macos.url;
+    document.querySelector('#dl-linux').href = p.linux.url;
+    document.querySelector('#dl-hap').href = p.harmonyos.url;
+    document.querySelector('#ver').textContent = data.latest.version;
+  });
+```
+
+好处：
+
+- 一份元数据两处用（客户端自动更新 + 官网下载按钮），发新版时只更新 latest.json，官网按钮自动指向新版本；
+- 同站读取，无跨域、无 API 限流；
+- 兜底：主按钮再放一个 `https://github.com/HelloXiYangyang/SugarPaper/releases/latest` 链接（GitHub 自动跳转到最新 Release 页），元数据万一没更新也能用。
+
+### 9.6 部署流水线（GitHub Actions，全自动）
+
+新建 `.github/workflows/deploy-pages.yml`：
+
+```yaml
+name: Deploy Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: 组装站点
+        run: |
+          mkdir -p _site
+          cp -r site/* _site/          # 官网 → 根路径
+          cp -r web _site/app          # 网页版 → /app/
+          cp -r updates _site/updates  # 元数据 → /updates/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+```
+
+配套设置（只需要你点一次）：
+
+1. 仓库 **Settings → Pages → Source** 选择 **GitHub Actions**；
+2. 之后每次 push main，官网 + 网页版 + latest.json 自动一起更新上线；
+3. 网页版发版时 bump `web/sw.js` 里的 `CACHE_NAME`，用户刷新即拿到新版本。
+
+### 9.7 PWA 在子路径下的适配清单（已检查，基本不用改）
+
+已确认网页版现状：
+
+- `navigator.serviceWorker.register('sw.js')` 是相对路径 → 部署在 `/SugarPaper/app/` 后自动解析为 `/SugarPaper/app/sw.js`，作用域正确；
+- manifest 的 `start_url: "index.html"` 是相对路径 → 自动解析到 `/SugarPaper/app/index.html`；
+- 全部资源引用都是 `./` 相对路径 → 兼容子路径。
+
+部署后做一次真机验证：访问 `/app/` → 安装 PWA → 断网刷新，确认离线可用。
+
+### 9.8 域名展望（不买也能用，买了更好）
+
+- 不买域名：`helloxiyangyang.github.io/SugarPaper/` 完全可用；
+- 买域名后：方案 A 直接绑到根（如 sugarpaper.cn），官网 = `sugarpaper.cn/`，网页版 = `sugarpaper.cn/app/`；
+- 想要两个独立子域名（www 与 app）：再走方案 B 拆两个仓库。
+
+---
+
+## 10. 分阶段落地路线
+
+### 阶段 1（零证书、本周就能做）：Android + Windows + Linux + Web PWA + 官网
 
 1. 建 `updates/latest.json`（先放仓库，客户端从 raw 或 Pages 读）；
 2. Flutter 加 `update_service.dart` + 设置页入口 + 更新对话框；
 3. Android APK、Windows setup.exe、Linux AppImage 三条安装链路跑通；
 4. Web 端 SW 版本 bump + 刷新提示 + GitHub Pages 自动部署；
-5. 验收：手动在 GitHub 发一个 v0.26.0 假 Release，各端能弹出更新、下载、安装。
+5. 建官网 `site/`（首页 + 功能 + 下载区），下载区读 latest.json 自动指向最新版；
+6. 建 `deploy-pages.yml`：官网放根路径、网页版放 `/app/`，一次部署全上线；
+7. 验收：手动在 GitHub 发一个 v0.26.0 假 Release，各端能弹出更新、下载、安装；打开官网能看到最新版下载按钮。
 
 ### 阶段 2：macOS
 
@@ -297,20 +442,25 @@ jobs:
 
 ---
 
-## 8. 风险与注意事项
+## 11. 风险与注意事项
 
 - **中国大陆下载 GitHub 慢**：Release 直连可能不稳定，可在设置页提供镜像源配置（如 ghproxy 类免费代理），或后续用 jsDelivr 等免费 CDN 缓存元数据。
 - **未签名程序的安全警告**：Windows SmartScreen、macOS Gatekeeper 会拦截，属平台安全机制，无法用 GitHub 绕过。
 - **iOS / 鸿蒙无法 GitHub 静默安装**：平台政策限制，只能走商店或手动确认安装。
 - **公共仓库才全免费**：一旦仓库设为私有，Actions 分钟数受限；如果想长期免费，保持公开。
 - **Release 文件命名要稳定**：建议统一 `SugarPaper-{版本}-{平台}-{架构}.{ext}`，便于自动化脚本匹配。
+- **一个仓库一个 Pages 站点**：官网 + 网页版用子路径共享一个站点；以后要独立域名/子域名需拆成多个仓库。
+- **仓库改名会换 URL**：Pages 路径包含仓库名，改名后旧链接失效（可用自定义域名规避）。
+- **GitHub 国内访问时快时慢**：官网和网页版可后续挂 jsDelivr / Cloudflare 这类免费 CDN 加速（仍是静态托管，不算服务器）。
 
 ---
 
-## 9. 下一步
+## 12. 下一步
 
 方案确认后，建议按阶段 1 开始实施：
 
-1. 我先写 `update_service.dart` + 更新 UI + 平台安装器（Android/Windows/Linux）；
-2. 再建 `.github/workflows/release.yml` 发布流水线；
-3. 最后做 Web PWA 的版本提示。
+1. 先写 Flutter 更新模块 `update_service.dart` + 更新 UI + 平台安装器（Android/Windows/Linux）；
+2. 建官网 `site/`（含下载区自动读取 latest.json）；
+3. 建 `.github/workflows/release.yml` 发布流水线 + `.github/workflows/deploy-pages.yml` 部署流水线；
+4. 做 Web PWA 的版本提示与子路径适配验证；
+5. 你在仓库 Settings → Pages 里点一下"Source = GitHub Actions"，之后全部自动。
