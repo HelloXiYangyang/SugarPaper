@@ -33,6 +33,11 @@ import '../legal/legal_page.dart';
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
+  // v0.33.0：个人信息头卡快捷入口的滚动定位目标
+  static final _badgeKey = GlobalKey();
+  static final _accountKey = GlobalKey();
+  static final _dataKey = GlobalKey();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).extension<SugarTheme>()!.data;
@@ -119,7 +124,9 @@ class SettingsPage extends ConsumerWidget {
         _card(
           t: t,
           title: '激励与成就',
+          cardKey: _badgeKey,
           children: [
+            _badgeStrip(state, t),
             _row(
               t: t,
               icon: 'bolt',
@@ -149,6 +156,7 @@ class SettingsPage extends ConsumerWidget {
         _card(
           t: t,
           title: '数据管理',
+          cardKey: _dataKey,
           children: [
             _row(
               t: t,
@@ -221,6 +229,7 @@ class SettingsPage extends ConsumerWidget {
         _card(
           t: t,
           title: '',
+          cardKey: _accountKey,
           children: const [AccountCard()],
         ),
         const SizedBox(height: 12),
@@ -443,8 +452,11 @@ class SettingsPage extends ConsumerWidget {
   ) {
     return Reveal(
       child: SugarCard(
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
+            Row(
+              children: [
             _AvatarLarge(state, t),
             const SizedBox(width: 12),
             Expanded(
@@ -480,10 +492,71 @@ class SettingsPage extends ConsumerWidget {
               compact: true,
               onTap: () => _renameDevice(context, ref),
             ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // v0.33.0：个人信息头卡快捷入口（参考健康/多邻国个人主页）
+            Row(
+              children: [
+                _shortcut(state, t, 'star', '我的勋章',
+                    () => _scrollTo(_badgeKey)),
+                _shortcut(state, t, 'chart-bar', '统计',
+                    () => state.navigate('stats')),
+                _shortcut(state, t, 'user', '账号',
+                    () => _scrollTo(_accountKey)),
+                _shortcut(state, t, 'save', '数据管理',
+                    () => _scrollTo(_dataKey)),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _shortcut(
+    AppState state,
+    SugarThemeData t,
+    String icon,
+    String label,
+    VoidCallback onTap,
+  ) {
+    return Expanded(
+      child: PressableScale(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: t.surface2,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.border),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SugarIcon(icon, size: 18, color: t.iconMain),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: t.text2),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _scrollTo(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Widget _fpsSeg(BuildContext context, WidgetRef ref, AppState state, SugarThemeData t) {
@@ -578,6 +651,79 @@ class SettingsPage extends ConsumerWidget {
   }
 
   /// v0.32.0：成就徽章墙
+  /// v0.33.0：我的勋章横条（已解锁数 + 最近解锁，参考健康/多邻国个人主页）
+  Widget _badgeStrip(AppState state, SugarThemeData t) {
+    final unlockedMap = RewardsEngine.unlocked(state.store);
+    final count = unlockedMap.length;
+    final recent = RewardsEngine.badges
+        .where((b) => unlockedMap.containsKey(b.id))
+        .toList()
+        .reversed
+        .take(6)
+        .toList();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(18, 10, 18, 2),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: t.surface2,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: t.border),
+      ),
+      child: Row(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '我的勋章',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: t.text2,
+                ),
+              ),
+              Text(
+                '$count/${RewardsEngine.badges.length}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: t.iconMain,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: recent.isEmpty
+                ? Text(
+                    '完成作业解锁第一枚徽章',
+                    style: TextStyle(fontSize: 12, color: t.text3),
+                  )
+                : Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: recent
+                        .map((b) => Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: t.iconSoft,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: SugarIcon(
+                                b.icon,
+                                size: 20,
+                                color: t.iconMain,
+                              ),
+                            ))
+                        .toList(),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _badgeWall(AppState state, SugarThemeData t) {
     final unlockedMap = RewardsEngine.unlocked(state.store);
     return Padding(
@@ -818,9 +964,11 @@ class SettingsPage extends ConsumerWidget {
     required SugarThemeData t,
     required String title,
     required List<Widget> children,
+    Key? cardKey,
   }) {
     return Reveal(
       child: SugarCard(
+        key: cardKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

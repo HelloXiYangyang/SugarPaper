@@ -200,8 +200,9 @@ async function main() {
   check('返回首页正常', await page.locator('.view-wrap .home-view, .view-wrap .task-group').count() >= 1);
 
   console.log('🖱 交互');
-  check('首页显示激励条（连胜 + XP 进度）', await page.locator('.reward-bar').count() === 1);
-  const streakTxt = (await page.locator('.rb-streak').innerText()).replace(/\s+/g, '');
+  check('首页显示概览卡（进度环 + 连胜 + 指标）', await page.locator('.home-overview').count() === 1);
+  check('概览卡含今日 XP 进度环', await page.locator('.home-overview .ho-ring svg').count() === 1);
+  const streakTxt = (await page.locator('.ho-streak').innerText()).replace(/\s+/g, '');
   check('连胜天数已计算', /\d+天连胜/.test(streakTxt), streakTxt);
   const xpBefore = await page.evaluate(() => window.Sugar.rewards.daySummary(window.Sugar.store.state.tasks).xp);
   await page.locator('.task-card:not(.completed) .action.done').first().click();
@@ -339,6 +340,8 @@ async function main() {
   await page.evaluate(() => window.App.navigate('settings'));
   await page.waitForTimeout(200);
   check('设置页含「激励与成就」卡片', await page.locator('#xp-goal-seg').count() === 1 && await page.locator('#task-goal-seg').count() === 1);
+  check('个人信息头卡含快捷入口（勋章/统计/账号/数据）', await page.locator('.profile-shortcuts .ps-item').count() === 4);
+  check('激励卡片含我的勋章横条', await page.locator('.badge-strip').count() === 1);
   check('设置页含成就徽章墙（12 枚）', await page.locator('.badge-wall .badge-item').count() === 12);
   check('至少解锁一枚徽章（完成作业后）', await page.locator('.badge-item.unlocked').count() >= 1);
   check('设置页含「法律与隐私」卡片', await page.locator('[data-action="view-terms"]').count() === 1 && await page.locator('[data-action="view-privacy"]').count() === 1);

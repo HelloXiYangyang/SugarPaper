@@ -54,6 +54,22 @@
     }).join('');
   }
 
+  /* ---------- v0.33.0：我的勋章横条（参考健康/多邻国个人主页） ---------- */
+  function badgeStripHtml() {
+    const rw = S.rewards;
+    if (!rw) return '';
+    const unlockedMap = rw.unlocked(store.state);
+    const count = Object.keys(unlockedMap).length;
+    const recent = rw.BADGES.filter((b) => unlockedMap[b.id]).slice(-6);
+    return '<div class="badge-strip">' +
+      '<div class="bs-head"><span>' + S.icons.icon('star', 14) + ' 我的勋章</span><b>' + count + '/' + rw.BADGES.length + '</b></div>' +
+      '<div class="bs-list">' +
+      (recent.length
+        ? recent.map((b) => '<span class="bs-item" title="' + util.escapeHtml(b.name) + '">' + S.icons.icon(b.icon, 20) + '</span>').join('')
+        : '<span class="bs-empty">完成作业解锁第一枚徽章</span>') +
+      '</div></div>';
+  }
+
   function switchRow(iconName, title, desc, key) {
     const checked = getSetting(key) ? ' checked' : '';
     return '<div class="settings-row"><span class="row-icon">' + S.icons.icon(iconName, 15) + '</span>' +
@@ -126,6 +142,12 @@
       '<div class="device-meta">' + S.icons.icon('save', 12) + ' 离线优先 · 本地存储<br>' + S.icons.icon('list', 12) + ' 数据大小：' + dataSize() + '</div></div>' +
       '<button class="btn small" data-action="change-avatar">' + S.icons.icon('image', 13) + ' 换头像</button>' +
       '<button class="btn small" data-action="rename-device">' + S.icons.icon('edit', 13) + ' 改名</button>' +
+      '</div>' +
+      '<div class="profile-shortcuts">' +
+      '<button class="ps-item" data-shortcut="badges">' + S.icons.icon('star', 18) + '<span>我的勋章</span></button>' +
+      '<button class="ps-item" data-shortcut="stats">' + S.icons.icon('chart-bar', 18) + '<span>统计</span></button>' +
+      '<button class="ps-item" data-shortcut="account">' + S.icons.icon('user', 18) + '<span>账号</span></button>' +
+      '<button class="ps-item" data-shortcut="data">' + S.icons.icon('save', 18) + '<span>数据管理</span></button>' +
       '</div></div>' +
 
       '<div class="settings-card reveal"><h3>个性化</h3>' +
@@ -161,6 +183,7 @@
       '</div>' +
 
       '<div class="settings-card reveal"><h3>' + S.icons.icon('flame', 15) + ' 激励与成就</h3>' +
+      badgeStripHtml() +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('bolt', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">每日 XP 目标</div>' +
       '<div class="row-desc">完成作业获得经验值，冲刺每日目标</div></div>' +
@@ -311,6 +334,19 @@
   }
 
   function bind(wrap) {
+    // v0.33.0：个人信息头卡快捷入口（勋章/统计/账号/数据管理）
+    wrap.querySelectorAll('[data-shortcut]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const t = b.dataset.shortcut;
+        if (t === 'stats') { g.App.navigate('stats'); return; }
+        const map = { badges: '激励与成就', account: '账号与同步', data: '数据管理' };
+        const label = map[t];
+        if (!label) return;
+        const card = [...wrap.querySelectorAll('.settings-card')].find((c) => c.innerText.indexOf(label) >= 0);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
     if (S.ui.account) S.ui.account.bind(wrap);
     wrap.querySelectorAll('input[data-toggle]').forEach((inp) => {
       inp.addEventListener('change', () => {

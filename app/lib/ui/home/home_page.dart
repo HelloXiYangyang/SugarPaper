@@ -360,7 +360,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  /// v0.32.0：激励条（连胜火焰 + 今日 XP / 完成进度，动画进度条）
+  /// v0.33.0：首页概览卡（今日进度环 + 连胜 + 指标行，参考健康/多邻国首页）
   Widget _rewardBar(BuildContext context, AppState state, SugarThemeData t) {
     final tasks = state.store.tasks.where((t) => !t.isDeleted).toList();
     final today = RewardsEngine.daySummary(tasks);
@@ -368,69 +368,156 @@ class _HomePageState extends ConsumerState<HomePage> {
     final goals = Map<String, int>.from(state.store.settings.rewardsGoals);
     final xpGoal = goals['dailyXp'] ?? 50;
     final taskGoal = goals['dailyTasks'] ?? 3;
+    final xpPct = (today.xp / math.max(1, xpGoal)).clamp(0.0, 1.0);
+    final taskPct = (today.count / math.max(1, taskGoal)).clamp(0.0, 1.0);
+    final focusMin = _focusTodayMinutes(state);
     return Reveal(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [t.iconSoft, t.surface],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(color: t.border),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF7A5C68).withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Row(
+        child: Column(
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
+            Row(
               children: [
+                Text(
+                  '今日概览',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: t.text2,
+                  ),
+                ),
+                const Spacer(),
                 TweenAnimationBuilder<double>(
                   tween: Tween(begin: 1, end: today.count > 0 ? 1.18 : 1),
                   duration: const Duration(milliseconds: 600),
                   curve: Curves.easeOutBack,
-                  builder: (c, v, child) => Transform.scale(scale: v, child: child),
-                  child: SugarIcon(
-                    'flame',
-                    size: 22,
-                    color: today.count > 0 ? t.peachStrong : t.text3,
+                  builder: (c, v, child) =>
+                      Transform.scale(scale: v, child: child),
+                  child: Row(
+                    children: [
+                      SugarIcon(
+                        'flame',
+                        size: 17,
+                        color: today.count > 0 ? t.peachStrong : t.text3,
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        '$st 天连胜',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color:
+                              today.count > 0 ? t.peachStrong : t.text2,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Text(
-                  '$st',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: t.text,
-                  ),
-                ),
-                Text(
-                  '天连胜',
-                  style: TextStyle(fontSize: 10, color: t.text2),
                 ),
               ],
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: _goalColumn(
-                t,
-                icon: 'bolt',
-                label: '今日 XP',
-                value: today.xp,
-                goal: xpGoal,
-                color: t.iconMain,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _goalColumn(
-                t,
-                icon: 'check',
-                label: '完成',
-                value: today.count,
-                goal: taskGoal,
-                color: t.mintStrong,
-              ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                // 今日 XP 进度环
+                SizedBox(
+                  width: 92,
+                  height: 92,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: xpPct),
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.easeOutCubic,
+                        builder: (c, v, child) => SizedBox(
+                          width: 92,
+                          height: 92,
+                          child: CircularProgressIndicator(
+                            value: v,
+                            strokeWidth: 8,
+                            strokeCap: StrokeCap.round,
+                            backgroundColor: t.surface3,
+                            color: t.iconMain,
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${(xpPct * 100).round()}%',
+                            style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w800,
+                              color: t.text,
+                            ),
+                          ),
+                          Text(
+                            'XP',
+                            style:
+                                TextStyle(fontSize: 10, color: t.text2),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    children: [
+                      _goalRow(
+                        t,
+                        icon: 'check',
+                        iconBg: t.mintSoft,
+                        iconColor: t.mintStrong,
+                        label: '完成作业',
+                        value: '${today.count}/$taskGoal',
+                        pct: taskPct,
+                        barColor: t.mintStrong,
+                      ),
+                      const SizedBox(height: 8),
+                      _goalRow(
+                        t,
+                        icon: 'bolt',
+                        iconBg: t.iconSoft,
+                        iconColor: t.iconMain,
+                        label: '今日 XP',
+                        value: '${today.xp}/$xpGoal',
+                        pct: xpPct,
+                        barColor: t.iconMain,
+                      ),
+                      const SizedBox(height: 8),
+                      _goalRow(
+                        t,
+                        icon: 'clock',
+                        iconBg: t.skySoft,
+                        iconColor: t.skyStrong,
+                        label: '专注分钟',
+                        value: '$focusMin',
+                        pct: 0,
+                        barColor: t.skyStrong,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -438,69 +525,81 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _goalColumn(
+  int _focusTodayMinutes(AppState state) {
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day);
+    var sec = 0;
+    for (final s in state.store.focusSessions) {
+      if (s.startedAt.isBefore(start)) continue;
+      if (s.startedAt.isAfter(start.add(const Duration(days: 1)))) continue;
+      sec += s.durationSec;
+    }
+    return (sec / 60).round();
+  }
+
+  Widget _goalRow(
     SugarThemeData t, {
     required String icon,
+    required Color iconBg,
+    required Color iconColor,
     required String label,
-    required int value,
-    required int goal,
-    required Color color,
+    required String value,
+    required double pct,
+    required Color barColor,
   }) {
-    final pct = (value / math.max(1, goal)).clamp(0.0, 1.0);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            SugarIcon(icon, size: 12, color: t.text2),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: TextStyle(fontSize: 11, color: t.text2),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: t.surface.withValues(alpha: 0.75),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: t.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(8),
             ),
-            const Spacer(),
-            Text(
-              '$value/$goal',
+            child: SugarIcon(icon, size: 14, color: iconColor),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '$label  $value',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
                 color: t.text,
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(999),
-          child: SizedBox(
-            height: 7,
-            child: Stack(
-              children: [
-                Container(color: t.surface3),
-                TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0, end: pct),
-                  duration: const Duration(milliseconds: 600),
-                  curve: Curves.easeOutCubic,
-                  builder: (c, v, child) => Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      width: 220 * v,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
-                        gradient: LinearGradient(
-                          colors: [color, color.withValues(alpha: 0.65)],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-        ),
-      ],
+          if (pct > 0) ...[
+            const SizedBox(width: 6),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: pct),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              builder: (c, v, child) => SizedBox(
+                width: 40,
+                height: 5,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: v,
+                    backgroundColor: t.surface3,
+                    color: barColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 

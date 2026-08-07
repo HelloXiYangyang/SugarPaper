@@ -71,7 +71,21 @@
     return '<span class="tag pri-mid">' + S.icons.icon('flag', 12) + ' 中</span>';
   }
 
-  /* ---------- v0.32.0：激励条（连胜 + 今日 XP / 完成进度） ---------- */
+  /* ---------- v0.33.0：首页概览卡（今日进度环 + 连胜 + 指标行，参考健康/多邻国首页） ---------- */
+  function overviewRingHtml(pct, gid) {
+    const r = 40;
+    const c = 2 * Math.PI * r;
+    const offset = c * (1 - Math.min(100, Math.max(0, pct)) / 100);
+    return '<div class="ho-ring"><svg viewBox="0 0 100 100">' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="var(--icon-main, var(--pink-strong))"/>' +
+      '<stop offset="1" stop-color="var(--icon-accent, var(--lavender-strong))"/>' +
+      '</linearGradient></defs>' +
+      '<circle class="ho-ring-bg" cx="50" cy="50" r="' + r + '"/>' +
+      '<circle class="ho-ring-fg" cx="50" cy="50" r="' + r + '" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + offset.toFixed(1) + '" style="stroke:url(#' + gid + ')"/>' +
+      '</svg><div class="ho-ring-text"><b data-ho-xp>' + pct + '</b><span>% XP</span></div></div>';
+  }
+
   function rewardBarHtml() {
     const rw = S.rewards;
     if (!rw) return '';
@@ -81,16 +95,26 @@
     const goals = Object.assign({ dailyXp: 50, dailyTasks: 3 }, store.state.settings.rewardsGoals || {});
     const xpPct = Math.min(100, Math.round(today.xp / Math.max(1, goals.dailyXp) * 100));
     const taskPct = Math.min(100, Math.round(today.count / Math.max(1, goals.dailyTasks) * 100));
-    return '<div class="reward-bar reveal">' +
-      '<div class="rb-streak' + (today.count > 0 ? ' lit' : '') + '" title="连续完成天数">' +
-      S.icons.icon('flame', 17) + '<b>' + st + '</b><span>天连胜</span></div>' +
-      '<div class="rb-goal"><div class="rb-head"><span>' + S.icons.icon('bolt', 13) + ' 今日 XP</span>' +
-      '<b class="rb-num">' + today.xp + '/' + goals.dailyXp + '</b></div>' +
-      '<div class="rb-track"><i style="width:' + xpPct + '%"></i></div></div>' +
-      '<div class="rb-goal"><div class="rb-head"><span>' + S.icons.icon('check', 13) + ' 完成</span>' +
-      '<b>' + today.count + '/' + goals.dailyTasks + '</b></div>' +
-      '<div class="rb-track mint"><i style="width:' + taskPct + '%"></i></div></div>' +
-      '</div>';
+    let focusMin = 0;
+    try { focusMin = S.stats ? S.stats.compute(store.state, 'today').focusTodayMinutes : 0; } catch (e) { /* 忽略 */ }
+    return '<div class="home-overview reveal">' +
+      '<div class="ho-head">' +
+      '<div class="ho-title">' + S.icons.icon('sparkles', 14) + ' 今日概览</div>' +
+      '<div class="ho-streak' + (today.count > 0 ? ' lit' : '') + '" title="连续完成天数">' +
+      S.icons.icon('flame', 16) + '<b>' + st + '</b><span>天连胜</span></div>' +
+      '</div>' +
+      '<div class="ho-main">' +
+      overviewRingHtml(xpPct, 'hoRingMain') +
+      '<div class="ho-metrics">' +
+      '<div class="ho-metric"><span class="hm-ico mint">' + S.icons.icon('check', 14) + '</span>' +
+      '<div class="hm-body"><b>' + today.count + '/' + goals.dailyTasks + '</b><span>完成作业</span></div>' +
+      '<i class="hm-bar"><i style="width:' + taskPct + '%"></i></i></div>' +
+      '<div class="ho-metric"><span class="hm-ico">' + S.icons.icon('bolt', 14) + '</span>' +
+      '<div class="hm-body"><b>' + today.xp + '/' + goals.dailyXp + '</b><span>今日 XP</span></div>' +
+      '<i class="hm-bar"><i style="width:' + xpPct + '%"></i></i></div>' +
+      '<div class="ho-metric"><span class="hm-ico sky">' + S.icons.icon('clock', 14) + '</span>' +
+      '<div class="hm-body"><b>' + focusMin + '</b><span>专注分钟</span></div></div>' +
+      '</div></div></div>';
   }
 
   /** 完成作业 XP 飘字动画（fixed 浮层，不受视图重建影响） */

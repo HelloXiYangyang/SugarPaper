@@ -1198,6 +1198,51 @@ html.no-anim .switch .thumb {
 }
 .rb-track.mint i { background: linear-gradient(90deg, var(--mint-strong), var(--sky-strong)); }
 
+/* v0.33.0：首页概览卡（进度环 + 连胜 + 指标行，参考健康/多邻国首页） */
+.home-overview {
+  margin-bottom: 14px; padding: 14px;
+  background: linear-gradient(150deg, var(--icon-soft, var(--pink-soft)), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.ho-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.ho-title { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: var(--text-2); }
+.ho-title svg { color: var(--icon-main, var(--pink-strong)); }
+.ho-streak { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; color: var(--text-2); }
+.ho-streak b { font-size: 18px; color: var(--text); }
+.ho-streak svg { color: var(--text-3); transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), color .3s; }
+.ho-streak.lit svg { color: var(--peach-strong); animation: streak-bounce 1s ease infinite; }
+.ho-main { display: flex; align-items: center; gap: 16px; }
+.ho-ring { position: relative; width: min(108px, 32vw); height: min(108px, 32vw); flex: none; }
+.ho-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ho-ring-bg { fill: none; stroke: var(--surface-3); stroke-width: 9; }
+.ho-ring-fg { fill: none; stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset .7s cubic-bezier(.22, .9, .36, 1); }
+.ho-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ho-ring-text b { font-size: 20px; font-weight: 800; color: var(--text); }
+.ho-ring-text span { font-size: 10px; color: var(--text-2); font-weight: 700; }
+.ho-metrics { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ho-metric {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255, 255, 255, .5); border: 1px solid var(--border);
+  border-radius: 12px; padding: 7px 10px;
+}
+.ho-metric .hm-ico {
+  display: inline-flex; width: 26px; height: 26px; border-radius: 8px;
+  align-items: center; justify-content: center; flex: none;
+  background: var(--icon-soft, var(--pink-soft)); color: var(--icon-main, var(--pink-strong));
+}
+.ho-metric .hm-ico.mint { background: var(--mint-soft); color: var(--mint-strong); }
+.ho-metric .hm-ico.sky { background: var(--sky-soft); color: var(--sky-strong); }
+.ho-metric .hm-body { flex: 1; min-width: 0; }
+.ho-metric .hm-body b { font-size: 13px; font-weight: 800; color: var(--text); }
+.ho-metric .hm-body span { font-size: 11px; color: var(--text-2); margin-left: 4px; }
+.ho-metric .hm-bar {
+  display: block; width: 42px; height: 5px; border-radius: 999px;
+  background: var(--surface-3); overflow: hidden; flex: none;
+}
+.ho-metric .hm-bar i { display: block; height: 100%; border-radius: 999px; background: var(--icon-main, var(--pink-strong)); transition: width .6s cubic-bezier(.22, .9, .36, 1); }
+
 .xp-float {
   position: fixed; top: 22%; left: 50%; transform: translateX(-50%); z-index: 350;
   padding: 8px 18px; border-radius: 999px;
@@ -1249,6 +1294,37 @@ html.no-anim .switch .thumb {
 }
 .badge-item.unlocked .badge-ico { color: var(--icon-main, var(--pink-strong)); animation: badge-item-in .45s cubic-bezier(.34, 1.56, .64, 1); }
 @keyframes badge-item-in { from { transform: scale(.4) rotate(-12deg); } to { transform: none; } }
+
+/* v0.33.0：我的页个人信息头卡快捷入口 + 勋章横条（参考健康/多邻国个人主页） */
+.profile-shortcuts {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  padding: 12px 16px 14px;
+}
+.ps-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 10px 4px; border-radius: 14px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text-2); font-size: 11px; font-weight: 700;
+  transition: all .15s ease;
+}
+.ps-item svg { color: var(--icon-main, var(--pink-strong)); }
+.ps-item:hover { border-color: var(--icon-main, var(--pink)); background: var(--icon-soft, var(--pink-soft)); transform: translateY(-1px); }
+.badge-strip {
+  display: flex; align-items: center; gap: 12px;
+  margin: 12px 18px 2px; padding: 10px 12px;
+  background: var(--surface-2); border-radius: 14px; border: 1px solid var(--border);
+}
+.bs-head { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: none; }
+.bs-head span { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; color: var(--text-2); }
+.bs-head span svg { color: var(--icon-main, var(--pink-strong)); }
+.bs-head b { font-size: 13px; color: var(--icon-main, var(--pink-strong)); }
+.bs-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.bs-item {
+  display: inline-flex; width: 34px; height: 34px; border-radius: 10px;
+  align-items: center; justify-content: center;
+  background: var(--icon-soft, var(--pink-soft)); color: var(--icon-main, var(--pink-strong));
+}
+.bs-empty { font-size: 12px; color: var(--text-3); padding: 8px 0; }
 
 /* ---------- v0.33.0：好友直连 ---------- */
 .friend-tip {
