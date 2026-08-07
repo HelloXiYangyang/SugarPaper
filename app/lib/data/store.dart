@@ -20,7 +20,7 @@ import '../models/task.dart';
 /// 本地存储与状态管理（离线优先）。
 /// 数据格式与 Web 版 `web/js/store.js` 完全一致，备份可互相导入。
 class AppStore {
-  static const String appVersion = '0.30.0';
+  static const String appVersion = '0.31.0';
   static const String storageFileName = 'sugarpaper.json';
 
   final List<Task> tasks = [];

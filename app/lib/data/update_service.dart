@@ -11,6 +11,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'device_capabilities.dart';
 import '../models/update_info.dart';
 
 /// 零服务器自动更新（v0.27.0，对齐《零服务器全平台发布·自动更新·官网方案 v2.0》）：
@@ -24,6 +25,10 @@ class UpdateService {
   final String metadataUrl;
 
   const UpdateService({this.metadataUrl = defaultMetadataUrl});
+
+  // 后台下载待校验信息（下载前记录，完成后按文件名匹配）
+  static String? _pendingFile;
+  static String? _pendingSha256;
 
   /// 检查更新：远端 build > 本地 build 时返回更新信息，否则返回 null。
   Future<UpdateInfo?> checkForUpdate() async {
@@ -68,6 +73,47 @@ class UpdateService {
       throw StateError('SHA-256 校验失败，已中止安装');
     }
     return file;
+  }
+
+  /// v0.31.0：系统下载管理器后台下载（通知栏进度，不占前台）。
+  /// 下载完成后系统通知栏出现「下载完成」，点击可直接安装；
+  /// 同时通过 [handleBackgroundDownloadComplete] 校验后自动拉起安装器。
+  Future<void> startBackgroundDownload(
+    UpdatePlatformEntry entry,
+    String version,
+  ) async {
+    final fileName = 'sugarpaper-update-$version.apk';
+    _pendingFile = fileName;
+    _pendingSha256 = entry.sha256;
+    final id = await DeviceCapabilities.startBackgroundDownload(
+      url: entry.url,
+      fileName: fileName,
+      title: '糖纸 · SugarPaper v$version 更新',
+    );
+    if (id < 0) throw StateError('后台下载启动失败');
+  }
+
+  /// 后台下载完成回调：SHA-256 校验 → 拉起系统安装器。
+  Future<void> handleBackgroundDownloadComplete(
+    bool success,
+    String fileName,
+  ) async {
+    if (!success || fileName != _pendingFile) return;
+    try {
+      final dir = await getExternalStorageDirectory();
+      if (dir == null) return;
+      final file = File('${dir.path}${Platform.pathSeparator}$fileName');
+      if (!await file.exists()) return;
+      final hash = await _sha256File(file);
+      final expected = _pendingSha256 ?? '';
+      if (expected.isNotEmpty &&
+          !hash.toLowerCase().startsWith(expected.toLowerCase())) {
+        return; // 校验失败：不安装（用户可点系统通知重试）
+      }
+      await install(file);
+    } catch (_) {
+      // 后台完成时若 App 不可见，系统通知仍可触发安装
+    }
   }
 
   /// 交给系统安装器（Android 调起 APK 安装；其余平台后续扩展）。

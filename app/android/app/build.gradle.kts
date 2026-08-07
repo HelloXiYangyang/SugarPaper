@@ -25,6 +25,7 @@ android {
         applicationId = "com.sugarpaper.sugarpaper"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // v0.31.0：最低支持 Android 5.0（API 21），扩大兼容范围
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

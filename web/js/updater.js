@@ -61,37 +61,57 @@
     } catch (e) { /* 隐私模式等场景静默忽略 */ }
   }
 
-  /** 统一的新版本横幅：版本检查 / Service Worker 外壳更新共用 */
-  function showBanner() {
+  /** v0.31.0：统一的新版本升级弹窗（版本检查 / SW 外壳更新共用） */
+  function showUpdateDialog() {
     const v = state.latest && state.latest.version;
     const isVer = state.updateAvailable && v;
     const mark = isVer ? String(v) : '__shell__';
     if (dismissVersion() === mark) return;
-    const root = document.getElementById('toast-root') || document.body;
-    if (root.querySelector('.update-banner')) return;
+    const root = document.body;
+    if (root.querySelector('.update-dialog')) return;
 
-    const banner = document.createElement('div');
-    banner.className = 'update-banner';
-    const notes = (state.latest && state.latest.notes || '').replace(/\s+/g, ' ').trim();
-    banner.innerHTML =
-      '<span class="ub-icon">' + S.icons.icon('download', 16) + '</span>' +
-      '<span class="ub-text"><b>' + (isVer ? '发现新版本 v' + esc(v) : '已下载新版本，刷新后生效') + '</b>' +
-      (isVer && notes ? '<span class="ub-notes">' + esc(notes.slice(0, 72)) + '</span>' : '') +
-      '</span>' +
-      '<button class="btn small primary" data-update-refresh>' + S.icons.icon('download', 12) + ' 立即刷新</button>' +
-      (isVer ? '<a class="btn small" href="' + RELEASES_URL + '" target="_blank" rel="noopener">' + S.icons.icon('book', 12) + ' 更新记录</a>' : '') +
-      '<button class="ub-close" data-update-dismiss title="本次忽略">' + S.icons.icon('close', 13) + '</button>';
+    const mask = document.createElement('div');
+    mask.className = 'update-dialog';
+    mask.innerHTML = '<div class="ud-card">' +
+      '<div class="ud-head">' +
+      '<span class="ud-icon">' + S.icons.icon('download', 18) + '</span>' +
+      '<div class="ud-title"><b>' + (isVer ? '发现新版本 v' + esc(v) : '已下载新版本，刷新后生效') + '</b>' +
+      '<span class="ud-sub">' + (isVer ? '糖纸 · SugarPaper 有新版本可以升级' : '新版外壳已准备就绪') + '</span></div>' +
+      '<button class="ud-close" data-update-dismiss title="稍后再说">' + S.icons.icon('close', 14) + '</button>' +
+      '</div>' +
+      (isVer ? '<div class="ud-notes">' + esc((state.latest.notes || '').replace(/\s+/g, ' ').slice(0, 120)) + '</div>' : '') +
+      '<div class="ud-status" data-update-status>' + (isVer ? '新版本正在后台准备中…' : '') + '</div>' +
+      '<div class="ud-actions">' +
+      (isVer ? '<button class="btn small" data-update-ignore>忽略此版本</button>' : '') +
+      '<button class="btn small" data-update-later>稍后再说</button>' +
+      '<button class="btn small primary" data-update-refresh>' + S.icons.icon('download', 12) + ' 立即升级</button>' +
+      '</div></div>';
+    root.appendChild(mask);
 
-    const refreshBtn = banner.querySelector('[data-update-refresh]');
+    const refreshBtn = mask.querySelector('[data-update-refresh]');
     if (refreshBtn) refreshBtn.addEventListener('click', refresh);
-    const dismissBtn = banner.querySelector('[data-update-dismiss]');
-    if (dismissBtn) {
-      dismissBtn.addEventListener('click', () => {
+    const laterBtn = mask.querySelector('[data-update-later]');
+    if (laterBtn) laterBtn.addEventListener('click', () => mask.remove());
+    const ignoreBtn = mask.querySelector('[data-update-ignore]');
+    if (ignoreBtn) {
+      ignoreBtn.addEventListener('click', () => {
         rememberDismiss(mark);
-        banner.remove();
+        mask.remove();
       });
     }
-    root.appendChild(banner);
+    const dismissBtn = mask.querySelector('[data-update-dismiss]');
+    if (dismissBtn) dismissBtn.addEventListener('click', () => mask.remove());
+  }
+
+  /** SW 新外壳下载进度：installed 后提示已就绪 */
+  function markShellReady() {
+    const status = document.querySelector('[data-update-status]');
+    if (status) status.textContent = '新版本已就绪，点击「立即升级」即可生效';
+  }
+
+  /** 兼容旧调用：新版本/外壳统一走升级弹窗 */
+  function showBanner() {
+    showUpdateDialog();
   }
 
   /**
@@ -143,7 +163,8 @@
           nw.addEventListener('statechange', () => {
             if (nw.state === 'installed' && navigator.serviceWorker.controller) {
               state.shellUpdate = true;
-              showBanner();
+              showUpdateDialog();
+              markShellReady();
             }
           });
         });

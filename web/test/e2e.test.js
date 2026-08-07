@@ -49,6 +49,22 @@ function startServer() {
     const server = http.createServer((req, res) => {
       let urlPath = decodeURIComponent(req.url.split('?')[0]);
       if (urlPath === '/') urlPath = '/index.html';
+      // v0.31.0：模拟远端存在新版本，验证自动升级弹窗
+      if (urlPath === '/updates/latest.json') {
+        const meta = {
+          app: 'SugarPaper',
+          latest: {
+            version: '99.0.0',
+            build: 9900,
+            published_at: new Date().toISOString(),
+            notes: '模拟新版更新说明'
+          },
+          platforms: {}
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify(meta));
+        return;
+      }
       const filePath = path.join(root, path.normalize(urlPath));
       fs.readFile(filePath, (err, data) => {
         if (err) { res.writeHead(404); res.end('Not Found'); return; }
@@ -78,6 +94,12 @@ async function agreeLegal(page) {
   await page.locator('[data-legal-accept]').click();
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(300);
+  // 自动检查更新弹窗（模拟新版）出现时关闭，避免遮挡后续操作
+  await page.waitForTimeout(3200);
+  if (await page.locator('.update-dialog').count()) {
+    await page.locator('.update-dialog [data-update-later]').click();
+    await page.waitForTimeout(150);
+  }
 }
 
 async function main() {
@@ -115,6 +137,15 @@ async function main() {
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(400);
   check('同意后不再显示协议遮罩', await page.locator('#legal-gate').count() === 0);
+
+  console.log('🔄 自动升级弹窗（v0.31.0）');
+  await page.waitForSelector('.update-dialog', { timeout: 8000 });
+  check('打开后自动检查出新版本并弹出升级提示', await page.locator('.update-dialog').count() === 1);
+  check('升级弹窗显示新版本号', (await page.locator('.update-dialog').innerText()).includes('99.0.0'));
+  check('升级弹窗含「忽略/稍后/立即升级」', await page.locator('.update-dialog [data-update-ignore]').count() === 1 && await page.locator('.update-dialog [data-update-later]').count() === 1 && await page.locator('.update-dialog [data-update-refresh]').count() === 1);
+  await page.locator('.update-dialog [data-update-later]').click();
+  await page.waitForTimeout(200);
+  check('点「稍后再说」关闭弹窗', await page.locator('.update-dialog').count() === 0);
 
   await page.evaluate(() => window.App.loadSample());
   await page.waitForTimeout(300);
