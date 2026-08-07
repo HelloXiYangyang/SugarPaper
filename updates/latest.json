@@ -2,14 +2,14 @@
   "app": "SugarPaper",
   "latest": {
     "version": "0.29.0",
-    "build": 48,
-    "published_at": "2026-08-07T00:00:00Z",
+    "build": null,
+    "published_at": "2026-08-07T13:20:46.770Z",
     "notes": "- 移除「动态动画」总开关，动画默认全程开启\n- 科目配色按色系顺序排列\n- 跨端图标统一（圆角对齐）\n- 网页版与安卓版同步发布"
   },
   "platforms": {
     "android": {
       "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.29.0/SugarPaper-v0.29.0-android.apk",
-      "sha256": ""
+      "sha256": "c492d427b6335ba8ebc22f32e0003c8c636415c5595b4454135c1e7fedfd727f"
     },
     "web": {
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
