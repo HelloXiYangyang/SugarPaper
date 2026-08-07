@@ -1,7 +1,7 @@
 # 🧁 糖纸 · SugarPaper —— 零服务器全平台发布·自动更新·官网方案 v2.0
 
 > 目标：不租服务器、不自己建站、不买任何云服务，仅用 GitHub 的免费能力，同时实现三件事：
-> 1. **自动更新**：Android / Windows / macOS / Linux / iOS / 鸿蒙 / Web PWA 的版本检测与更新分发；
+> 1. **自动更新**：Android / Windows / macOS / Linux / iOS / 鸿蒙 / Web PWA / 微信小程序 的版本检测与更新分发；
 > 2. **网页版上线**：把现有 `web/` PWA 部署到 GitHub Pages；
 > 3. **官网**：搭建官方网站（介绍 + 截图 + 各平台最新版下载按钮）。
 >
@@ -124,6 +124,7 @@ GET https://helloxiyangyang.github.io/SugarPaper/updates/latest.json
 | iOS | App Store / TestFlight | 由苹果商店自动更新 | 是（$99/年开发者账号，且 GitHub 无法分发） |
 | 鸿蒙 | AppGallery 为主，HAP 为辅 | AppGallery 自动更新 / HAP 手动安装 | 是（华为开发者账号） |
 | Web PWA | GitHub Pages 静态站点 | Service Worker 版本更新 + 提示刷新 | 否 |
+| 微信小程序 | 微信平台托管 | 微信平台发布审核，新版本经审核后自动生效；可用 `wx.getUpdateManager` 提示用户重启小程序 | 是（需注册微信小程序账号并完成主体认证） |
 
 ---
 
@@ -329,7 +330,7 @@ site/                    # 官网源码
 1. Hero 区：应用名 + slogan + 主下载按钮（自动指向最新版）；
 2. 功能亮点：作业管理、专注计时、统计、离线优先……
 3. 截图 / 演示区；
-4. 平台支持：Android / Windows / macOS / Linux / 鸿蒙 / Web；
+4. 平台支持：Android / Windows / macOS / Linux / 鸿蒙 / Web / 微信小程序；
 5. 下载区：按平台出按钮（Android APK、Windows exe、macOS dmg、Linux AppImage、HAP）；
 6. 更新日志：展示最近版本说明（可读 GitHub Releases 或 latest.json）；
 7. 常见问题 FAQ；
