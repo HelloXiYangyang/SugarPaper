@@ -13,10 +13,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme.dart';
 import 'data/app_state.dart';
+import 'data/device_capabilities.dart';
 import 'data/legal_store.dart';
 import 'data/reminder_service.dart';
 import 'data/store.dart';
 import 'data/sync_service.dart';
+import 'data/update_prefs.dart';
 import 'data/update_service.dart';
 import 'ui/settings/update_dialog.dart';
 import 'ui/legal/legal_page.dart';
@@ -28,12 +30,21 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 /// v0.28.0：用户协议 / 隐私政策同意状态（顶层单例，供启动页决策）。
 final LegalStore appLegalStore = LegalStore();
 
+/// v0.31.0：更新偏好（忽略的版本号等）。
+final UpdatePrefs appUpdatePrefs = UpdatePrefs();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // v0.31.0：能力矩阵缓存 + 后台下载完成回调
+  await DeviceCapabilities.init();
+  DeviceCapabilities.setDownloadCompleteHandler((success, fileName) async {
+    await const UpdateService().handleBackgroundDownloadComplete(success, fileName);
+  });
   final store = AppStore();
   await store.load();
   // v0.28.0：首次打开必须同意《用户协议》《隐私政策》后才能进入应用
   await appLegalStore.load();
+  await appUpdatePrefs.load();
   await ReminderService.instance.init();
   if (store.settings.notifications) {
     await ReminderService.instance.requestPermission();
@@ -88,9 +99,10 @@ class _SugarPaperAppState extends ConsumerState<SugarPaperApp> {
     try {
       final update = await const UpdateService().checkForUpdate();
       if (update == null) return;
+      if (update.version == appUpdatePrefs.ignoredVersion) return;
       final ctx = appNavigatorKey.currentContext;
       if (ctx == null || !ctx.mounted) return;
-      await showUpdateDialog(ctx, update);
+      await showUpdateDialog(ctx, update, prefs: appUpdatePrefs);
     } catch (_) {
       // 自动检查失败静默忽略（设置页可手动重试）
     }

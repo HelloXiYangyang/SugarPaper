@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
 import '../../data/update_service.dart';
+import '../../data/update_prefs.dart';
 import '../../models/update_info.dart';
 import '../home/dialogs.dart';
 import '../widgets/basic.dart';
@@ -32,6 +33,7 @@ Future<void> showUpdateDialog(
   BuildContext context,
   UpdateInfo update, {
   UpdateService? service,
+  UpdatePrefs? prefs,
 }) {
   return showSugarDialog(
     context,
@@ -39,6 +41,7 @@ Future<void> showUpdateDialog(
       child: _UpdateDialog(
         update: update,
         service: service ?? const UpdateService(),
+        prefs: prefs,
       ),
     ),
   );
@@ -47,19 +50,24 @@ Future<void> showUpdateDialog(
 class _UpdateDialog extends StatefulWidget {
   final UpdateInfo update;
   final UpdateService service;
+  final UpdatePrefs? prefs;
 
-  const _UpdateDialog({required this.update, required this.service});
+  const _UpdateDialog({
+    required this.update,
+    required this.service,
+    this.prefs,
+  });
 
   @override
   State<_UpdateDialog> createState() => _UpdateDialogState();
 }
 
 class _UpdateDialogState extends State<_UpdateDialog> {
-  bool _downloading = false;
-  double _progress = 0;
+  bool _starting = false;
   String? _error;
 
-  Future<void> _download() async {
+  /// v0.31.0：立即升级 → 系统下载管理器后台下载（通知栏进度，不占前台）
+  Future<void> _startBackground() async {
     final platform = Platform.isAndroid ? 'android' : 'other';
     final entry = widget.update.platforms[platform];
     if (entry == null) {
@@ -67,28 +75,31 @@ class _UpdateDialogState extends State<_UpdateDialog> {
       return;
     }
     setState(() {
-      _downloading = true;
+      _starting = true;
       _error = null;
-      _progress = 0;
     });
     try {
-      final file = await widget.service.downloadAndVerify(
+      await widget.service.startBackgroundDownload(
         entry,
-        onProgress: (p) {
-          if (mounted) setState(() => _progress = p);
-        },
+        widget.update.version,
       );
       if (!mounted) return;
       Navigator.pop(context);
-      showSugarToast(context, '下载完成，正在打开安装器…');
-      await widget.service.install(file);
+      showSugarToast(context, '已开始后台下载，可在通知栏查看进度');
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _downloading = false;
+        _starting = false;
         _error = e.toString();
       });
     }
+  }
+
+  Future<void> _ignoreVersion() async {
+    await widget.prefs?.setIgnoredVersion(widget.update.version);
+    if (!mounted) return;
+    Navigator.pop(context);
+    showSugarToast(context, '已忽略此版本，之后不再提醒');
   }
 
   @override
@@ -147,20 +158,15 @@ class _UpdateDialogState extends State<_UpdateDialog> {
             ),
             const SizedBox(height: 8),
           ],
-          if (_downloading) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: _progress,
-                minHeight: 8,
-                backgroundColor: t.surface2,
-                color: t.iconMain,
-              ),
-            ),
-            const SizedBox(height: 6),
+          if (_starting) ...[
             Text(
-              '${(_progress * 100).round()}%',
-              style: TextStyle(fontSize: 11, color: t.text3),
+              '正在启动后台下载…',
+              style: TextStyle(fontSize: 12, color: t.text2),
+            ),
+          ] else ...[
+            Text(
+              '升级将在后台下载，通知栏可查看进度，不影响当前使用。',
+              style: TextStyle(fontSize: 11.5, color: t.text3),
             ),
           ],
           const SizedBox(height: 14),
@@ -168,15 +174,23 @@ class _UpdateDialogState extends State<_UpdateDialog> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               SugarButton(
-                label: _downloading ? '下载中…' : '稍后',
-                onTap: _downloading ? null : () => Navigator.pop(context),
+                label: '忽略此版本',
+                danger: true,
+                compact: true,
+                onTap: _starting ? null : _ignoreVersion,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               SugarButton(
-                label: _downloading ? '正在下载' : '下载更新',
+                label: '稍后再说',
+                compact: true,
+                onTap: _starting ? null : () => Navigator.pop(context),
+              ),
+              const SizedBox(width: 6),
+              SugarButton(
+                label: _starting ? '启动中…' : '立即升级',
                 iconName: 'download',
                 primary: true,
-                onTap: _downloading ? null : _download,
+                onTap: _starting ? null : _startBackground,
               ),
             ],
           ),

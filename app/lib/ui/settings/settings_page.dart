@@ -16,6 +16,7 @@ import '../../core/app_icons.dart';
 import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
+import '../../data/device_capabilities.dart';
 import '../../data/store.dart';
 import '../../data/update_service.dart';
 import '../../models/subject_config.dart';
@@ -64,18 +65,21 @@ class SettingsPage extends ConsumerWidget {
                 onTap: () => _fpsTest(context, ref),
               ),
             ),
-            _switchRow(
-              context,
-              ref,
-              icon: 'bell',
-              title: '通知提醒',
-              desc: '作业截止与便签本地提醒（同条只提醒一次）',
-              value: set.notifications,
-              onChanged: (v) {
-                state.store.updateSettings({'notifications': v});
-                state.notify();
-              },
-            ),
+            // v0.31.0：Android 8.0+ 才开放本地通知提醒，低版本隐藏
+            if (DeviceCapabilities.hasNotifications) ...[
+              _switchRow(
+                context,
+                ref,
+                icon: 'bell',
+                title: '通知提醒',
+                desc: '作业截止与便签本地提醒（同条只提醒一次）',
+                value: set.notifications,
+                onChanged: (v) {
+                  state.store.updateSettings({'notifications': v});
+                  state.notify();
+                },
+              ),
+            ],
             _switchRow(
               context,
               ref,
@@ -95,17 +99,19 @@ class SettingsPage extends ConsumerWidget {
               desc: '5 套马卡龙配色 + 经典白 + 暗色，自由切换',
               trailing: _themePicker(context, ref, state, t),
             ),
-            _row(
-              t: t,
-              icon: 'bell',
-              title: '提醒时间',
-              desc: '前一晚 ${set.reminder.eve} · 当天早上 ${set.reminder.morning} 起 2 小时',
-              trailing: SugarButton(
-                label: '调整',
-                compact: true,
-                onTap: () => _editReminderTime(context, ref),
+            if (DeviceCapabilities.hasNotifications) ...[
+              _row(
+                t: t,
+                icon: 'bell',
+                title: '提醒时间',
+                desc: '前一晚 ${set.reminder.eve} · 当天早上 ${set.reminder.morning} 起 2 小时',
+                trailing: SugarButton(
+                  label: '调整',
+                  compact: true,
+                  onTap: () => _editReminderTime(context, ref),
+                ),
               ),
-            ),
+            ],
           ],
         ),
         const SizedBox(height: 12),
@@ -466,7 +472,11 @@ class SettingsPage extends ConsumerWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: ['auto', '60', '120'].map((v) {
+        // v0.31.0：Android 11+ 才开放 120 帧档位，低版本只显示 自动/60
+        children: (DeviceCapabilities.hasHighRefreshRate
+                ? ['auto', '60', '120']
+                : ['auto', '60'])
+            .map((v) {
           final active = state.store.settings.frameRate == v;
           return PressableScale(
             onTap: () {

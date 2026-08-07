@@ -846,6 +846,44 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 }
 .update-banner .ub-close:hover { background: var(--surface-2); color: var(--text); }
 
+/* ---------- v0.31.0：升级提示弹窗 ---------- */
+.update-dialog {
+  position: fixed; inset: 0; z-index: 400;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(46, 39, 56, .32);
+  padding: 16px;
+}
+.update-dialog .ud-card {
+  width: min(420px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 18px 48px rgba(122, 92, 104, .24);
+  padding: 18px;
+}
+.update-dialog .ud-head { display: flex; align-items: flex-start; gap: 10px; }
+.update-dialog .ud-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 12px; flex: none;
+  background: var(--icon-soft, var(--pink-soft)); color: var(--icon-main, var(--pink-strong));
+}
+.update-dialog .ud-title { flex: 1; min-width: 0; }
+.update-dialog .ud-title b { font-size: 15px; color: var(--text); display: block; }
+.update-dialog .ud-sub { font-size: 12px; color: var(--text-2); margin-top: 2px; display: block; }
+.update-dialog .ud-close {
+  display: flex; padding: 3px; color: var(--text-3); border-radius: 8px;
+}
+.update-dialog .ud-close:hover { background: var(--surface-2); color: var(--text); }
+.update-dialog .ud-notes {
+  margin-top: 12px; padding: 10px 12px;
+  background: var(--surface-2); border-radius: 12px;
+  font-size: 12px; line-height: 1.6; color: var(--text-2);
+}
+.update-dialog .ud-status { margin-top: 10px; font-size: 12px; color: var(--icon-main, var(--pink-strong)); }
+.update-dialog .ud-actions {
+  display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;
+}
+
 /* ---------- v0.28.0：首次打开强制同意用户协议 / 隐私政策 ---------- */
 .legal-gate {
   position: fixed; inset: 0; z-index: 500;

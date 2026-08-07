@@ -1,14 +1,14 @@
 {
   "app": "SugarPaper",
   "latest": {
-    "version": "0.30.0",
-    "build": 49,
+    "version": "0.31.0",
+    "build": 50,
     "published_at": "2026-08-07T00:00:00Z",
-    "notes": "- 主题化图标：7 套主题各配一套图标配色，换主题图标同步变色\n- 作业截止日期快捷规划：今天/明天/后天/本周/下周/长期\n- 官网与应用图标库统一\n- 版本号更新体系确立（功能升次版本/修复升修订号）\n- 网页版与安卓版同步发布"
+    "notes": "- 打开自动检查新版本：升级弹窗（忽略此版本 / 稍后再说 / 立即升级）\n- 安卓后台下载更新：通知栏进度，不占前台\n- Android 5.0+ 兼容：按系统版本分级开放功能（通知提醒 / 120 帧）\n- 网页版与安卓版同步发布"
   },
   "platforms": {
     "android": {
-      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.30.0/SugarPaper-v0.30.0-android.apk",
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.31.0/SugarPaper-v0.31.0-android.apk",
       "sha256": ""
     },
     "web": {
