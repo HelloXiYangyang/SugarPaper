@@ -89,4 +89,48 @@
       if (e.key === 'Escape' && !overlay.hidden) closeDrawer();
     });
   }
+
+  /* 文档站：侧边栏（移动端抽屉 + 锚点高亮） */
+  var docsSidebar = document.getElementById('docs-sidebar');
+  var tocBtn = document.getElementById('docs-toc-btn');
+  var docsBackdrop = document.querySelector('.docs-backdrop');
+  if (docsSidebar && tocBtn) {
+    function openDocsSidebar() {
+      docsSidebar.classList.add('open');
+      if (docsBackdrop) docsBackdrop.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDocsSidebar() {
+      docsSidebar.classList.remove('open');
+      if (docsBackdrop) docsBackdrop.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    tocBtn.addEventListener('click', function () {
+      if (docsSidebar.classList.contains('open')) closeDocsSidebar();
+      else openDocsSidebar();
+    });
+    if (docsBackdrop) docsBackdrop.addEventListener('click', closeDocsSidebar);
+    docsSidebar.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', closeDocsSidebar);
+    });
+
+    var sidebarLinks = Array.prototype.slice.call(
+      docsSidebar.querySelectorAll('a[href^="#"]')
+    );
+    var sidebarTargets = sidebarLinks
+      .map(function (a) { return document.querySelector(a.getAttribute('href')); })
+      .filter(Boolean);
+    if (sidebarTargets.length && 'IntersectionObserver' in window) {
+      var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            sidebarLinks.forEach(function (a) {
+              a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+            });
+          }
+        });
+      }, { rootMargin: '-72px 0px -62% 0px' });
+      sidebarTargets.forEach(function (t) { spy.observe(t); });
+    }
+  }
 })();

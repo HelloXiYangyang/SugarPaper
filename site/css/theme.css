@@ -425,6 +425,49 @@ code {
   color: var(--accent);
 }
 
+/* ---------- 文档站顶栏 GitHub 图标 ---------- */
+.docs-nav-github {
+  width: 32px; height: 32px;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+.docs-nav-github:hover { color: var(--accent); }
+
+/* ---------- 下载页 ---------- */
+.download-page { min-height: calc(100vh - 48px); }
+.download-title {
+  text-align: center;
+  font-size: 32px; font-weight: 700;
+  margin-bottom: 8px;
+}
+.download-subtitle {
+  text-align: center;
+  font-size: 16px; color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.download-ver {
+  text-align: center;
+  font-size: 13px; color: var(--text-tertiary);
+  margin-bottom: 36px;
+}
+.download-platforms { margin-bottom: 8px; }
+.download-platform-card {
+  align-items: center; text-align: center;
+  padding: 24px 18px;
+}
+.download-platform-card .platform-ico { margin-top: 0; margin-bottom: 4px; }
+.platform-btn { margin-top: 6px; }
+.download-links {
+  display: flex; flex-wrap: wrap; gap: 4px 8px;
+  justify-content: center; align-items: center;
+  margin: 24px 0 16px;
+}
+.download-note {
+  text-align: center;
+  font-size: 12.5px; color: var(--text-tertiary);
+  max-width: 640px; margin: 0 auto;
+}
+
 /* ---------- 入场与滚动显现 ---------- */
 @keyframes introColFadeInLeft {
   from { opacity: 0; transform: translateX(-42px); }

@@ -1,0 +1,170 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>下载 SugarPaper — 糖纸 · SugarPaper</title>
+  <meta name="description" content="下载糖纸 · SugarPaper：Android APK、网页版 PWA、Windows 桌面版，安装包托管在 GitHub Releases，按钮自动指向最新版本。">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/theme.css">
+</head>
+<body class="v-theme--dark">
+  <header class="fluent-app-bar">
+    <div class="fluent-app-bar__content">
+      <div class="fluent-app-bar__left">
+        <button class="fluent-button fluent-button--text nav-icon" id="nav-open" aria-label="打开导航">
+          <span class="fluent-button__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3H14.5M1.5 8H14.5M1.5 13H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
+        <a class="fluent-app-bar__title-link" href="index.html">
+          <img src="assets/icon.svg" width="26" height="26" alt="糖纸图标" class="app-bar-logo">
+          <h1 class="fluent-app-bar__title">糖纸 · SugarPaper</h1>
+        </a>
+        <nav class="fluent-selector-bar app-bar-tabs" id="app-bar-tabs" aria-label="主导航">
+          <a class="fluent-selector-bar__item" href="index.html">首页<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item router-link-active" href="download.html">下载<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="docs/">文档<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">GitHub 仓库<span class="fluent-selector-bar__pill"></span></a>
+        </nav>
+      </div>
+      <a class="fluent-button fluent-button--primary app-bar-download" href="download.html">
+        <span class="fluent-button__icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="fluent-button__text">立即下载</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="fluent-drawer-overlay" id="drawer-overlay" hidden>
+    <div class="fluent-drawer">
+      <div class="fluent-drawer__header">
+        <a class="fluent-app-bar__title-link" href="index.html">
+          <img src="assets/icon.svg" width="24" height="24" alt="糖纸图标">
+          <h1 class="fluent-app-bar__title">糖纸 · SugarPaper</h1>
+        </a>
+      </div>
+      <nav class="fluent-drawer__content" id="drawer-nav" aria-label="移动端导航">
+        <a class="fluent-side-nav__item" href="index.html"><div class="fluent-side-nav__item-base">首页</div></a>
+        <a class="fluent-side-nav__item" href="download.html"><div class="fluent-side-nav__item-base">下载</div></a>
+        <a class="fluent-side-nav__item" href="docs/"><div class="fluent-side-nav__item-base">文档</div></a>
+        <a class="fluent-side-nav__item" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener"><div class="fluent-side-nav__item-base">GitHub 仓库</div></a>
+      </nav>
+    </div>
+  </div>
+
+  <main id="top">
+    <div class="content download-page">
+      <div class="margin-x">
+        <h2 class="download-title">下载 SugarPaper</h2>
+        <p class="download-subtitle">首先，选择适合您的平台和打包方式</p>
+        <p class="download-ver" id="dl-ver">正在读取最新版本…</p>
+
+        <div class="platforms-grid download-platforms">
+          <div class="fluent-card platform-card download-platform-card">
+            <div class="platform-ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+            <div class="platform-name">Android</div>
+            <div class="platform-status ok">APK 可下载 · Android 7.0+</div>
+            <a class="fluent-button fluent-button--primary platform-btn" id="dl-android" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fluent-button__text" id="dl-android-name">下载 APK</span>
+            </a>
+          </div>
+
+          <div class="fluent-card platform-card download-platform-card">
+            <div class="platform-ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>
+            <div class="platform-name">Web PWA</div>
+            <div class="platform-status ok">在线可用 · 零安装 · 可离线</div>
+            <a class="fluent-button fluent-button--primary platform-btn" href="app/" target="_blank" rel="noopener">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.5 9.5L13.5 2.5M13.5 2.5H9M13.5 2.5V7M9.5 6.5V12.5C9.5 13.0523 9.05228 13.5 8.5 13.5H3.5C2.94772 13.5 2.5 13.0523 2.5 12.5V7.5C2.5 6.94772 2.94772 6.5 3.5 6.5H9.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fluent-button__text">在线使用网页版</span>
+            </a>
+          </div>
+
+          <div class="fluent-card platform-card download-platform-card">
+            <div class="platform-ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+            <div class="platform-name">Windows</div>
+            <div class="platform-status">工程已就绪 · setup.exe / 绿色版待发布</div>
+            <a class="fluent-button fluent-button--standard platform-btn" id="dl-windows" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fluent-button__text" id="dl-windows-name">查看发布</span>
+            </a>
+          </div>
+
+          <div class="fluent-card platform-card download-platform-card">
+            <div class="platform-ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg></div>
+            <div class="platform-name">鸿蒙 HAP</div>
+            <div class="platform-status">规划中 · 主流道为 AppGallery</div>
+            <a class="fluent-button fluent-button--standard platform-btn" id="dl-hap" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fluent-button__text" id="dl-hap-name">查看发布</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="download-links">
+          <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">
+            <span class="fluent-button__icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="fluent-button__text">查看全部版本</span>
+          </a>
+          <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener">
+            <span class="fluent-button__icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2.5C2 1.67 2.67 1 3.5 1H13.5V15H3.5C2.67 15 2 14.33 2 13.5V2.5ZM3.5 2.5V13.5C3.5 13.78 3.72 14 4 14H12V2H3.5C3.22 2 3 2.22 3 2.5ZM5 4H11V5H5V4ZM5 6H11V7H5V6ZM5 8H11V9H5V8ZM5 10H9V11H5V10Z" fill="currentColor"/></svg>
+            </span>
+            <span class="fluent-button__text">查看更新日志</span>
+          </a>
+          <a class="fluent-button fluent-button--hyperlink" href="docs/get-started.html">
+            <span class="fluent-button__icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 3.5C1 2.67 1.67 2 2.5 2H5C6.1 2 7 2.9 7 4V13.5C7 12.67 6.33 12 5.5 12H1V3.5ZM9 4C9 2.9 9.9 2 11 2H13.5C14.33 2 15 2.67 15 3.5V12H10.5C9.67 12 9 12.67 9 13.5V4ZM13.5 14.5C14.33 14.5 15 13.83 15 13V13.5H1V13C1 13.83 1.67 14.5 2.5 14.5H13.5Z" fill="currentColor"/></svg>
+            </span>
+            <span class="fluent-button__text">快速上手教程</span>
+          </a>
+          <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">
+            <span class="fluent-button__icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+            </span>
+            <span class="fluent-button__text">GitHub 仓库</span>
+          </a>
+        </div>
+
+        <p class="download-note">
+          安装包托管在 GitHub Releases，按钮自动指向最新版本并校验 SHA-256。若 GitHub 下载较慢，可在设置页配置镜像源。
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="fluent-footer">
+    <div class="fluent-footer__content">
+      <span class="fluent-footer__text">© 2026 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖</span>
+      <div class="fluent-footer__social">
+        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener" aria-label="GitHub 仓库" title="GitHub 仓库">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+        </a>
+        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener" aria-label="Releases" title="Releases">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/site.js"></script>
+  <script src="js/downloads.js"></script>
+</body>
+</html>
