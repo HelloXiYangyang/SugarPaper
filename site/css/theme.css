@@ -353,6 +353,7 @@ code {
 }
 .platform-card { align-items: center; text-align: center; }
 .platform-ico { color: #ffb802; margin-top: 4px; }
+.download-platforms .platform-ico { color: #fff; }
 .platform-name { font-size: 16px; font-weight: 600; margin-top: 8px; }
 .platform-status { font-size: 13px; color: var(--text-secondary); }
 .platform-status.ok { color: #6dd4a8; }

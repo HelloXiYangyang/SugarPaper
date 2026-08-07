@@ -1,15 +1,19 @@
 {
   "app": "SugarPaper",
   "latest": {
-    "version": "0.32.0",
-    "build": 51,
-    "published_at": "2026-08-07T00:00:00Z",
-    "notes": "- 打开自动检查新版本：升级弹窗（忽略此版本 / 稍后再说 / 立即升级）\n- 安卓后台下载更新：通知栏进度，不占前台\n- Android 5.0+ 兼容：按系统版本分级开放功能（通知提醒 / 120 帧）\n- 网页版与安卓版同步发布"
+    "version": "0.33.0",
+    "build": 52,
+    "published_at": "2026-08-08T00:00:00Z",
+    "notes": "- 好友直连（S18 模块二）：去中心化好友系统 + 端到端加密消息 + 作业分享\n- 安卓版、Windows 版与网页版功能对齐"
   },
   "platforms": {
     "android": {
-      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.31.0/SugarPaper-v0.31.0-android.apk",
-      "sha256": "cac0aa8d83b8e75a83d3ead16560f769cf0ce72bedc0eb4952badc85cf2481eb"
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.33.0/SugarPaper-v0.33.0-android.apk",
+      "sha256": "7ed1688ecaee9be5f482b23072c4d5b513e3a9f7e5caaee5434ac7aa601f40e1"
+    },
+    "windows": {
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.33.0/SugarPaper-v0.33.0-windows-x64.exe",
+      "sha256": "cba447b72d080eb3ce7c5518c040bd9da74095f8ba104d0c0a5cf86347e681ec"
     },
     "web": {
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
