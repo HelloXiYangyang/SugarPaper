@@ -3,13 +3,13 @@
   "latest": {
     "version": "0.30.0",
     "build": 49,
-    "published_at": "2026-08-07T00:00:00Z",
+    "published_at": "2026-08-07T14:03:44.144Z",
     "notes": "- 主题化图标：7 套主题各配一套图标配色，换主题图标同步变色\n- 作业截止日期快捷规划：今天/明天/后天/本周/下周/长期\n- 官网与应用图标库统一\n- 版本号更新体系确立（功能升次版本/修复升修订号）\n- 网页版与安卓版同步发布"
   },
   "platforms": {
     "android": {
       "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.30.0/SugarPaper-v0.30.0-android.apk",
-      "sha256": ""
+      "sha256": "22f289986793c6babd034756fc55a6ce3ec93a2ccaae499d4af4c583842f84a6"
     },
     "web": {
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
