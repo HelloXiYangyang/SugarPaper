@@ -200,10 +200,24 @@ async function main() {
   check('返回首页正常', await page.locator('.view-wrap .home-view, .view-wrap .task-group').count() >= 1);
 
   console.log('🖱 交互');
+  check('首页显示激励条（连胜 + XP 进度）', await page.locator('.reward-bar').count() === 1);
+  const streakTxt = (await page.locator('.rb-streak').innerText()).replace(/\s+/g, '');
+  check('连胜天数已计算', /\d+天连胜/.test(streakTxt), streakTxt);
+  const xpBefore = await page.evaluate(() => window.Sugar.rewards.daySummary(window.Sugar.store.state.tasks).xp);
   await page.locator('.task-card:not(.completed) .action.done').first().click();
   await page.waitForTimeout(450); // 等待完成滑出动画（240ms）后分组切换
+  check('完成作业出现 XP 飘字', await page.locator('.xp-float').count() >= 1);
+  if (await page.locator('.badge-pop').count()) {
+    check('完成作业解锁徽章弹窗', await page.locator('.badge-pop .bp-name').count() === 1);
+    await page.locator('.badge-pop [data-badge-close]').click();
+    await page.waitForTimeout(150);
+  } else {
+    check('完成作业解锁徽章弹窗', false);
+  }
   check('点击完成 → 进行中减为 5', await page.locator('.task-card:not(.completed)').count() === 5);
   check('点击完成 → 已完成增为 4', await page.locator('.task-card.completed').count() === 4);
+  const xpAfter = await page.evaluate(() => window.Sugar.rewards.daySummary(window.Sugar.store.state.tasks).xp);
+  check('完成作业后今日 XP 增加', xpAfter > xpBefore, xpBefore + ' -> ' + xpAfter);
 
   await page.locator('#home-search').fill('试卷');
   await page.waitForTimeout(300);
@@ -286,6 +300,7 @@ async function main() {
   console.log('📊 统计');
   await page.evaluate(() => window.App.navigate('stats'));
   await page.waitForTimeout(300);
+  check('统计页含激励（XP）卡片', (await page.locator('.stats-card', { hasText: '激励（XP）' }).count()) >= 1);
   check('进度环渲染', await page.locator('.progress-ring svg').count() >= 1);
   check('柱状图渲染', await page.locator('.stats-card svg').count() >= 2);
   check('饼图图例渲染', await page.locator('.legend-item').count() >= 3);
@@ -323,6 +338,9 @@ async function main() {
   console.log('⚙️ 设置');
   await page.evaluate(() => window.App.navigate('settings'));
   await page.waitForTimeout(200);
+  check('设置页含「激励与成就」卡片', await page.locator('#xp-goal-seg').count() === 1 && await page.locator('#task-goal-seg').count() === 1);
+  check('设置页含成就徽章墙（12 枚）', await page.locator('.badge-wall .badge-item').count() === 12);
+  check('至少解锁一枚徽章（完成作业后）', await page.locator('.badge-item.unlocked').count() >= 1);
   check('设置页含「法律与隐私」卡片', await page.locator('[data-action="view-terms"]').count() === 1 && await page.locator('[data-action="view-privacy"]').count() === 1);
   await page.locator('[data-action="view-terms"]').click();
   await page.waitForTimeout(400);

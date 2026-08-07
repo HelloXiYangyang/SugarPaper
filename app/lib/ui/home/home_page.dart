@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
+import '../../data/rewards.dart';
 import '../../models/task.dart';
 import '../widgets/basic.dart';
 import '../widgets/progress_bar.dart';
@@ -41,13 +42,118 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   void _toggleTask(String id) {
     final state = ref.read(appStateProvider);
+    Task? task;
+    try {
+      task = state.store.tasks.firstWhere((t) => t.id == id);
+    } catch (_) {}
+    final completing = task != null && !task.isCompleted;
     final before = state.allTasks.where((t) => !t.isCompleted).length;
     state.store.toggleComplete(id);
     state.notify();
+    // v0.32.0：完成作业 → XP 飘字 + 欠账补完计数 + 徽章解锁
+    if (completing && task != null) {
+      final r = RewardsEngine.onTaskCompleted(task);
+      if (r.overdue) RewardsEngine.bumpComeback(state.store);
+      _showXpFloat(r.xp, r.overdue ? '欠账补完 · 双倍' : null);
+      final fresh = RewardsEngine.recordBadges(state.store);
+      if (fresh.isNotEmpty) _showBadgeDialog(fresh);
+    }
     final after = state.allTasks.where((t) => !t.isCompleted).length;
     if (before > 0 && after == 0 && state.allTasks.isNotEmpty) {
       _celebrate();
     }
+  }
+
+  /// XP 飘字浮层（Overlay 动画，不受列表重建影响）
+  void _showXpFloat(int xp, String? extra) {
+    final overlay = Overlay.of(context);
+    final entry = OverlayEntry(builder: (_) => _XpFloat(xp: xp, extra: extra));
+    overlay.insert(entry);
+    Future.delayed(const Duration(milliseconds: 1300), () {
+      if (entry.mounted) entry.remove();
+    });
+  }
+
+  /// 徽章解锁弹窗（缩放 + 辉光）
+  void _showBadgeDialog(List<BadgeDef> fresh) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogCtx) {
+        final t = Theme.of(dialogCtx).extension<SugarTheme>()!.data;
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutBack,
+            builder: (c, v, child) => Transform.scale(
+              scale: 0.6 + 0.4 * v,
+              child: Opacity(opacity: v, child: child),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: t.surface,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: t.border),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(
+                      color: t.iconSoft,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: SugarIcon(fresh.first.icon, size: 34, color: t.iconMain),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '成就解锁',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: t.text2,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    fresh.first.name,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: t.text,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    fresh.first.desc,
+                    style: TextStyle(fontSize: 12, color: t.text2),
+                  ),
+                  if (fresh.length > 1) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      '还有 ${fresh.length - 1} 枚徽章待查看',
+                      style: TextStyle(fontSize: 11, color: t.text3),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  SugarButton(
+                    label: '太棒了',
+                    primary: true,
+                    onTap: () => Navigator.of(dialogCtx).pop(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _loadSample() {
@@ -100,6 +206,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 10),
               _backupBanner(context, state, t),
             ],
+            const SizedBox(height: 10),
+            _rewardBar(context, state, t),
             const SizedBox(height: 14),
             _buildFilterBar(state, t),
             if (all.isEmpty)
@@ -249,6 +357,150 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  /// v0.32.0：激励条（连胜火焰 + 今日 XP / 完成进度，动画进度条）
+  Widget _rewardBar(BuildContext context, AppState state, SugarThemeData t) {
+    final tasks = state.store.tasks.where((t) => !t.isDeleted).toList();
+    final today = RewardsEngine.daySummary(tasks);
+    final st = RewardsEngine.streak(tasks);
+    final goals = Map<String, int>.from(state.store.settings.rewardsGoals);
+    final xpGoal = goals['dailyXp'] ?? 50;
+    final taskGoal = goals['dailyTasks'] ?? 3;
+    return Reveal(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [t.iconSoft, t.surface],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: t.border),
+        ),
+        child: Row(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 1, end: today.count > 0 ? 1.18 : 1),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutBack,
+                  builder: (c, v, child) => Transform.scale(scale: v, child: child),
+                  child: SugarIcon(
+                    'flame',
+                    size: 22,
+                    color: today.count > 0 ? t.peachStrong : t.text3,
+                  ),
+                ),
+                Text(
+                  '$st',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: t.text,
+                  ),
+                ),
+                Text(
+                  '天连胜',
+                  style: TextStyle(fontSize: 10, color: t.text2),
+                ),
+              ],
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: _goalColumn(
+                t,
+                icon: 'bolt',
+                label: '今日 XP',
+                value: today.xp,
+                goal: xpGoal,
+                color: t.iconMain,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _goalColumn(
+                t,
+                icon: 'check',
+                label: '完成',
+                value: today.count,
+                goal: taskGoal,
+                color: t.mintStrong,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _goalColumn(
+    SugarThemeData t, {
+    required String icon,
+    required String label,
+    required int value,
+    required int goal,
+    required Color color,
+  }) {
+    final pct = (value / math.max(1, goal)).clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            SugarIcon(icon, size: 12, color: t.text2),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(fontSize: 11, color: t.text2),
+            ),
+            const Spacer(),
+            Text(
+              '$value/$goal',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: t.text,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: SizedBox(
+            height: 7,
+            child: Stack(
+              children: [
+                Container(color: t.surface3),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: pct),
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.easeOutCubic,
+                  builder: (c, v, child) => Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: 220 * v,
+                      height: 7,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        gradient: LinearGradient(
+                          colors: [color, color.withValues(alpha: 0.65)],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -532,6 +784,71 @@ class _Avatar extends StatelessWidget {
     } catch (_) {
       return const [];
     }
+  }
+}
+
+/// v0.32.0：完成作业 XP 飘字浮层（fixed 顶部居中，上浮淡出）。
+class _XpFloat extends StatelessWidget {
+  final int xp;
+  final String? extra;
+
+  const _XpFloat({required this.xp, this.extra});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<SugarTheme>()!.data;
+    return Positioned(
+      top: MediaQuery.of(context).size.height * 0.2,
+      left: 0,
+      right: 0,
+      child: IgnorePointer(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 1150),
+          curve: Curves.easeOut,
+          builder: (c, v, child) {
+            final opacity = v < 0.15
+                ? v / 0.15
+                : 1 - (v - 0.15) / 0.85;
+            return Opacity(
+              opacity: opacity.clamp(0, 1),
+              child: Transform.translate(
+                offset: Offset(0, -34 * v),
+                child: Transform.scale(
+                  scale: 0.7 + 0.42 * math.min(1, v / 0.15),
+                  child: child,
+                ),
+              ),
+            );
+          },
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              decoration: BoxDecoration(
+                color: t.surface,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: t.iconMain),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF7A5C68).withValues(alpha: 0.2),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Text(
+                '+$xp XP${extra != null ? ' · $extra' : ''}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: t.iconMain,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -71,6 +71,60 @@
     return '<span class="tag pri-mid">' + S.icons.icon('flag', 12) + ' 中</span>';
   }
 
+  /* ---------- v0.32.0：激励条（连胜 + 今日 XP / 完成进度） ---------- */
+  function rewardBarHtml() {
+    const rw = S.rewards;
+    if (!rw) return '';
+    const tasks = store.state.tasks.filter((t) => !t.isDeleted);
+    const today = rw.daySummary(tasks);
+    const st = rw.streak(tasks);
+    const goals = Object.assign({ dailyXp: 50, dailyTasks: 3 }, store.state.settings.rewardsGoals || {});
+    const xpPct = Math.min(100, Math.round(today.xp / Math.max(1, goals.dailyXp) * 100));
+    const taskPct = Math.min(100, Math.round(today.count / Math.max(1, goals.dailyTasks) * 100));
+    return '<div class="reward-bar reveal">' +
+      '<div class="rb-streak' + (today.count > 0 ? ' lit' : '') + '" title="连续完成天数">' +
+      S.icons.icon('flame', 17) + '<b>' + st + '</b><span>天连胜</span></div>' +
+      '<div class="rb-goal"><div class="rb-head"><span>' + S.icons.icon('bolt', 13) + ' 今日 XP</span>' +
+      '<b class="rb-num">' + today.xp + '/' + goals.dailyXp + '</b></div>' +
+      '<div class="rb-track"><i style="width:' + xpPct + '%"></i></div></div>' +
+      '<div class="rb-goal"><div class="rb-head"><span>' + S.icons.icon('check', 13) + ' 完成</span>' +
+      '<b>' + today.count + '/' + goals.dailyTasks + '</b></div>' +
+      '<div class="rb-track mint"><i style="width:' + taskPct + '%"></i></div></div>' +
+      '</div>';
+  }
+
+  /** 完成作业 XP 飘字动画（fixed 浮层，不受视图重建影响） */
+  function floatXp(xp, extra) {
+    const el = document.createElement('span');
+    el.className = 'xp-float';
+    el.textContent = '+' + xp + ' XP' + (extra ? ' · ' + extra : '');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1300);
+  }
+
+  /** 徽章解锁弹窗（缩放 + 辉光动画） */
+  function showBadgeToast(badges) {
+    if (!badges || !badges.length) return;
+    const badge = badges[0];
+    const mask = document.createElement('div');
+    mask.className = 'badge-pop';
+    mask.innerHTML =
+      '<div class="bp-card">' +
+      '<span class="bp-ico">' + S.icons.icon(badge.icon, 34) + '</span>' +
+      '<div class="bp-title">成就解锁</div>' +
+      '<div class="bp-name">' + util.escapeHtml(badge.name) + '</div>' +
+      '<div class="bp-desc">' + util.escapeHtml(badge.desc) + '</div>' +
+      (badges.length > 1 ? '<div class="bp-more">还有 ' + (badges.length - 1) + ' 枚徽章待查看（设置页）</div>' : '') +
+      '<button class="btn primary" data-badge-close>太棒了</button>' +
+      '</div>';
+    document.body.appendChild(mask);
+    const close = () => mask.remove();
+    mask.addEventListener('click', (e) => {
+      if (e.target.closest('[data-badge-close]')) close();
+    });
+    setTimeout(close, 4500);
+  }
+
   function cardHtml(t) {
     const color = store.getSubjectColor(t.subject);
     const cls = 'task-card reveal' + (t.isCompleted ? ' completed' : '');
@@ -209,7 +263,7 @@
       ? done.map(cardHtml).join('')
       : '<div class="empty"><div class="big">' + S.icons.icon('sun', 40) + '</div>还没有完成的作业，加油！</div>';
 
-    html = backupBannerHtml() + chips +
+    html = backupBannerHtml() + rewardBarHtml() + chips +
       '<div class="task-columns">' +
       activeHtml +
       groupHtml('已完成', 'check', done.length, doneHtml, 'done') +
@@ -291,9 +345,21 @@
       const id = card.dataset.id;
       if (action === 'toggle') {
         const before = activeCount();
+        const task = store.state.tasks.find((x) => x.id === id);
+        const completing = task && !task.isCompleted;
         card.classList.add('leaving');
         setTimeout(() => {
           store.toggleComplete(id);
+          if (completing) {
+            const rw = S.rewards;
+            if (rw) {
+              const r = rw.onTaskCompleted(store.state, task);
+              const extra = r.overdue ? '欠账补完 · 双倍' : '';
+              if (r.overdue) rw.bumpComeback(store.state);
+              floatXp(r.xp, extra);
+              showBadgeToast(rw.recordBadges(store.state));
+            }
+          }
           if (before > 0 && activeCount() === 0) g.App.celebrate();
         }, 230);
       } else if (action === 'edit') {

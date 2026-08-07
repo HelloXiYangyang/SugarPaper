@@ -39,6 +39,21 @@
     }
   }
 
+  /* ---------- v0.32.0：成就徽章墙 ---------- */
+  function badgesWallHtml() {
+    const rw = S.rewards;
+    if (!rw) return '<div class="row-desc">完成作业即可解锁成就徽章</div>';
+    const unlockedMap = rw.unlocked(store.state);
+    return rw.BADGES.map((b) => {
+      const t = unlockedMap[b.id];
+      return '<div class="badge-item' + (t ? ' unlocked' : '') + '" title="' + util.escapeHtml(b.desc) + '">' +
+        '<span class="badge-ico">' + S.icons.icon(b.icon, 22) + '</span>' +
+        '<span class="badge-name">' + util.escapeHtml(b.name) + '</span>' +
+        (t ? '<span class="badge-time">' + util.fmtDate(t) + '</span>' : '') +
+        '</div>';
+    }).join('');
+  }
+
   function switchRow(iconName, title, desc, key) {
     const checked = getSetting(key) ? ' checked' : '';
     return '<div class="settings-row"><span class="row-icon">' + S.icons.icon(iconName, 15) + '</span>' +
@@ -102,6 +117,7 @@
 
   function render(wrap) {
     const set = store.state.settings;
+    const goals = Object.assign({ dailyXp: 50, dailyTasks: 3 }, set.rewardsGoals || {});
     const html =
       '<div class="settings-card reveal">' +
       '<div class="device-card">' +
@@ -142,6 +158,24 @@
       THEMES.map((p) =>
         '<button class="palette-swatch' + (set.theme === p[0] ? ' active' : '') + '" data-theme-swatch="' + p[0] + '" title="' + p[1] + '" style="background:' + p[2] + '"></button>').join('') +
       '</span></div>' +
+      '</div>' +
+
+      '<div class="settings-card reveal"><h3>' + S.icons.icon('flame', 15) + ' 激励与成就</h3>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('bolt', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">每日 XP 目标</div>' +
+      '<div class="row-desc">完成作业获得经验值，冲刺每日目标</div></div>' +
+      '<span class="row-action seg" id="xp-goal-seg">' +
+      [30, 50, 80, 100].map((v) =>
+        '<button data-xp-goal="' + v + '"' + (goals.dailyXp === v ? ' class="active"' : '') + '>' + v + '</button>').join('') +
+      '</span></div>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('check', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">每日完成目标</div>' +
+      '<div class="row-desc">每天完成几项作业</div></div>' +
+      '<span class="row-action seg" id="task-goal-seg">' +
+      [2, 3, 5, 8].map((v) =>
+        '<button data-task-goal="' + v + '"' + (goals.dailyTasks === v ? ' class="active"' : '') + '>' + v + '</button>').join('') +
+      '</span></div>' +
+      '<div class="badge-wall">' + badgesWallHtml() + '</div>' +
       '</div>' +
 
       '<div class="settings-card reveal"><h3>' + S.icons.icon('bolt', 15) + ' 番茄钟与专注场景</h3>' +
@@ -358,6 +392,34 @@
           g.App.applyPrefs();
         });
         setSegActive(fpsSeg, 'frameRate', btn.dataset.frameRate);
+      });
+    }
+
+    // v0.32.0：激励目标设定
+    const xpGoalSeg = wrap.querySelector('#xp-goal-seg');
+    if (xpGoalSeg) {
+      xpGoalSeg.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-xp-goal]');
+        if (!btn) return;
+        quietSettingsUpdate(() => {
+          store.updateSettings({
+            rewardsGoals: Object.assign({}, store.state.settings.rewardsGoals || {}, { dailyXp: +btn.dataset.xpGoal })
+          });
+        });
+        setSegActive(xpGoalSeg, 'xpGoal', btn.dataset.xpGoal);
+      });
+    }
+    const taskGoalSeg = wrap.querySelector('#task-goal-seg');
+    if (taskGoalSeg) {
+      taskGoalSeg.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-task-goal]');
+        if (!btn) return;
+        quietSettingsUpdate(() => {
+          store.updateSettings({
+            rewardsGoals: Object.assign({}, store.state.settings.rewardsGoals || {}, { dailyTasks: +btn.dataset.taskGoal })
+          });
+        });
+        setSegActive(taskGoalSeg, 'taskGoal', btn.dataset.taskGoal);
       });
     }
 

@@ -17,6 +17,7 @@ import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
 import '../../data/device_capabilities.dart';
+import '../../data/rewards.dart';
 import '../../data/store.dart';
 import '../../data/update_service.dart';
 import '../../models/subject_config.dart';
@@ -112,6 +113,28 @@ class SettingsPage extends ConsumerWidget {
                 ),
               ),
             ],
+          ],
+        ),
+        const SizedBox(height: 12),
+        _card(
+          t: t,
+          title: '激励与成就',
+          children: [
+            _row(
+              t: t,
+              icon: 'bolt',
+              title: '每日 XP 目标',
+              desc: '完成作业获得经验值，冲刺每日目标',
+              trailing: _goalSeg(ref, state, t, 'dailyXp', [30, 50, 80, 100]),
+            ),
+            _row(
+              t: t,
+              icon: 'check',
+              title: '每日完成目标',
+              desc: '每天完成几项作业',
+              trailing: _goalSeg(ref, state, t, 'dailyTasks', [2, 3, 5, 8]),
+            ),
+            _badgeWall(state, t),
           ],
         ),
         const SizedBox(height: 12),
@@ -498,6 +521,108 @@ class SettingsPage extends ConsumerWidget {
                   color: active ? t.iconMain : t.text3,
                 ),
               ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// v0.32.0：激励目标分段选择
+  Widget _goalSeg(
+    WidgetRef ref,
+    AppState state,
+    SugarThemeData t,
+    String key,
+    List<int> options,
+  ) {
+    final current = state.store.settings.rewardsGoals[key] ??
+        (key == 'dailyXp' ? 50 : 3);
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: t.surface3,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Wrap(
+        spacing: 2,
+        children: options.map((v) {
+          final active = current == v;
+          return PressableScale(
+            onTap: () {
+              final goals = Map<String, int>.from(
+                  state.store.settings.rewardsGoals);
+              goals[key] = v;
+              state.store.updateSettings({'rewardsGoals': goals});
+              state.notify();
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: active ? t.surface : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '$v',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  color: active ? t.iconMain : t.text3,
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  /// v0.32.0：成就徽章墙
+  Widget _badgeWall(AppState state, SugarThemeData t) {
+    final unlockedMap = RewardsEngine.unlocked(state.store);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
+      child: GridView.count(
+        crossAxisCount: 4,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 0.82,
+        children: RewardsEngine.badges.map((b) {
+          final unlockedAt = unlockedMap[b.id];
+          final ok = unlockedAt != null;
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            decoration: BoxDecoration(
+              color: ok ? t.iconSoft : t.surface2,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: ok ? t.iconMain : t.border),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SugarIcon(b.icon, size: 22, color: ok ? t.iconMain : t.text3),
+                const SizedBox(height: 5),
+                Text(
+                  b.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: ok ? t.text : t.text3,
+                  ),
+                ),
+                if (ok)
+                  Text(
+                    unlockedAt.length >= 10
+                        ? unlockedAt.substring(5, 10)
+                        : '',
+                    style: TextStyle(fontSize: 9, color: t.text3),
+                  ),
+              ],
             ),
           );
         }).toList(),

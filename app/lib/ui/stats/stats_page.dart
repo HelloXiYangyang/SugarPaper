@@ -14,6 +14,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
+import '../../data/rewards.dart';
 import '../../data/stats_engine.dart';
 import '../../models/focus_session.dart';
 import '../home/dialogs.dart';
@@ -77,6 +78,13 @@ class StatsPage extends ConsumerWidget {
         const SizedBox(height: 12),
         _card(
           icon: 'bolt',
+          title: '激励（XP）',
+          child: _rewardCard(state, t),
+          t: t,
+        ),
+        const SizedBox(height: 12),
+        _card(
+          icon: 'bolt',
           title: '专注统计（番茄钟）',
           child: _focusCard(state, t),
           t: t,
@@ -87,6 +95,33 @@ class StatsPage extends ConsumerWidget {
           title: '${_rangeLabels[state.statsRange]}一览',
           child: _rangeSummary(s, t),
           t: t,
+        ),
+      ],
+    );
+  }
+
+  /// v0.32.0：激励（XP）卡片
+  Widget _rewardCard(AppState state, SugarThemeData t) {
+    final tasks = state.store.tasks.where((x) => !x.isDeleted).toList();
+    final today = RewardsEngine.daySummary(tasks);
+    final week = RewardsEngine.weekSummary(tasks);
+    final best = RewardsEngine.bestDayXp(tasks);
+    final st = RewardsEngine.streak(tasks);
+    final goals = Map<String, int>.from(state.store.settings.rewardsGoals);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _summaryItem(0, 'bolt', '今日 XP', '${today.xp}', t),
+            _summaryItem(1, 'chart-bar', '本周 XP', '${week.xp}', t),
+            _summaryItem(2, 'star', '最佳单日', '$best', t),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          '每日目标 ${goals['dailyXp'] ?? 50} XP · 完成 ${today.count}/${goals['dailyTasks'] ?? 3} 项 · 连续 $st 天',
+          style: TextStyle(fontSize: 11, color: t.text3),
         ),
       ],
     );

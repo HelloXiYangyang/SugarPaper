@@ -469,6 +469,24 @@ class AppStore {
         ),
       );
     }
+    // v0.32.0：激励（目标 / 计数 / 成就徽章）
+    if (patch.containsKey('rewardsGoals') && patch['rewardsGoals'] is Map) {
+      s = s.copyWith(
+        rewardsGoals: (patch['rewardsGoals'] as Map)
+            .map((k, v) => MapEntry(k.toString(), (v as num).toInt())),
+      );
+    }
+    if (patch.containsKey('rewards') && patch['rewards'] is Map) {
+      s = s.copyWith(
+        rewards: Map<String, dynamic>.from(patch['rewards'] as Map),
+      );
+    }
+    if (patch.containsKey('achievements') && patch['achievements'] is Map) {
+      s = s.copyWith(
+        achievements: (patch['achievements'] as Map)
+            .map((k, v) => MapEntry(k.toString(), v.toString())),
+      );
+    }
     settings = s.copyWith(subjects: subjects);
     persist();
   }

@@ -108,6 +108,13 @@
     const range = g.App.state.statsRange;
     const st = store.state;
     const s = stats.compute(st, range);
+    // v0.32.0：激励（XP / 连胜）派生数据
+    const rw = S.rewards;
+    const rwToday = rw ? rw.daySummary(st.tasks) : { xp: 0, count: 0 };
+    const rwWeek = rw ? rw.weekSummary(st.tasks) : { xp: 0, count: 0 };
+    const rwBest = rw ? rw.bestDayXp(st.tasks) : 0;
+    const rwStreak = rw ? rw.streak(st.tasks) : 0;
+    const rwGoals = Object.assign({ dailyXp: 50, dailyTasks: 3 }, st.settings.rewardsGoals || {});
     const today = util.todayStr();
 
     const rangeNote = range === 'today' ? '今天共 ' + s.rangeTotal + ' 项作业，完成 ' + s.rangeCompleted + ' 项'
@@ -150,6 +157,15 @@
       '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('chart-line', 15) + '</span>整体进度</h3>' +
       '<div class="progress-ring-wrap">' + ringHtml(s.rate, 'ringGradMain') + '<div class="summary-list">' + summary + '</div></div>' +
       '<div style="font-size:12px;color:var(--text-3);margin-top:10px">' + S.icons.icon('save', 12) + ' ' + rangeNote + '</div></div>' +
+
+      '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('bolt', 15) + '</span>激励（XP）</h3>' +
+      '<div class="focus-summary">' +
+      '<div class="focus-num"><b>' + rwToday.xp + '</b><span>今日 XP</span></div>' +
+      '<div class="focus-num"><b>' + rwWeek.xp + '</b><span>本周 XP</span></div>' +
+      '<div class="focus-num"><b>' + rwBest + '</b><span>最佳单日</span></div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text-3);margin-top:10px">每日目标 ' + rwGoals.dailyXp + ' XP · 完成 ' + rwToday.count + '/' + rwGoals.dailyTasks + ' 项 · 连续 ' + rwStreak + ' 天</div>' +
+      '</div>' +
 
       '<div class="stats-card reveal"><h3><span class="e">' + S.icons.icon('clock', 15) + '</span>专注（番茄钟）</h3>' +
       '<div class="focus-summary">' +

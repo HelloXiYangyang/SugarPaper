@@ -112,6 +112,9 @@ class AppSettings {
   final List<SubjectConfig> subjects;
   final ReminderConfig reminder; // v0.22.0 提醒时间自定义
   final FocusConfig focus; // v0.18.0 专注场景配置
+  final Map<String, int> rewardsGoals; // v0.32.0 激励目标（dailyXp / dailyTasks）
+  final Map<String, dynamic> rewards; // v0.32.0 激励计数（comebackCount 等）
+  final Map<String, String> achievements; // v0.32.0 已解锁徽章（id → ISO 时间）
 
   const AppSettings({
     this.notifications = false,
@@ -131,6 +134,9 @@ class AppSettings {
     this.subjects = const [],
     this.reminder = const ReminderConfig(),
     this.focus = const FocusConfig(),
+    this.rewardsGoals = const {},
+    this.rewards = const {},
+    this.achievements = const {},
   });
 
   AppSettings copyWith({
@@ -151,6 +157,9 @@ class AppSettings {
     List<SubjectConfig>? subjects,
     ReminderConfig? reminder,
     FocusConfig? focus,
+    Map<String, int>? rewardsGoals,
+    Map<String, dynamic>? rewards,
+    Map<String, String>? achievements,
   }) {
     return AppSettings(
       notifications: notifications ?? this.notifications,
@@ -170,6 +179,9 @@ class AppSettings {
       subjects: subjects ?? this.subjects,
       reminder: reminder ?? this.reminder,
       focus: focus ?? this.focus,
+      rewardsGoals: rewardsGoals ?? this.rewardsGoals,
+      rewards: rewards ?? this.rewards,
+      achievements: achievements ?? this.achievements,
     );
   }
 
@@ -191,6 +203,9 @@ class AppSettings {
         'subjects': subjects.map((s) => s.toJson()).toList(),
         'reminder': reminder.toJson(),
         'focus': focus.toJson(),
+        'rewardsGoals': rewardsGoals,
+        'rewards': rewards,
+        'achievements': achievements,
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -239,6 +254,15 @@ class AppSettings {
           ? FocusConfig.fromJson(
               Map<String, dynamic>.from(json['focus'] as Map))
           : const FocusConfig(),
+      rewardsGoals: (json['rewardsGoals'] as Map?)
+              ?.map((k, v) => MapEntry(k.toString(), (v as num).toInt())) ??
+          const {},
+      rewards: json['rewards'] is Map
+          ? Map<String, dynamic>.from(json['rewards'] as Map)
+          : const {},
+      achievements: (json['achievements'] as Map?)
+              ?.map((k, v) => MapEntry(k.toString(), v.toString())) ??
+          const {},
     );
   }
 }
