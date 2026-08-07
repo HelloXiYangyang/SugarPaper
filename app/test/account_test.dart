@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sugarpaper/data/account_service.dart';
 import 'package:sugarpaper/data/sync_service.dart';
+import 'package:sugarpaper/models/account.dart';
 
 void main() {
   group('AccountService', () {
@@ -71,6 +72,18 @@ void main() {
       );
       expect(bad, isFalse);
     });
+
+    test('Nostr 公钥 hex 与网页版跨端向量一致', () async {
+      const mnemonic = 'bac bab bac bab bac bab bac bab bac bab bac bab';
+      final restored = await AccountService.restoreAccount(mnemonic);
+      final hex = await AccountService.publicKeyHex(restored.keyPair);
+      // 由网页版 account.js 同种子推导（v0.26.0 互通校验向量）
+      expect(
+        hex,
+        '9695c460e97e86ac847ef972632a3fb8a2c503fd29efcc42d7a875ad27929316',
+      );
+      expect(RegExp(r'^[a-f0-9]{64}$').hasMatch(hex), isTrue);
+    });
   });
 
   group('SyncService 合并', () {
@@ -94,6 +107,28 @@ void main() {
       );
       expect(merged.length, 1);
       expect(merged.first['title'], '新');
+    });
+
+    test('Nostr 事件 pubkey 使用 64 位 hex（公共中继 NIP-01）', () async {
+      final created = await AccountService.createAccount();
+      final acc = Account(
+        pubkey: await AccountService.publicKeyB64(created.keyPair),
+        seedB64: base64Url
+            .encode(created.seed)
+            .replaceAll('+', '-')
+            .replaceAll('/', '_')
+            .replaceAll('=', ''),
+        mnemonic: created.mnemonic.join(' '),
+        displayName: '测试',
+      );
+      final event = await SyncService().nostrEvent(acc, {'app': 'SugarPaper'});
+      expect(event['pubkey'], isA<String>());
+      expect(
+        RegExp(r'^[a-f0-9]{64}$').hasMatch(event['pubkey'] as String),
+        isTrue,
+      );
+      expect(event['id'], isA<String>());
+      expect((event['id'] as String).length, 64);
     });
   });
 }

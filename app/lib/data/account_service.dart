@@ -202,6 +202,12 @@ class AccountService {
     return _b64url(pk.bytes);
   }
 
+  /// 公钥 64 位 hex（Nostr 事件与订阅过滤器要求，对齐公共中继 NIP-01）。
+  static Future<String> publicKeyHex(SimpleKeyPair keyPair) async {
+    final pk = await keyPair.extractPublicKey();
+    return pk.bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  }
+
   static String accountShortId(String pubkeyB64) {
     if (pubkeyB64.isEmpty) return '';
     if (pubkeyB64.length <= 8) return pubkeyB64;

@@ -440,6 +440,16 @@ test('Ed25519 公钥推导符合 RFC 8032 测试向量', async () => {
   );
 });
 
+test('Nostr 公钥为 64 位 hex（跨端互通，公共中继 NIP-01）', async () => {
+  const m = ['bac', 'bab', 'bac', 'bab', 'bac', 'bab', 'bac', 'bab', 'bac', 'bab', 'bac', 'bab'];
+  const seed = await account.mnemonicToSeed(m);
+  const kp = await account.seedToKeyPair(seed);
+  const hex = account.bytesToHex(kp.publicKeyRaw);
+  assert.match(hex, /^[a-f0-9]{64}$/);
+  // 与安卓端同种子推导结果一致的互通校验向量
+  assert.strictEqual(hex, '9695c460e97e86ac847ef972632a3fb8a2c503fd29efcc42d7a875ad27929316');
+});
+
 test('端到端加密解密往返', async () => {
   const created = await account.createAccount();
   const env = await account.encryptData({ tasks: [{ id: 'a', title: '数学作业' }] }, created.seed);

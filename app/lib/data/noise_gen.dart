@@ -9,16 +9,16 @@ import 'dart:typed_data' show BytesBuilder;
 
 /// 白噪音场景清单（v5.0 专注场景）。
 const kSoundScenes = [
-  ('none', '静音', 'close'),
-  ('rain', '雨声', 'cloud'),
-  ('ocean', '海浪', 'wave'),
-  ('forest', '森林', 'leaf'),
-  ('cafe', '咖啡馆', 'cup'),
-  ('fire', '篝火', 'flame'),
-  ('pink', '粉红噪音', 'sparkles'),
-  ('brown', '棕噪音', 'moon'),
+  // 场景 id 与网页版 ui-focus.js SCENES 对齐
+  ('pink-noise', '粉红噪音', 'sparkles'),
+  ('white-noise', '白噪音', 'cloud'),
+  ('brown-noise', '棕噪音', 'music'),
+  ('rain', '雨天', 'cloud'),
+  ('fireplace', '篝火', 'flame'),
   ('library', '图书馆', 'book'),
-  ('night', '夜虫', 'star'),
+  ('forest', '森林鸟鸣', 'leaf'),
+  ('waves', '海浪', 'wave'),
+  ('custom', '自定义声音', 'music'),
 ];
 
 /// 生成专注白噪音 WAV 文件（16-bit PCM，44.1kHz，30 秒，循环播放）。
@@ -33,29 +33,28 @@ Future<File> generateSoundFile(String scene, Directory dir) async {
     case 'rain':
       _rain(samples, rng);
       break;
-    case 'ocean':
+    case 'waves':
       _ocean(samples, rng);
       break;
     case 'forest':
       _forest(samples, rng);
       break;
-    case 'cafe':
-      _cafe(samples, rng);
-      break;
-    case 'fire':
+    case 'fireplace':
       _fire(samples, rng);
       break;
-    case 'pink':
+    case 'pink-noise':
       _pink(samples, rng);
       break;
-    case 'brown':
+    case 'brown-noise':
       _brown(samples, rng);
       break;
     case 'library':
       _library(samples, rng);
       break;
-    case 'night':
-      _night(samples, rng);
+    case 'white-noise':
+      for (var i = 0; i < n; i++) {
+        samples[i] = (rng.nextDouble() * 2 - 1) * 0.5;
+      }
       break;
     default:
       for (var i = 0; i < n; i++) {
@@ -153,30 +152,6 @@ void _forest(List<double> s, math.Random rng) {
   }
 }
 
-void _cafe(List<double> s, math.Random rng) {
-  final raw = List<double>.filled(s.length, 0);
-  for (var i = 0; i < s.length; i++) {
-    raw[i] = rng.nextDouble() * 2 - 1;
-  }
-  _lowpass(raw, s, 0.07);
-  // 人声般的缓慢起伏 + 偶尔杯碟声
-  for (var i = 0; i < s.length; i++) {
-    final t = i / 44100.0;
-    final murmur = 0.75 +
-        0.25 *
-            math.sin(t * 0.9) *
-            math.sin(t * 0.27 + 2.0);
-    s[i] *= murmur * 0.5;
-  }
-  for (var i = 0; i < s.length; i += 44100 * 9) {
-    final start = i + rng.nextInt(2000);
-    for (var j = start; j < math.min(s.length, start + 1200); j++) {
-      final fade = (j - start) / 1200.0;
-      s[j] += (rng.nextDouble() * 2 - 1) * 0.12 * (1 - fade);
-    }
-  }
-}
-
 void _fire(List<double> s, math.Random rng) {
   final raw = List<double>.filled(s.length, 0);
   for (var i = 0; i < s.length; i++) {
@@ -249,28 +224,6 @@ void _library(List<double> s, math.Random rng) {
     if (i >= s.length - 600) break;
     for (var j = 0; j < 600 && i + j < s.length; j++) {
       s[i + j] += (rng.nextDouble() * 2 - 1) * 0.18 * (1 - j / 600.0);
-    }
-  }
-}
-
-void _night(List<double> s, math.Random rng) {
-  for (var i = 0; i < s.length; i++) {
-    s[i] = (rng.nextDouble() * 2 - 1) * 0.04;
-  }
-  // 虫鸣 chirp：频率扫描短音
-  var i = 0;
-  while (i < s.length - 2000) {
-    i += 900 + rng.nextInt(1600);
-    if (i >= s.length - 2000) break;
-    final chirps = 3 + rng.nextInt(4);
-    for (var c = 0; c < chirps; c++) {
-      final start = i + c * 240;
-      for (var j = 0; j < 180 && start + j < s.length; j++) {
-        final t = j / 180.0;
-        final f = 3800 - t * 1800;
-        final env = math.sin(math.pi * t);
-        s[start + j] += math.sin(2 * math.pi * f * j / 44100.0) * 0.16 * env;
-      }
     }
   }
 }

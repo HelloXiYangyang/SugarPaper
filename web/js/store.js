@@ -237,7 +237,8 @@
       id: input.id || g.Sugar.util.uuid(),
       title: String(input.title || '').trim(),
       content: String(input.content || ''),
-      color: input.color || '#F4B8CE',
+      color: input.color || input.colorHex || '#F4B8CE',
+      colorHex: input.colorHex || input.color || '#F4B8CE',
       pinned: !!input.pinned,
       archived: !!input.archived,
       tags: Array.isArray(input.tags) ? input.tags.slice() : [],
@@ -305,16 +306,20 @@
 
   function addFocusSession(input) {
     const now = nowIso();
+    const task = input.taskId ? state.tasks.find((t) => t.id === input.taskId) : null;
     const session = {
       id: input.id || g.Sugar.util.uuid(),
       taskId: input.taskId || null,
+      taskTitle: input.taskTitle || (task ? task.title : null),
       subject: input.subject || null,
       sceneId: input.sceneId || null,
       startAt: input.startAt || now,
       endAt: input.endAt || now,
       minutes: Math.max(1, Math.round(input.minutes || 1)),
+      pomodoros: input.pomodoros || 1,
       completed: !!input.completed,
-      source: input.source || 'pomodoro'
+      source: input.source || 'pomodoro',
+      updatedAt: input.updatedAt || input.endAt || now
     };
     state.focusSessions.push(session);
     persist();

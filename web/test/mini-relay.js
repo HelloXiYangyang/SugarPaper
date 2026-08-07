@@ -124,7 +124,8 @@ function attachMiniRelay(server) {
         if (!Array.isArray(msg)) return;
         if (msg[0] === 'EVENT') {
           const ev = msg[1];
-          if (ev && ev.kind && ev.pubkey) {
+          // NIP-01：事件 pubkey 必须为 64 位小写 hex（模拟公共中继校验，防回归）
+          if (ev && ev.kind && /^[a-f0-9]{64}$/.test(String(ev.pubkey || ''))) {
             events.push(ev);
             broadcast(JSON.stringify(['EVENT', ev]), client);
           }

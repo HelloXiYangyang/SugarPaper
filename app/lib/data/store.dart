@@ -20,7 +20,7 @@ import '../models/task.dart';
 /// 本地存储与状态管理（离线优先）。
 /// 数据格式与 Web 版 `web/js/store.js` 完全一致，备份可互相导入。
 class AppStore {
-  static const String appVersion = '0.26.0';
+  static const String appVersion = '0.26.1';
   static const String storageFileName = 'sugarpaper.json';
 
   final List<Task> tasks = [];
@@ -270,10 +270,14 @@ class AppStore {
 
   FocusSession addFocusSession(Map<String, dynamic> input) {
     final now = DateTime.now();
+    final task = input['taskId'] is String
+        ? findTask(input['taskId'] as String)
+        : null;
     final session = FocusSession(
       id: input['id'] as String? ?? _uuid(),
       taskId: input['taskId'] as String?,
       taskTitle: (input['taskTitle'] as String?) ?? '自由专注',
+      subject: input['subject'] as String? ?? task?.subject,
       startedAt: now,
       durationSec: (input['durationSec'] as num?)?.toInt() ?? 0,
       pomodoros: (input['pomodoros'] as num?)?.toInt() ?? 1,

@@ -32,18 +32,17 @@ const _presets = [
   ('free', '自由', 0),
 ];
 
-/// S12：场景氛围渐变（环境背景随所选场景切换，对齐网页版 --scene-a/--scene-b）。
+/// S12：场景氛围渐变（对齐网页版 ui-focus.js SCENES 的 grad）。
 const _sceneGrads = {
-  'none': [Color(0xFFFBF6F2), Color(0xFFF2E8EC)],
+  'pink-noise': [Color(0xFFE8E0F6), Color(0xFFC9C7F0)],
+  'white-noise': [Color(0xFFE0EEF8), Color(0xFFB3D4F0)],
+  'brown-noise': [Color(0xFFF8E4D2), Color(0xFFF0C9A8)],
   'rain': [Color(0xFFDCEAF6), Color(0xFF8FA8C8)],
-  'ocean': [Color(0xFFDCF0F8), Color(0xFF8FC8E8)],
-  'forest': [Color(0xFFDFF2E8), Color(0xFFA9E0CB)],
-  'cafe': [Color(0xFFF3E4D5), Color(0xFFD9BFA5)],
-  'fire': [Color(0xFFFBE3D0), Color(0xFFF5A87A)],
-  'pink': [Color(0xFFFBE4EE), Color(0xFFF5C4DC)],
-  'brown': [Color(0xFFF0E3D8), Color(0xFFC9A98C)],
+  'fireplace': [Color(0xFFFBE3D0), Color(0xFFF5A87A)],
   'library': [Color(0xFFF2EBDD), Color(0xFFD8C8A8)],
-  'night': [Color(0xFF232136), Color(0xFF4A4565)],
+  'forest': [Color(0xFFDFF2E8), Color(0xFFA9E0CB)],
+  'waves': [Color(0xFFDCF0F8), Color(0xFF8FC8E8)],
+  'custom': [Color(0xFFFBE4EE), Color(0xFFF5C4DC)],
 };
 
 class FocusPage extends ConsumerStatefulWidget {
@@ -63,7 +62,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
   int _total = 25 * 60;
   bool _running = false;
   Timer? _timer;
-  String _scene = 'none';
+  String _scene = 'pink-noise';
   bool _done = false;
   bool _breathOn = true;
   final AudioPlayer _player = AudioPlayer();
@@ -74,8 +73,19 @@ class _FocusPageState extends ConsumerState<FocusPage>
   void initState() {
     super.initState();
     final focus = ref.read(appStateProvider).store.settings.focus;
-    if (focus.sceneId != null && focus.sceneId != 'none') {
-      _scene = focus.sceneId!;
+    // 旧版场景 id 迁移到网页版对齐的新 id（pink→pink-noise 等）
+    const oldMap = {
+      'pink': 'pink-noise',
+      'white': 'white-noise',
+      'brown': 'brown-noise',
+      'fire': 'fireplace',
+      'ocean': 'waves',
+    };
+    final sceneId = focus.sceneId;
+    if (sceneId != null && sceneId != 'none') {
+      _scene = oldMap[sceneId] ?? sceneId;
+    } else {
+      _scene = 'pink-noise'; // 与网页版默认场景一致
     }
     _breath = AnimationController(
       vsync: this,
@@ -453,9 +463,12 @@ class _FocusPageState extends ConsumerState<FocusPage>
 
   /// S12：场景卡片（渐变氛围 + 图标 + 名称），点击切换环境并播放噪音。
   Widget _sceneCard(SugarThemeData t, String id, String name, String icon) {
-    final grads = _sceneGrads[id] ?? _sceneGrads['none']!;
+    final grads = _sceneGrads[id] ?? _sceneGrads['pink-noise']!;
     final active = _scene == id;
-    final fg = id == 'night' ? Colors.white : const Color(0xFF5A4A52);
+    final fg = const Color(0xFF5A4A52);
+    // 场景图标：cloud/leaf/wave/cup 为网页版填充风格（kFillAvatars），
+    // 其余为描边风格（kStrokeIcons），按所属集合决定渲染方式
+    final filled = kFillAvatars.containsKey(icon);
     return PressableScale(
       onTap: () => _selectScene(id),
       child: AnimatedContainer(
@@ -487,7 +500,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SugarIcon(icon, size: 20, color: fg),
+            SugarIcon(icon, size: 20, color: fg, filled: filled),
             const SizedBox(height: 6),
             Text(
               name,
@@ -788,8 +801,6 @@ class _FocusPageState extends ConsumerState<FocusPage>
                         children: [
                           ...kSoundScenes.map((sc) =>
                               _sceneCard(t, sc.$1, sc.$2, sc.$3)),
-                          if (state.store.settings.focus.customAudio != null)
-                            _sceneCard(t, 'custom', '自定义声音', 'sparkles'),
                         ],
                       ),
                     ],

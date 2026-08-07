@@ -127,4 +127,51 @@ void main() {
       expect(widgets, isNotEmpty);
     });
   });
+
+  group('跨端数据互通（v0.26.0）', () {
+    test('FocusSession canonical 输出与本地字段兼容', () {
+      final s = FocusSession(
+        id: 'f1',
+        taskId: 't1',
+        taskTitle: '数学作业',
+        subject: '数学',
+        startedAt: DateTime.utc(2026, 8, 7, 8, 0),
+        durationSec: 1500,
+        pomodoros: 1,
+        soundScene: 'rain',
+      );
+      final j = s.toJson();
+      expect(j['startAt'], '2026-08-07T08:00:00.000Z');
+      expect(j['endAt'], '2026-08-07T08:25:00.000Z');
+      expect(j['minutes'], 25);
+      expect(j['completed'], true);
+      expect(j['sceneId'], 'rain');
+      expect(j['startedAt'], '2026-08-07T08:00:00.000Z');
+      expect(j['durationSec'], 1500);
+    });
+
+    test('FocusSession.fromJson 可读网页版 canonical 字段', () {
+      final s = FocusSession.fromJson({
+        'id': 'f1',
+        'taskId': 't1',
+        'taskTitle': '英语',
+        'subject': '英语',
+        'sceneId': 'fireplace',
+        'startAt': '2026-08-07T08:00:00.000Z',
+        'endAt': '2026-08-07T08:25:00.000Z',
+        'minutes': 25,
+        'completed': true,
+        'source': 'pomodoro',
+        'updatedAt': '2026-08-07T08:25:00.000Z',
+      });
+      expect(s.durationSec, 1500);
+      expect(s.soundScene, 'fireplace');
+      expect(s.startedAt.toUtc(), DateTime.utc(2026, 8, 7, 8, 0));
+    });
+
+    test('Note.colorHex 兼容网页版旧 color 字段', () {
+      final n = Note.fromJson({'id': 'n1', 'title': 't', 'color': '#123456'});
+      expect(n.colorHex, '#123456');
+    });
+  });
 }

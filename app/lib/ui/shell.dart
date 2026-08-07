@@ -26,9 +26,6 @@ const _tabs = [
   ('settings', '我的', 'user'),
 ];
 
-/// S12：专注 Tab 在底部导航中的位置（中间突出按钮）。
-const int _focusTabIndex = 2;
-
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
@@ -156,55 +153,6 @@ class _BottomNav extends StatelessWidget {
             children: List.generate(_tabs.length, (i) {
               final tab = _tabs[i];
               final active = i == current;
-              if (i == _focusTabIndex) {
-                // 专注：居中突出按钮（圆形 + 上浮），与普通 Tab 区分
-                return Expanded(
-                  child: InkWell(
-                    onTap: () => onTap(i),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOutBack,
-                          width: active ? 44 : 38,
-                          height: active ? 44 : 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [t.pinkStrong, t.pink],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: t.pinkStrong.withValues(alpha: 0.45),
-                                blurRadius: active ? 14 : 8,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: SugarIcon(
-                            tab.$3,
-                            size: 21,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          tab.$2,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight:
-                                active ? FontWeight.w700 : FontWeight.w600,
-                            color: active ? t.pinkStrong : t.text3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
               return Expanded(
                 child: InkWell(
                   onTap: () => onTap(i),

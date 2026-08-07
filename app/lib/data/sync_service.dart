@@ -93,6 +93,7 @@ class SyncService {
   ) async {
     final seed = Uint8List.fromList(_b64urlToBytes(acc.seedB64));
     final keyPair = await AccountService.seedToKeyPair(seed);
+    final pubkeyHex = await AccountService.publicKeyHex(keyPair);
     final createdAt = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final tags = [
       ['d', syncDTag],
@@ -101,7 +102,7 @@ class SyncService {
     final content = jsonEncode(env);
     final idBytes = await AccountService.sha256(
       utf8.encode(
-        jsonEncode([0, acc.pubkey, createdAt, syncKind, tags, content]),
+        jsonEncode([0, pubkeyHex, createdAt, syncKind, tags, content]),
       ),
     );
     final id = _bytesToHex(idBytes);
@@ -114,7 +115,7 @@ class SyncService {
       'created_at': createdAt,
       'tags': tags,
       'content': content,
-      'pubkey': acc.pubkey,
+      'pubkey': pubkeyHex,
       'id': id,
       'sig': sig,
     };
@@ -128,7 +129,7 @@ class SyncService {
   /// 从单个中继拉取作者最新的糖纸快照事件（返回最高 version 的 env 或 null）。
   Future<Map<String, dynamic>?> _fetchLatest(
     WebSocket ws,
-    String pubkey,
+    String pubkeyHex,
   ) async {
     final completer = Completer<Map<String, dynamic>?>();
     Map<String, dynamic>? best;
@@ -168,7 +169,7 @@ class SyncService {
       'sugarpaper',
       {
         'kinds': [syncKind],
-        'authors': [pubkey],
+        'authors': [pubkeyHex],
         '#d': [syncDTag],
         'limit': 20,
       },
@@ -212,9 +213,11 @@ class SyncService {
     try {
       final url = _relays(store).first;
       final ws = await _openWs(url);
-      final remote = await _fetchLatest(ws, acc.pubkey);
+      final seed = Uint8List.fromList(_b64urlToBytes(acc.seedB64));
+      final keyPair = await AccountService.seedToKeyPair(seed);
+      final pubkeyHex = await AccountService.publicKeyHex(keyPair);
+      final remote = await _fetchLatest(ws, pubkeyHex);
       if (remote != null && await verifyEnvelope(remote, acc.pubkey)) {
-        final seed = Uint8List.fromList(_b64urlToBytes(acc.seedB64));
         final payload = await AccountService.decryptData(
           (iv: remote['iv'] as String, data: remote['data'] as String),
           seed,

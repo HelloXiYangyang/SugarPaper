@@ -87,7 +87,11 @@ class DirectSyncService {
         'sp-signal',
         {
           'kinds': [signalKind],
-          'authors': [acc.pubkey],
+          'authors': [await AccountService.publicKeyHex(
+            await AccountService.seedToKeyPair(
+              Uint8List.fromList(_b64urlToBytes(acc.seedB64)),
+            ),
+          )],
           '#d': [signalDTag],
           'limit': 30,
         },
@@ -168,6 +172,7 @@ class DirectSyncService {
   ) async {
     final seed = Uint8List.fromList(_b64urlToBytes(acc.seedB64));
     final keyPair = await AccountService.seedToKeyPair(seed);
+    final pubkeyHex = await AccountService.publicKeyHex(keyPair);
     final createdAt = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final content = jsonEncode({
       'session': _session,
@@ -181,7 +186,7 @@ class DirectSyncService {
     ];
     final idBytes = await AccountService.sha256(
       utf8.encode(
-        jsonEncode([0, acc.pubkey, createdAt, signalKind, tags, content]),
+        jsonEncode([0, pubkeyHex, createdAt, signalKind, tags, content]),
       ),
     );
     final id = _bytesToHex(idBytes);
@@ -191,7 +196,7 @@ class DirectSyncService {
       'created_at': createdAt,
       'tags': tags,
       'content': content,
-      'pubkey': acc.pubkey,
+      'pubkey': pubkeyHex,
       'id': id,
       'sig': sig,
     };
@@ -212,8 +217,6 @@ class DirectSyncService {
       if (sig is! Map || sig['type'] == null) return;
       final pc = _pc;
       if (pc == null || _session == null) return;
-      // 只接收同一会话的信号
-      if (sig['session'] != _session) return;
 
       _handleSignal(
         acc,

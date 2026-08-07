@@ -41,8 +41,8 @@ void main() {
     expect(find.text('番茄钟'), findsOneWidget);
     expect(find.text('环境与噪音'), findsOneWidget);
 
-    // 场景卡片（内置 9 种 + 静音）
-    expect(find.text('雨声'), findsOneWidget);
+    // 场景卡片（对齐网页版场景集）
+    expect(find.text('雨天'), findsOneWidget);
     expect(find.text('篝火'), findsOneWidget);
     expect(find.text('粉红噪音'), findsOneWidget);
 

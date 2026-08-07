@@ -62,20 +62,23 @@ class Note {
         'title': title,
         'content': content,
         'colorHex': colorHex,
+        'color': colorHex,
         'pinned': pinned,
         'archived': archived,
         'isDeleted': isDeleted,
-        'remindAt': remindAt?.toIso8601String(),
+        'remindAt': remindAt?.toUtc().toIso8601String(),
         'images': images,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
+        'createdAt': createdAt.toUtc().toIso8601String(),
+        'updatedAt': updatedAt.toUtc().toIso8601String(),
       };
 
   factory Note.fromJson(Map<String, dynamic> json) => Note(
         id: (json['id'] as String?) ?? 'n${DateTime.now().microsecondsSinceEpoch}',
         title: (json['title'] as String?) ?? '',
         content: (json['content'] as String?) ?? '',
-        colorHex: (json['colorHex'] as String?) ?? '#FBE4EC',
+        colorHex: (json['colorHex'] as String?) ??
+            (json['color'] as String?) ??
+            '#FBE4EC',
         pinned: json['pinned'] == true,
         archived: json['archived'] == true,
         isDeleted: json['isDeleted'] == true,

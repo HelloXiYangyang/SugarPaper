@@ -89,6 +89,7 @@
   async function nostrSignalEvent(acc, obj) {
     const seed = g.Sugar.account.b64urlToBytes(acc.seedB64);
     const kp = await g.Sugar.account.seedToKeyPair(seed);
+    const pubkeyHex = g.Sugar.account.bytesToHex(kp.publicKeyRaw);
     const created_at = Math.floor(Date.now() / 1000);
     const content = JSON.stringify({
       session: direct.session,
@@ -97,10 +98,10 @@
       candidate: obj.candidate || null
     });
     const tags = [['d', SIGNAL_D_TAG], ['t', 'sugarpaper']];
-    const idBytes = await g.Sugar.account.sha256(new TextEncoder().encode(JSON.stringify([0, acc.pubkey, created_at, SIGNAL_KIND, tags, content])));
+    const idBytes = await g.Sugar.account.sha256(new TextEncoder().encode(JSON.stringify([0, pubkeyHex, created_at, SIGNAL_KIND, tags, content])));
     const id = g.Sugar.account.bytesToHex(idBytes);
     const sig = await g.Sugar.account.signBytes(kp.privateKey, g.Sugar.account.hexToBytes(id), 'hex');
-    return { kind: SIGNAL_KIND, created_at, tags, content, pubkey: acc.pubkey, id, sig };
+    return { kind: SIGNAL_KIND, created_at, tags, content, pubkey: pubkeyHex, id, sig };
   }
 
   function sendSignal(obj) {
@@ -218,6 +219,9 @@
       const ws = await openWs(url);
       direct.ws = ws;
       direct.session = 'd' + Math.random().toString(36).slice(2, 10);
+      const seed = g.Sugar.account.b64urlToBytes(acc.seedB64);
+      const kp = await g.Sugar.account.seedToKeyPair(seed);
+      const pubkeyHex = g.Sugar.account.bytesToHex(kp.publicKeyRaw);
       const pc = new RTCPeerConnection({ iceServers: [] });
       direct.pc = pc;
       // 对方创建的 DataChannel 通过该事件接收（双方都绑定，兼容互为发起方的情况）
@@ -230,7 +234,7 @@
       ws.onmessage = (ev) => { handleSignalMessage(ev); };
       ws.send(JSON.stringify(['REQ', 'sp-signal', {
         kinds: [SIGNAL_KIND],
-        authors: [acc.pubkey],
+        authors: [pubkeyHex],
         '#d': [SIGNAL_D_TAG],
         limit: 30
       }]));
@@ -312,13 +316,14 @@
     const acc = account();
     const seed = g.Sugar.account.b64urlToBytes(acc.seedB64);
     const kp = await g.Sugar.account.seedToKeyPair(seed);
+    const pubkeyHex = g.Sugar.account.bytesToHex(kp.publicKeyRaw);
     const created_at = Math.floor(Date.now() / 1000);
     const tags = [['d', SYNC_D_TAG], ['t', 'sugarpaper']];
     const content = JSON.stringify(env);
-    const idBytes = await g.Sugar.account.sha256(new TextEncoder().encode(JSON.stringify([0, acc.pubkey, created_at, SYNC_KIND, tags, content])));
+    const idBytes = await g.Sugar.account.sha256(new TextEncoder().encode(JSON.stringify([0, pubkeyHex, created_at, SYNC_KIND, tags, content])));
     const id = g.Sugar.account.bytesToHex(idBytes);
     const sig = await g.Sugar.account.signBytes(kp.privateKey, g.Sugar.account.hexToBytes(id), 'hex');
-    return { kind: SYNC_KIND, created_at, tags, content, pubkey: acc.pubkey, id, sig };
+    return { kind: SYNC_KIND, created_at, tags, content, pubkey: pubkeyHex, id, sig };
   }
 
   function openWs(url, timeoutMs) {
@@ -346,8 +351,8 @@
     });
   }
 
-  /** 拉取作者最新的糖纸快照事件；返回解密后的 payload 或 null */
-  async function fetchLatest(ws, pubkey) {
+  /** 拉取作者最新的糖纸快照事件；返回解密后的 payload 或 null（pubkey 为 64 位 hex） */
+  async function fetchLatest(ws, pubkeyHex) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('拉取快照超时')), REQ_TIMEOUT);
       let best = null;
@@ -369,7 +374,7 @@
       };
       ws.send(JSON.stringify(['REQ', 'sugarpaper', {
         kinds: [SYNC_KIND],
-        authors: [pubkey],
+        authors: [pubkeyHex],
         '#d': [SYNC_D_TAG],
         limit: 20
       }]));
@@ -422,8 +427,10 @@
     let ws;
     try {
       ws = await openWs(url);
-      const remote = await fetchLatest(ws, acc.pubkey);
       const seed = g.Sugar.account.b64urlToBytes(acc.seedB64);
+      const kp = await g.Sugar.account.seedToKeyPair(seed);
+      const pubkeyHex = g.Sugar.account.bytesToHex(kp.publicKeyRaw);
+      const remote = await fetchLatest(ws, pubkeyHex);
       if (remote) {
         const ok = await verifyEnvelope(remote, acc.pubkey);
         if (ok) {
