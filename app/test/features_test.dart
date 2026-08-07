@@ -9,6 +9,7 @@ import 'package:sugarpaper/core/markdown.dart';
 import 'package:sugarpaper/data/parser.dart';
 import 'package:sugarpaper/data/stats_engine.dart';
 import 'package:sugarpaper/data/teacher.dart';
+import 'package:sugarpaper/models/update_info.dart';
 import 'package:sugarpaper/models/focus_session.dart';
 import 'package:sugarpaper/models/note.dart';
 import 'package:sugarpaper/models/subject_config.dart';
@@ -172,6 +173,31 @@ void main() {
     test('Note.colorHex 兼容网页版旧 color 字段', () {
       final n = Note.fromJson({'id': 'n1', 'title': 't', 'color': '#123456'});
       expect(n.colorHex, '#123456');
+    });
+  });
+
+  group('自动更新元数据（v0.27.0）', () {
+    test('UpdateInfo.fromJson 解析 latest 与 platforms', () {
+      final info = UpdateInfo.fromJson({
+        'app': 'SugarPaper',
+        'latest': {
+          'version': '0.27.0',
+          'build': 46,
+          'published_at': '2026-08-07T00:00:00Z',
+          'notes': '- 新增自动更新',
+        },
+        'platforms': {
+          'android': {
+            'url': 'https://example.com/sugarpaper.apk',
+            'sha256': 'aabbcc',
+          },
+        },
+      });
+      expect(info, isNotNull);
+      expect(info!.version, '0.27.0');
+      expect(info.build, 46);
+      expect(info.platforms['android']!.url, 'https://example.com/sugarpaper.apk');
+      expect(info.platforms['android']!.sha256, 'aabbcc');
     });
   });
 }

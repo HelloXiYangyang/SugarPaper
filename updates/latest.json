@@ -1,0 +1,19 @@
+{
+  "app": "SugarPaper",
+  "latest": {
+    "version": "0.27.0",
+    "build": 46,
+    "published_at": "2026-08-07T00:00:00Z",
+    "notes": "- 新增零服务器自动更新（检查更新 / 下载 / 校验 / 安装）\n- 网页版与安卓版同步发布"
+  },
+  "platforms": {
+    "android": {
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.27.0/SugarPaper-v0.27.0-android.apk",
+      "sha256": ""
+    },
+    "web": {
+      "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
+      "sha256": ""
+    }
+  }
+}

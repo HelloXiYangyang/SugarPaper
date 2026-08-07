@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    name: 构建 Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: app
+      - run: flutter build apk --release
+        working-directory: app
+      - name: 按命名规范重命名
+        run: |
+          VER=${GITHUB_REF_NAME#v}
+          cp app/build/app/outputs/flutter-apk/app-release.apk "SugarPaper-v${VER}-android.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: SugarPaper-v*-android.apk
+
+  publish:
+    name: 发布 Release 并更新元数据
+    needs: android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: dist
+
+      - name: 计算 SHA-256
+        id: hashes
+        run: |
+          VER=${GITHUB_REF_NAME#v}
+          APK=$(ls dist/SugarPaper-v${VER}-android.apk)
+          SHA=$(sha256sum "$APK" | awk '{print $1}')
+          echo "apk=$APK" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: 创建 Release 并上传 APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK: ${{ steps.hashes.outputs.apk }}
+          VER: ${{ steps.hashes.outputs.ver }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "v${VER} · 糖纸 SugarPaper" \
+            --notes "糖纸 · SugarPaper v${VER} 发布" \
+            "$APK"
+
+      - name: 更新 updates/latest.json（版本号 / build / sha256）
+        env:
+          SHA: ${{ steps.hashes.outputs.sha }}
+          VER: ${{ steps.hashes.outputs.ver }}
+        run: |
+          BUILD=$(grep '^version:' app/pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/')
+          node - <<'EOF'
+          const fs = require('fs');
+          const path = 'updates/latest.json';
+          const j = JSON.parse(fs.readFileSync(path, 'utf8'));
+          j.latest.version = process.env.VER;
+          j.latest.build = Number(process.env.BUILD);
+          j.latest.published_at = new Date().toISOString();
+          j.platforms.android.url = `https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${process.env.VER}/SugarPaper-v${process.env.VER}-android.apk`;
+          j.platforms.android.sha256 = process.env.SHA;
+          fs.writeFileSync(path, JSON.stringify(j, null, 2) + '\n');
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add updates/latest.json
+          git commit -m "chore(updates): 发布 v${VER} 同步 latest.json" || true
+          git push origin main

@@ -820,6 +820,17 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 .breath-btn.active { background: var(--pink-soft); color: var(--pink-strong); }
 
 /* ---------- S12：专注独立页面（底部导航 Tab） ---------- */
+.update-banner {
+  position: fixed; left: 50%; bottom: calc(var(--bottom-nav-h) + 16px);
+  transform: translateX(-50%); z-index: 200;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--pink);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(122, 92, 104, .18);
+  font-size: 13px; font-weight: 700; color: var(--text);
+}
 .focus-page {
   position: relative; inset: auto; z-index: 1;
   min-height: 72vh;

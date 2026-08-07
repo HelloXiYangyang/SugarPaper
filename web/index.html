@@ -51,11 +51,42 @@
   <script src="js/reminders.js"></script>
   <script src="js/app.js"></script>
   <script>
-    // PWA 离线可用（v0.19.0）：Service Worker 缓存应用外壳
+    // PWA 离线可用 + 零服务器自动更新（v0.27.0）：
+    // Service Worker 缓存应用外壳；检测到新版 SW 时提示刷新
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => { /* 注册失败不影响使用 */ });
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateBanner();
+              }
+            });
+          });
+        }).catch(() => { /* 注册失败不影响使用 */ });
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          window.location.reload();
+        });
       });
+    }
+    function showUpdateBanner() {
+      const root = document.getElementById('toast-root') || document.body;
+      const banner = document.createElement('div');
+      banner.className = 'update-banner';
+      banner.innerHTML = '<span>发现新版本</span>' +
+        '<button class="btn small primary" data-update-refresh>立即刷新</button>';
+      const btn = banner.querySelector('[data-update-refresh]');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          window.location.reload();
+        });
+      }
+      root.appendChild(banner);
     }
   </script>
 </body>

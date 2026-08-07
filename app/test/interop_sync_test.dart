@@ -88,6 +88,8 @@ void main() {
     await sync.syncOnce(store);
     expect(sync.status, 'connected', reason: '推送失败：${sync.lastError}');
     expect(sync.lastError, isNull);
+    // 给中继一点时间处理排队消息（并行测试负载下时序更稳）
+    await Future<void>.delayed(const Duration(milliseconds: 120));
     expect(events, isNotEmpty);
     expect(hexRe.hasMatch((events.first['pubkey'] as String?) ?? ''), isTrue,
         reason: '事件 pubkey 必须是 64 位 hex 才能被公共中继接受');

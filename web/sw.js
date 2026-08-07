@@ -3,29 +3,33 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-/* 糖纸 · SugarPaper —— Service Worker（v0.19.0）
+/* 糖纸 · SugarPaper —— Service Worker（v0.27.0）
    缓存应用外壳实现 PWA 离线可用；网络不可用时兜底到 index.html。 */
 'use strict';
 
-const CACHE_NAME = 'sugarpaper-shell-v0.19.0';
+const CACHE_NAME = 'sugarpaper-shell-v0.27.0';
 const APP_SHELL = [
   './',
   './index.html',
   './css/theme.css',
   './css/app.css',
   './js/util.js',
+  './js/markdown.js',
   './js/icons.js',
   './js/parser.js',
   './js/store.js',
   './js/account.js',
   './js/sync.js',
   './js/stats.js',
+  './js/report.js',
+  './js/teacher.js',
   './js/ui-modals.js',
   './js/ui-home.js',
   './js/ui-calendar.js',
   './js/ui-stats.js',
   './js/ui-settings.js',
   './js/ui-notes.js',
+  './js/ui-teacher.js',
   './js/ui-focus.js',
   './js/ui-account.js',
   './js/reminders.js',

@@ -4,6 +4,7 @@
  */
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -15,7 +16,12 @@ import 'data/app_state.dart';
 import 'data/reminder_service.dart';
 import 'data/store.dart';
 import 'data/sync_service.dart';
+import 'data/update_service.dart';
+import 'ui/settings/update_dialog.dart';
 import 'ui/shell.dart';
+
+/// 根导航 key：用于启动后自动检查更新弹窗。
+final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,6 +68,25 @@ class _SugarPaperAppState extends ConsumerState<SugarPaperApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _detectFps(ref.read(appStateProvider));
     });
+    // v0.27.0 零服务器自动更新：启动 6 秒后静默检查一次
+    if (Platform.environment['FLUTTER_TEST'] != 'true') {
+      Future.delayed(const Duration(seconds: 6), () {
+        if (!mounted) return;
+        _autoCheckUpdate();
+      });
+    }
+  }
+
+  Future<void> _autoCheckUpdate() async {
+    try {
+      final update = await const UpdateService().checkForUpdate();
+      if (update == null) return;
+      final ctx = appNavigatorKey.currentContext;
+      if (ctx == null || !ctx.mounted) return;
+      await showUpdateDialog(ctx, update);
+    } catch (_) {
+      // 自动检查失败静默忽略（设置页可手动重试）
+    }
   }
 
   @override
@@ -121,6 +146,7 @@ class _SugarPaperAppState extends ConsumerState<SugarPaperApp> {
     );
 
     return MaterialApp(
+      navigatorKey: appNavigatorKey,
       title: '糖纸 · SugarPaper',
       debugShowCheckedModeBanner: false,
       theme: theme,

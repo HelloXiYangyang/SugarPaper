@@ -17,6 +17,7 @@ import '../../core/constants.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
 import '../../data/store.dart';
+import '../../data/update_service.dart';
 import '../../models/subject_config.dart';
 import '../home/dialogs.dart';
 import '../widgets/basic.dart';
@@ -24,6 +25,7 @@ import '../widgets/progress_bar.dart';
 import '../widgets/sugar_switch.dart';
 import 'account_card.dart';
 import 'teacher_dialog.dart';
+import 'update_dialog.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -224,9 +226,41 @@ class SettingsPage extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
+        _card(
+          t: t,
+          title: '更新',
+          children: [
+            _row(
+              t: t,
+              icon: 'download',
+              title: '检查更新',
+              desc: '从 GitHub Pages 读取最新版本并自动安装',
+              trailing: SugarButton(
+                label: '检查',
+                iconName: 'search',
+                compact: true,
+                primary: true,
+                onTap: () => _checkForUpdate(context, ref),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         _aboutCard(t, state),
       ],
     );
+  }
+
+  /// v0.27.0 检查更新（零服务器方案）。
+  Future<void> _checkForUpdate(BuildContext context, WidgetRef ref) async {
+    try {
+      final update = await const UpdateService().checkForUpdate();
+      if (!context.mounted) return;
+      await showCheckUpdateResult(context, update: update);
+    } catch (e) {
+      if (!context.mounted) return;
+      showSugarToast(context, '检查更新失败：$e');
+    }
   }
 
   Widget _familyCard(
