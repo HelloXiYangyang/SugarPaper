@@ -21,14 +21,19 @@ jobs:
         working-directory: app
       - run: flutter build apk --release
         working-directory: app
+      - run: flutter build apk --release --split-per-abi
+        working-directory: app
       - name: 按命名规范重命名
         run: |
           VER=${GITHUB_REF_NAME#v}
           cp app/build/app/outputs/flutter-apk/app-release.apk "SugarPaper-v${VER}-android.apk"
+          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "SugarPaper-v${VER}-android-arm64-v8a.apk"
+          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "SugarPaper-v${VER}-android-armeabi-v7a.apk"
+          cp app/build/app/outputs/flutter-apk/app-x86_64-release.apk "SugarPaper-v${VER}-android-x86_64.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: SugarPaper-v*-android.apk
+          path: SugarPaper-v*-android*.apk
 
   publish:
     name: 发布 Release 并更新元数据
@@ -41,31 +46,118 @@ jobs:
           name: android-apk
           path: dist
 
-      - name: 计算 SHA-256
-        id: hashes
+      - name: 计算 SHA-256 并提取版本信息
+        id: meta
         run: |
           VER=${GITHUB_REF_NAME#v}
-          APK=$(ls dist/SugarPaper-v${VER}-android.apk)
-          SHA=$(sha256sum "$APK" | awk '{print $1}')
-          echo "apk=$APK" >> "$GITHUB_OUTPUT"
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
-          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          SHA=$(sha256sum dist/SugarPaper-v${VER}-android.apk | awk '{print $1}')
+          SHA_A64=$(sha256sum dist/SugarPaper-v${VER}-android-arm64-v8a.apk | awk '{print $1}')
+          SHA_A7=$(sha256sum dist/SugarPaper-v${VER}-android-armeabi-v7a.apk | awk '{print $1}')
+          SHA_X86=$(sha256sum dist/SugarPaper-v${VER}-android-x86_64.apk | awk '{print $1}')
+          # 主题：从 README 安卓版小节的最新版本日志标题中提取，如「S13 零服务器自动更新」
+          THEME=""
+          SECTION=$(grep -n "^## 📱 版本二" README.md | head -1 | cut -d: -f1)
+          if [ -n "$SECTION" ]; then
+            LINE=$(tail -n +$SECTION README.md | grep -m1 "^#### v${VER}（")
+            if [ -n "$LINE" ]; then
+              THEME=$(echo "$LINE" | sed -E 's/^#### v[0-9.]+（[^）]*）——[[:space:]]*//; s/（.*$//')
+            fi
+          fi
+          [ -z "$THEME" ] && THEME="安卓版更新"
+          # 更新日志：README 安卓版小节中该版本的条目（到下一个版本标题为止）
+          LOG="- 完整更新日志见仓库 README。"
+          if [ -n "$SECTION" ]; then
+            START_LINE=$(tail -n +$SECTION README.md | grep -n "^#### v${VER}（" | head -1 | cut -d: -f1)
+            if [ -n "$START_LINE" ]; then
+              GLOBAL_START=$((SECTION + START_LINE - 1))
+              END_LINE=$(awk -v s="$GLOBAL_START" 'NR>s && /^#### /{print NR; exit}' README.md)
+              [ -z "$END_LINE" ] && END_LINE=$(wc -l < README.md)
+              LOG=$(sed -n "$((GLOBAL_START+1)),$((END_LINE-1))p" README.md)
+              [ -z "$LOG" ] && LOG="- 完整更新日志见仓库 README。"
+            fi
+          fi
+          {
+            echo "ver=$VER"
+            echo "sha=$SHA"
+            echo "sha_a64=$SHA_A64"
+            echo "sha_a7=$SHA_A7"
+            echo "sha_x86=$SHA_X86"
+            echo "theme=$THEME"
+            echo "log<<GHLOG"
+            echo "$LOG"
+            echo "GHLOG"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 生成 Release 正文
+        env:
+          VER: ${{ steps.meta.outputs.ver }}
+          THEME: ${{ steps.meta.outputs.theme }}
+          SHA: ${{ steps.meta.outputs.sha }}
+          SHA_A64: ${{ steps.meta.outputs.sha_a64 }}
+          SHA_A7: ${{ steps.meta.outputs.sha_a7 }}
+          SHA_X86: ${{ steps.meta.outputs.sha_x86 }}
+          LOG: ${{ steps.meta.outputs.log }}
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          const { VER, THEME, SHA, SHA_A64, SHA_A7, SHA_X86, LOG } = process.env;
+          const md = `## 版本概览
+
+          糖纸 · SugarPaper 安卓版 v${VER}（${THEME}）：与网页版 v${VER} 功能对齐，正式发布。
+
+          ## 更新内容
+
+          ${LOG}
+
+          ## 下载
+
+          | 文件 | 说明 |
+          | :--- | :--- |
+          | [SugarPaper-v${VER}-android.apk](https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${VER}/SugarPaper-v${VER}-android.apk) | 通用安装包（Android 8.0+，含全部 ABI，自动更新校验用此包） |
+          | SugarPaper-v${VER}-android-arm64-v8a.apk | 仅 arm64-v8a（新机型，体积更小） |
+          | SugarPaper-v${VER}-android-armeabi-v7a.apk | 仅 armeabi-v7a（较老机型） |
+          | SugarPaper-v${VER}-android-x86_64.apk | 仅 x86_64（模拟器 / 部分平板） |
+
+          SHA-256 校验值：
+
+          | 文件 | SHA-256 |
+          | :--- | :--- |
+          | SugarPaper-v${VER}-android.apk | ${SHA} |
+          | SugarPaper-v${VER}-android-arm64-v8a.apk | ${SHA_A64} |
+          | SugarPaper-v${VER}-android-armeabi-v7a.apk | ${SHA_A7} |
+          | SugarPaper-v${VER}-android-x86_64.apk | ${SHA_X86} |
+
+          ## 安装说明
+
+          1. 下载 APK 后用文件管理器打开安装；
+          2. 若提示「未知来源」，请在系统设置中允许安装该应用；
+          3. 数据默认保存在本机，账号同步为可选项，可放心试用。
+
+          ## 反馈
+
+          遇到问题请到 [Issues](https://github.com/HelloXiYangyang/SugarPaper/issues) 提交，附上设备型号、Android 版本、复现步骤。
+          `;
+          fs.writeFileSync('notes.md', md);
+          EOF
 
       - name: 创建 Release 并上传 APK
         env:
           GH_TOKEN: ${{ github.token }}
-          APK: ${{ steps.hashes.outputs.apk }}
-          VER: ${{ steps.hashes.outputs.ver }}
+          VER: ${{ steps.meta.outputs.ver }}
+          THEME: ${{ steps.meta.outputs.theme }}
         run: |
           gh release create "${GITHUB_REF_NAME}" \
-            --title "v${VER} · 糖纸 SugarPaper" \
-            --notes "糖纸 · SugarPaper v${VER} 发布" \
-            "$APK"
+            --title "糖纸 · SugarPaper —— 全平台作业管理助手 · v${VER} · 安卓版 · ${THEME}" \
+            --notes-file notes.md \
+            dist/SugarPaper-v${VER}-android.apk \
+            dist/SugarPaper-v${VER}-android-arm64-v8a.apk \
+            dist/SugarPaper-v${VER}-android-armeabi-v7a.apk \
+            dist/SugarPaper-v${VER}-android-x86_64.apk
 
       - name: 更新 updates/latest.json（版本号 / build / sha256）
         env:
-          SHA: ${{ steps.hashes.outputs.sha }}
-          VER: ${{ steps.hashes.outputs.ver }}
+          SHA: ${{ steps.meta.outputs.sha }}
+          VER: ${{ steps.meta.outputs.ver }}
         run: |
           BUILD=$(grep '^version:' app/pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/')
           node - <<'EOF'
