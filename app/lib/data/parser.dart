@@ -13,6 +13,7 @@ class ParsedTask {
   final int priority;
   final String? dueDate; // 'YYYY-MM-DD'
   final String taskType; // checkin / recite / written
+  final bool isCompleted; // v0.20.0 待办清单勾选状态（- [x] 直接算完成）
 
   const ParsedTask({
     required this.subject,
@@ -21,6 +22,7 @@ class ParsedTask {
     this.priority = 1,
     this.dueDate,
     this.taskType = 'written',
+    this.isCompleted = false,
   });
 }
 
@@ -66,6 +68,8 @@ class Parser {
   static final RegExp _dueToday = RegExp(r'今天|今日');
   static final RegExp _dueTomorrow = RegExp(r'明天|明日');
   static final RegExp _dueDayAfter = RegExp(r'后天');
+  static final RegExp _todoRe =
+      RegExp(r'^\s*-\s*\[([ xX])\]\s*(.+?)\s*$');
 
   /// 从文本提取截止日期（'YYYY-MM-DD' 或 null）。
   static String? extractDueDate(String text) {
@@ -206,6 +210,25 @@ class Parser {
         continue;
       }
 
+      // 待办清单（v0.20.0）：- [ ] / - [x] 优先于通用条目识别，勾选状态写入 isCompleted
+      final todo = _todoRe.firstMatch(line);
+      if (todo != null) {
+        final title = todo.group(2)!.trim();
+        if (title.isEmpty) continue;
+        consumed.add(i);
+        final task = ParsedTask(
+          subject: currentSubject ?? (sawAnySubject ? currentSubject! : '默认'),
+          title: title,
+          priority: extractPriority(title),
+          dueDate: extractDueDate(title),
+          taskType: detectTaskType(title),
+          isCompleted: todo.group(1) != ' ',
+        );
+        result.add(task);
+        lastTask = task;
+        continue;
+      }
+
       final m = itemMatch[i];
       if (m != null) {
         final title = m.group(4)!.trim();
@@ -234,6 +257,8 @@ class Parser {
             subtitle: lastTask.subtitle,
             priority: lastTask.priority,
             dueDate: more,
+            taskType: lastTask.taskType,
+            isCompleted: lastTask.isCompleted,
           );
           result[result.length - 1] = lastTask;
         }
@@ -245,6 +270,8 @@ class Parser {
             subtitle: lastTask.subtitle,
             priority: pri,
             dueDate: lastTask.dueDate,
+            taskType: lastTask.taskType,
+            isCompleted: lastTask.isCompleted,
           );
           result[result.length - 1] = lastTask;
         }
@@ -257,6 +284,8 @@ class Parser {
           subtitle: subtitle,
           priority: lastTask.priority,
           dueDate: lastTask.dueDate,
+          taskType: lastTask.taskType,
+          isCompleted: lastTask.isCompleted,
         );
         result[result.length - 1] = lastTask;
       } else if (!sawAnySubject && result.isEmpty) {
@@ -288,6 +317,7 @@ class Parser {
         priority: t.priority,
         dueDate: t.dueDate,
         taskType: t.taskType,
+        isCompleted: t.isCompleted,
       );
     }).toList();
 

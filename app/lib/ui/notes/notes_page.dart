@@ -12,6 +12,7 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/app_icons.dart';
+import '../../core/markdown.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
 import '../../data/parser.dart';
@@ -220,6 +221,7 @@ class NotesPage extends ConsumerWidget {
                                     'subtitle': p.subtitle,
                                     'priority': p.priority,
                                     'dueDate': p.dueDate,
+                                    'isCompleted': p.isCompleted,
                                   })
                               .toList(),
                           'append',
@@ -480,6 +482,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
   late String _color;
   DateTime? _remindAt;
   List<String> _images = [];
+  bool _preview = false;
 
   @override
   void initState() {
@@ -637,32 +640,69 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
               ),
             ),
             const SizedBox(height: 10),
-            TextField(
-              controller: _content,
-              maxLines: 6,
-              decoration: InputDecoration(
-                labelText: '内容',
-                hintText: '速记内容…支持「转为作业」时解析科目与截止日期',
-                filled: true,
-                fillColor: t.surface2,
-                border: OutlineInputBorder(
+            Row(
+              children: [
+                _mdModeBtn(context, '编辑', !_preview, () {
+                  setState(() => _preview = false);
+                }),
+                const SizedBox(width: 6),
+                _mdModeBtn(context, '预览', _preview, () {
+                  setState(() => _preview = true);
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_preview)
+              Container(
+                width: double.infinity,
+                constraints: const BoxConstraints(minHeight: 140),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: t.surface2,
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
                 ),
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: VoiceInputButton(
-                    onResult: (text) {
-                      final cur = _content.text;
-                      _content.text = cur.isEmpty ? text : '$cur\n$text';
-                      _content.selection = TextSelection.collapsed(
-                        offset: _content.text.length,
-                      );
-                    },
+                child: _content.text.trim().isEmpty
+                    ? Text(
+                        '暂无内容',
+                        style: TextStyle(fontSize: 12.5, color: t.text3),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: MdRender.toWidgets(
+                          _content.text,
+                          text: t.text,
+                          text2: t.text2,
+                          accent: t.pinkStrong,
+                        ),
+                      ),
+              )
+            else
+              TextField(
+                controller: _content,
+                maxLines: 6,
+                decoration: InputDecoration(
+                  labelText: '内容',
+                  hintText: '速记内容…支持 Markdown 排版与「- [ ] 待办清单」，可一键转为作业',
+                  filled: true,
+                  fillColor: t.surface2,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: VoiceInputButton(
+                      onResult: (text) {
+                        final cur = _content.text;
+                        _content.text = cur.isEmpty ? text : '$cur\n$text';
+                        _content.selection = TextSelection.collapsed(
+                          offset: _content.text.length,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -822,6 +862,33 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _mdModeBtn(
+    BuildContext context,
+    String label,
+    bool active,
+    VoidCallback onTap,
+  ) {
+    final t = Theme.of(context).extension<SugarTheme>()!.data;
+    return PressableScale(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? t.pinkStrong : t.surface2,
+          borderRadius: BorderRadius.circular(9),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: active ? Colors.white : t.text2,
+          ),
         ),
       ),
     );

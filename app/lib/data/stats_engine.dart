@@ -4,6 +4,15 @@
  */
 
 import '../models/task.dart';
+import '../models/note.dart';
+import '../models/focus_session.dart';
+
+/// 日历标记结果（v0.24.0，对齐网页版 `stats.dayMarkers`）。
+class DayMarkers {
+  final bool exam; // 当天是否有考试安排便签
+  final int focusMin; // 当天已完成专注分钟数
+  const DayMarkers({required this.exam, required this.focusMin});
+}
 
 class BarPoint {
   final String date;
@@ -121,6 +130,31 @@ class StatsEngine {
 
   static int _countCompletedOn(List<Task> tasks, String dateStr) =>
       tasks.where((t) => _completedOn(t, dateStr)).length;
+
+  static final RegExp _examRe = RegExp(r'考试|测验|检测|期末');
+
+  /// 日历标记（v0.24.0）：考试安排便签（带提醒日期的考试/测验/期末类便签
+  /// 自动注入日历）+ 日期格专注分钟角标。
+  static DayMarkers dayMarkers(
+    List<Note> notes,
+    List<FocusSession> sessions,
+    DateTime date,
+  ) {
+    final dateStr = _dateStr(DateTime(date.year, date.month, date.day));
+    final exam = notes.any((n) {
+      final r = n.remindAt;
+      if (n.isDeleted || r == null) return false;
+      if (_dateStr(r) != dateStr) return false;
+      return _examRe.hasMatch('${n.title} ${n.content}');
+    });
+    final focusMin = sessions
+        .where((s) {
+          final d = s.startedAt;
+          return _dateStr(d) == dateStr;
+        })
+        .fold<int>(0, (sum, s) => sum + (s.durationSec ~/ 60));
+    return DayMarkers(exam: exam, focusMin: focusMin);
+  }
 
   static StatsReport compute(List<Task> allTasks, String range) {
     final tasks = allTasks.where((t) => !t.isDeleted).toList();

@@ -3,9 +3,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
@@ -16,6 +20,7 @@ import '../home/dialogs.dart';
 import '../widgets/basic.dart';
 import '../widgets/progress_bar.dart';
 import 'charts.dart';
+import 'report_card.dart';
 
 const _rangeLabels = {
   'today': '今日',
@@ -462,6 +467,55 @@ class StatsPage extends ConsumerWidget {
   }
 
   void _exportReport(BuildContext context, AppState state) {
+    final t = Theme.of(context).extension<SugarTheme>()!.data;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: t.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '导出统计报告',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: t.text,
+                ),
+              ),
+              const SizedBox(height: 14),
+              SugarButton(
+                label: '复制文本报告',
+                iconName: 'paperclip',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _copyReport(context, state);
+                },
+              ),
+              const SizedBox(height: 8),
+              SugarButton(
+                label: '导出 PNG 图片',
+                iconName: 'image',
+                primary: true,
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _exportPng(context, state);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _copyReport(BuildContext context, AppState state) {
     final s = state.stats;
     final lines = <String>[
       '糖纸 · SugarPaper 统计报告（${_rangeLabels[state.statsRange]}）',
@@ -489,5 +543,78 @@ class StatsPage extends ConsumerWidget {
     ];
     Clipboard.setData(ClipboardData(text: lines.join('\n')));
     showSugarToast(context, '统计报告已复制到剪贴板');
+  }
+
+  /// v0.21.0 统计报告 PNG 导出（对齐网页版 report.js → PNG 下载）。
+  Future<void> _exportPng(BuildContext context, AppState state) async {
+    final s = state.stats;
+    final focusMin = state.store.focusSessions
+        .fold<int>(0, (sum, x) => sum + x.durationSec) ~/
+        60;
+    final painter = ReportCardPainter(
+      s: s,
+      rangeLabel: _rangeLabels[state.statsRange]!,
+      dateStr: '${DateTime.now().year}-'
+          '${DateTime.now().month.toString().padLeft(2, '0')}-'
+          '${DateTime.now().day.toString().padLeft(2, '0')}',
+      focusMin: focusMin,
+      subjectColor: (name) => state.store.subjectColor(name),
+    );
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 640 / 880,
+                child: CustomPaint(
+                  painter: painter,
+                  size: const Size(640, 880),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SugarButton(
+              label: '保存并分享 PNG',
+              iconName: 'download',
+              primary: true,
+              onTap: () async {
+                Navigator.pop(ctx);
+                try {
+                  final bytes = await renderReportPng(
+                    s,
+                    rangeLabel: _rangeLabels[state.statsRange]!,
+                    focusMin: focusMin,
+                    subjectColor: (name) => state.store.subjectColor(name),
+                  );
+                  if (bytes.isEmpty) {
+                    if (!context.mounted) return;
+                    showSugarToast(context, '生成失败，请重试');
+                    return;
+                  }
+                  final dir = await getTemporaryDirectory();
+                  final file = File(
+                    '${dir.path}${Platform.pathSeparator}糖纸-统计报告.png',
+                  );
+                  await file.writeAsBytes(bytes);
+                  await Share.shareXFiles(
+                    [XFile(file.path, mimeType: 'image/png')],
+                    text: '糖纸 · SugarPaper 统计报告',
+                  );
+                } catch (_) {
+                  if (!context.mounted) return;
+                  showSugarToast(context, '导出失败，请重试');
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

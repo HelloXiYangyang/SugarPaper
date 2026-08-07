@@ -4,9 +4,13 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,6 +19,7 @@ import '../../core/app_icons.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
 import '../../data/noise_gen.dart';
+import '../../models/app_settings.dart';
 import '../../models/task.dart';
 import '../home/dialogs.dart';
 import '../widgets/basic.dart';
@@ -47,22 +52,32 @@ class _FocusPageState extends ConsumerState<FocusPage>
   bool _done = false;
   bool _breathOn = true;
   final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _mixPlayer = AudioPlayer();
   late final AnimationController _breath;
 
   @override
   void initState() {
     super.initState();
+    final focus = ref.read(appStateProvider).store.settings.focus;
+    if (focus.sceneId != null && focus.sceneId != 'none') {
+      _scene = focus.sceneId!;
+    }
     _breath = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
     );
     if (_breathOn) _breath.repeat(reverse: true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMain();
+      _playMix();
+    });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _player.dispose();
+    _mixPlayer.dispose();
     _breath.dispose();
     super.dispose();
   }
@@ -145,23 +160,186 @@ class _FocusPageState extends ConsumerState<FocusPage>
     });
     state.notify();
     _player.stop();
+    _mixPlayer.stop();
     showSugarToast(context, '🎉 专注完成，太棒啦！');
   }
 
   Future<void> _selectScene(String scene) async {
     setState(() => _scene = scene);
-    if (scene == 'none') {
+    _saveFocus({'sceneId': scene == 'none' ? null : scene});
+    await _playMain();
+  }
+
+  void _saveFocus(Map<String, dynamic> patch) {
+    final cur = ref.read(appStateProvider).store.settings.focus;
+    final next = cur.copyWith(
+      sceneId: patch.containsKey('sceneId')
+          ? patch['sceneId'] as String?
+          : null,
+      volume: patch['volume'] as double?,
+      mixSceneId: patch.containsKey('mixSceneId')
+          ? patch['mixSceneId'] as String?
+          : null,
+      mixVolume: patch['mixVolume'] as double?,
+      customAudio: patch['customAudio'] as CustomAudio?,
+      clearScene: patch['clearScene'] == true,
+      clearMix: patch['clearMix'] == true,
+      clearCustom: patch['clearCustom'] == true,
+    );
+    ref.read(appStateProvider).store.updateSettings({'focus': next.toJson()});
+    ref.read(appStateProvider).notify();
+  }
+
+  Future<void> _playMain() async {
+    final focus = ref.read(appStateProvider).store.settings.focus;
+    final id = focus.sceneId ?? _scene;
+    if (id == 'none' || id.isEmpty) {
       await _player.stop();
       return;
     }
     try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = await generateSoundFile(scene, dir);
+      await _player.stop();
       await _player.setReleaseMode(ReleaseMode.loop);
-      await _player.play(DeviceFileSource(file.path), volume: 0.5);
+      await _player.setVolume(focus.volume);
+      if (id == 'custom') {
+        final ca = focus.customAudio;
+        if (ca != null) {
+          await _player.play(BytesSource(_audioBytes(ca.dataUrl)));
+        }
+      } else {
+        final dir = await getApplicationDocumentsDirectory();
+        final file = await generateSoundFile(id, dir);
+        await _player.play(DeviceFileSource(file.path));
+      }
     } catch (_) {
+      if (!mounted) return;
       showSugarToast(context, '音频播放暂不可用，已静音');
     }
+  }
+
+  Future<void> _playMix() async {
+    final focus = ref.read(appStateProvider).store.settings.focus;
+    final id = focus.mixSceneId;
+    if (id == null || id.isEmpty) {
+      await _mixPlayer.stop();
+      return;
+    }
+    try {
+      await _mixPlayer.stop();
+      await _mixPlayer.setReleaseMode(ReleaseMode.loop);
+      await _mixPlayer.setVolume(focus.mixVolume);
+      if (id == 'custom') {
+        final ca = focus.customAudio;
+        if (ca != null) {
+          await _mixPlayer.play(BytesSource(_audioBytes(ca.dataUrl)));
+        }
+      } else {
+        final dir = await getApplicationDocumentsDirectory();
+        final file = await generateSoundFile(id, dir);
+        await _mixPlayer.play(DeviceFileSource(file.path));
+      }
+    } catch (_) {
+      await _mixPlayer.stop();
+    }
+  }
+
+  static Uint8List _audioBytes(String dataUrl) {
+    final comma = dataUrl.indexOf(',');
+    return comma < 0
+        ? Uint8List(0)
+        : base64Decode(dataUrl.substring(comma + 1));
+  }
+
+  Future<void> _uploadCustomAudio() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty || !mounted) return;
+    final f = result.files.single;
+    if (f.size > 2 * 1024 * 1024) {
+      showSugarToast(context, '音频需 ≤2MB');
+      return;
+    }
+    var bytes = f.bytes;
+    if (bytes == null && f.path != null) {
+      bytes = await File(f.path!).readAsBytes();
+    }
+    if (bytes == null || bytes.isEmpty) {
+      if (!mounted) return;
+      showSugarToast(context, '读取音频失败');
+      return;
+    }
+    final ca = CustomAudio(
+      name: f.name,
+      dataUrl: 'data:${_guessMime(f.name)};base64,${base64Encode(bytes)}',
+    );
+    _saveFocus({'customAudio': ca});
+    if (!mounted) return;
+    showSugarToast(context, '自定义声音已添加');
+    await _playMain();
+  }
+
+  static String _guessMime(String name) {
+    final n = name.toLowerCase();
+    if (n.endsWith('.mp3')) return 'audio/mpeg';
+    if (n.endsWith('.wav')) return 'audio/wav';
+    if (n.endsWith('.m4a') || n.endsWith('.aac')) return 'audio/mp4';
+    if (n.endsWith('.ogg')) return 'audio/ogg';
+    return 'audio/mpeg';
+  }
+
+  void _setVolume(double v, {required bool mix}) {
+    _saveFocus({mix ? 'mixVolume' : 'volume': v});
+    if (mix) {
+      _mixPlayer.setVolume(v);
+    } else {
+      _player.setVolume(v);
+    }
+  }
+
+  void _setMix(String id) {
+    _saveFocus({'mixSceneId': id.isEmpty ? null : id});
+    _playMix();
+  }
+
+  void _removeCustom() {
+    _saveFocus({'clearCustom': true});
+    showSugarToast(context, '自定义声音已删除');
+    _playMain();
+    _playMix();
+  }
+
+  Widget _mixChip(
+    BuildContext context,
+    String label,
+    String id,
+    SugarThemeData t,
+  ) {
+    final focus = ref.read(appStateProvider).store.settings.focus;
+    final active = focus.mixSceneId == (id.isEmpty ? null : id);
+    return PressableScale(
+      onTap: () => _setMix(id),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? t.lavenderSoft : t.surface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: active ? t.lavender : t.border,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: active ? t.lavenderStrong : t.text2,
+          ),
+        ),
+      ),
+    );
   }
 
   String get _timeText {
@@ -434,46 +612,189 @@ class _FocusPageState extends ConsumerState<FocusPage>
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: kSoundScenes.map((sc) {
-                    final active = _scene == sc.$1;
-                    return PressableScale(
-                      onTap: () => _selectScene(sc.$1),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 7,
-                        ),
-                        decoration: BoxDecoration(
-                          color: active ? t.pinkSoft : t.surface,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: active ? t.pink : t.border,
+                  children: [
+                    ...kSoundScenes.map((sc) {
+                      final active = _scene == sc.$1;
+                      return PressableScale(
+                        onTap: () => _selectScene(sc.$1),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SugarIcon(
-                              sc.$3,
-                              size: 13,
-                              color: active ? t.pinkStrong : t.text2,
+                          decoration: BoxDecoration(
+                            color: active ? t.pinkSoft : t.surface,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: active ? t.pink : t.border,
                             ),
-                            const SizedBox(width: 5),
-                            Text(
-                              sc.$2,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SugarIcon(
+                                sc.$3,
+                                size: 13,
                                 color: active ? t.pinkStrong : t.text2,
                               ),
+                              const SizedBox(width: 5),
+                              Text(
+                                sc.$2,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: active ? t.pinkStrong : t.text2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                    if (state.store.settings.focus.customAudio != null)
+                      PressableScale(
+                        onTap: () => _selectScene('custom'),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _scene == 'custom' ? t.pinkSoft : t.surface,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: _scene == 'custom' ? t.pink : t.border,
                             ),
-                          ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SugarIcon(
+                                'sparkles',
+                                size: 13,
+                                color: _scene == 'custom'
+                                    ? t.pinkStrong
+                                    : t.text2,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                '自定义声音',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: _scene == 'custom'
+                                      ? t.pinkStrong
+                                      : t.text2,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    );
-                  }).toList(),
+                  ],
                 ),
+                const SizedBox(height: 14),
+                // 主场景音量（v0.18.0 双音轨混音）
+                Row(
+                  children: [
+                    SugarIcon('bell', size: 14, color: t.pinkStrong),
+                    const SizedBox(width: 6),
+                    Text(
+                      '主场景音量',
+                      style: TextStyle(fontSize: 12, color: t.text2),
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: state.store.settings.focus.volume,
+                        onChanged: (v) => _setVolume(v, mix: false),
+                      ),
+                    ),
+                    Text(
+                      '${(state.store.settings.focus.volume * 100).round()}%',
+                      style: TextStyle(fontSize: 11, color: t.text3),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // 叠加场景（Noisli 式混音）
+                Text(
+                  '叠加声音（可选）',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: t.text2),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _mixChip(context, '无', '', t),
+                    ...kSoundScenes
+                        .where((sc) => sc.$1 != 'none')
+                        .map((sc) => _mixChip(context, sc.$2, sc.$1, t)),
+                    if (state.store.settings.focus.customAudio != null)
+                      _mixChip(context, '自定义声音', 'custom', t),
+                  ],
+                ),
+                if (state.store.settings.focus.mixSceneId != null &&
+                    state.store.settings.focus.mixSceneId!.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      SugarIcon('bell', size: 14, color: t.lavenderStrong),
+                      const SizedBox(width: 6),
+                      Text(
+                        '叠加音量',
+                        style: TextStyle(fontSize: 12, color: t.text2),
+                      ),
+                      Expanded(
+                        child: Slider(
+                          value: state.store.settings.focus.mixVolume,
+                          onChanged: (v) => _setVolume(v, mix: true),
+                        ),
+                      ),
+                      Text(
+                        '${(state.store.settings.focus.mixVolume * 100).round()}%',
+                        style: TextStyle(fontSize: 11, color: t.text3),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 8),
+                // 自定义声音上传 / 删除（v0.18.0）
+                if (state.store.settings.focus.customAudio == null)
+                  SugarButton(
+                    label: '上传自定义声音（≤2MB）',
+                    iconName: 'upload',
+                    compact: true,
+                    onTap: _uploadCustomAudio,
+                  )
+                else
+                  Row(
+                    children: [
+                      SugarIcon('sparkles', size: 14, color: t.pinkStrong),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          state.store.settings.focus.customAudio!.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12, color: t.text2),
+                        ),
+                      ),
+                      SugarButton(
+                        label: '更换',
+                        compact: true,
+                        onTap: _uploadCustomAudio,
+                      ),
+                      const SizedBox(width: 6),
+                      SugarButton(
+                        label: '删除',
+                        compact: true,
+                        danger: true,
+                        onTap: _removeCustom,
+                      ),
+                    ],
+                  ),
               ],
             ),
           ],

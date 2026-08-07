@@ -61,6 +61,10 @@ class ReminderService {
     final todayStr = _dateStr(now);
     final minutes = now.hour * 60 + now.minute;
     final due = Map<String, bool>.from(store.settings.notifiedDue);
+    // v0.22.0 提醒时间自定义：默认前一晚 20:00、当天早上 07:00 起 2 小时窗口
+    final cfg = store.settings.reminder;
+    final morningMin = _toMin(cfg.morning);
+    final eveMin = _toMin(cfg.eve);
     var changed = false;
 
     for (final t in tasks) {
@@ -73,13 +77,13 @@ class ReminderService {
         due['o:${t.id}'] = true;
         changed = true;
       } else if (todayStr == _dateStr(d) && due['t:${t.id}'] != true) {
-        if (minutes >= 420 && minutes <= 540) {
+        if (minutes >= morningMin && minutes <= morningMin + 120) {
           await _push('今天截止：${t.title}', '${d.month}月${d.day}日 · 记得完成');
           due['t:${t.id}'] = true;
           changed = true;
         }
       } else if (due['tm:${t.id}'] != true && _isTomorrow(d, today)) {
-        if (minutes >= 1200) {
+        if (minutes >= eveMin) {
           await _push('明天截止：${t.title}', '提前安排，别拖到最后');
           due['tm:${t.id}'] = true;
           changed = true;
@@ -129,4 +133,11 @@ class ReminderService {
   static String _dateStr(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-'
       '${d.day.toString().padLeft(2, '0')}';
+
+  static int _toMin(String hhmm) {
+    final parts = hhmm.split(':');
+    final h = int.tryParse(parts.isNotEmpty ? parts[0] : '') ?? 20;
+    final m = int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0;
+    return h * 60 + m;
+  }
 }

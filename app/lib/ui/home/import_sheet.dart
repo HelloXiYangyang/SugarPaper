@@ -3,8 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
@@ -51,6 +55,38 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
     }
   }
 
+  /// v0.23.0 从 .txt/.md 文件导入（对齐网页版「从文件导入」）。
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['txt', 'md', 'text'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty || !mounted) return;
+    final f = result.files.single;
+    try {
+      var content = '';
+      if (f.bytes != null) {
+        content = utf8.decode(f.bytes!, allowMalformed: true);
+      } else if (f.path != null) {
+        content = await File(f.path!).readAsString();
+      } else {
+        showSugarToast(context, '读取文件失败');
+        return;
+      }
+      setState(() {
+        _text.text = content;
+        _preview = null;
+        _warnings = null;
+      });
+      _parse();
+      if (!mounted) return;
+      showSugarToast(context, '已读取 ${f.name}');
+    } catch (_) {
+      showSugarToast(context, '文件读取失败，请重试');
+    }
+  }
+
   void _import(String mode) {
     final preview = _preview;
     if (preview == null || preview.isEmpty) return;
@@ -63,6 +99,7 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
                 'subtitle': p.subtitle,
                 'priority': p.priority,
                 'dueDate': p.dueDate,
+                'isCompleted': p.isCompleted,
               })
           .toList(),
       mode,
@@ -158,6 +195,12 @@ class _ImportSheetState extends ConsumerState<_ImportSheet> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          SugarButton(
+            label: '从文件导入（.txt / .md）',
+            iconName: 'upload',
+            onTap: _pickFile,
           ),
           if (_preview != null) ...[
             const SizedBox(height: 14),

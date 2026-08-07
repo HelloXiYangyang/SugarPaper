@@ -20,7 +20,7 @@ import '../models/task.dart';
 /// 本地存储与状态管理（离线优先）。
 /// 数据格式与 Web 版 `web/js/store.js` 完全一致，备份可互相导入。
 class AppStore {
-  static const String appVersion = '0.14.0';
+  static const String appVersion = '0.25.0';
   static const String storageFileName = 'sugarpaper.json';
 
   final List<Task> tasks = [];
@@ -152,6 +152,11 @@ class AppStore {
           ? _parseDateStr(input['dueDate'] as String)
           : null,
       priority: (input['priority'] as num?)?.toInt() ?? 1,
+      taskType: (input['taskType'] as String?) ?? 'written',
+      confirmed: input['confirmed'] == true,
+      images: input['images'] is List
+          ? (input['images'] as List).whereType<String>().take(4).toList()
+          : const [],
     );
   }
 
@@ -193,6 +198,14 @@ class AppStore {
     if (patch.containsKey('isCompleted')) copy = copy.copyWith(isCompleted: patch['isCompleted'] as bool);
     if (patch.containsKey('priority')) copy = copy.copyWith(priority: (patch['priority'] as num).toInt());
     if (patch.containsKey('dueDate')) copy = copy.copyWith(dueDate: _parseDateStr(patch['dueDate'] as String));
+    if (patch.containsKey('images')) {
+      copy = copy.copyWith(
+        images: (patch['images'] as List)
+            .whereType<String>()
+            .take(4)
+            .toList(),
+      );
+    }
     copy = copy.copyWith(updatedAt: DateTime.now().toUtc());
     final i = tasks.indexOf(t);
     tasks[i] = copy;
@@ -282,6 +295,9 @@ class AppStore {
       colorHex: input['colorHex'] as String? ?? '#FBE4EC',
       pinned: input['pinned'] == true,
       archived: input['archived'] == true,
+      images: input['images'] is List
+          ? (input['images'] as List).whereType<String>().take(4).toList()
+          : const [],
       createdAt: input['createdAt'] is String
           ? DateTime.tryParse(input['createdAt'] as String)?.toLocal() ?? now
           : now,
@@ -434,6 +450,20 @@ class AppStore {
     }
     if (patch.containsKey('autoSync')) {
       s = s.copyWith(autoSync: patch['autoSync'] as bool);
+    }
+    if (patch.containsKey('reminder') && patch['reminder'] is Map) {
+      s = s.copyWith(
+        reminder: ReminderConfig.fromJson(
+          Map<String, dynamic>.from(patch['reminder'] as Map),
+        ),
+      );
+    }
+    if (patch.containsKey('focus') && patch['focus'] is Map) {
+      s = s.copyWith(
+        focus: FocusConfig.fromJson(
+          Map<String, dynamic>.from(patch['focus'] as Map),
+        ),
+      );
     }
     settings = s.copyWith(subjects: subjects);
     persist();

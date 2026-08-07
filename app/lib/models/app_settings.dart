@@ -6,6 +6,93 @@
 import 'subject_config.dart';
 import 'family_profile.dart';
 
+/// 提醒时间配置（v0.22.0，对齐网页版 settings.reminder）。
+class ReminderConfig {
+  final String eve; // 前一晚提醒时间，默认 20:00
+  final String morning; // 当天早上提醒窗口起点，默认 07:00
+
+  const ReminderConfig({this.eve = '20:00', this.morning = '07:00'});
+
+  ReminderConfig copyWith({String? eve, String? morning}) =>
+      ReminderConfig(eve: eve ?? this.eve, morning: morning ?? this.morning);
+
+  Map<String, dynamic> toJson() => {'eve': eve, 'morning': morning};
+
+  factory ReminderConfig.fromJson(Map<String, dynamic> json) => ReminderConfig(
+        eve: (json['eve'] as String?) ?? '20:00',
+        morning: (json['morning'] as String?) ?? '07:00',
+      );
+}
+
+/// 自定义声音（v0.18.0，对齐网页版 settings.focus.customAudio）。
+class CustomAudio {
+  final String name;
+  final String dataUrl; // data:audio/...;base64,...
+
+  const CustomAudio({required this.name, required this.dataUrl});
+
+  Map<String, dynamic> toJson() => {'name': name, 'dataUrl': dataUrl};
+
+  factory CustomAudio.fromJson(Map<String, dynamic> json) => CustomAudio(
+        name: (json['name'] as String?) ?? '自定义声音',
+        dataUrl: (json['dataUrl'] as String?) ?? '',
+      );
+}
+
+/// 专注场景配置（v0.18.0 对齐网页版 settings.focus）。
+class FocusConfig {
+  final String? sceneId; // 主场景
+  final double volume; // 主场景音量 0-1
+  final String? mixSceneId; // 叠加场景
+  final double mixVolume; // 叠加音量 0-1
+  final CustomAudio? customAudio; // 自定义声音
+
+  const FocusConfig({
+    this.sceneId,
+    this.volume = 0.6,
+    this.mixSceneId,
+    this.mixVolume = 0.3,
+    this.customAudio,
+  });
+
+  FocusConfig copyWith({
+    String? sceneId,
+    double? volume,
+    String? mixSceneId,
+    double? mixVolume,
+    CustomAudio? customAudio,
+    bool clearScene = false,
+    bool clearMix = false,
+    bool clearCustom = false,
+  }) =>
+      FocusConfig(
+        sceneId: clearScene ? null : (sceneId ?? this.sceneId),
+        volume: volume ?? this.volume,
+        mixSceneId: clearMix ? null : (mixSceneId ?? this.mixSceneId),
+        mixVolume: mixVolume ?? this.mixVolume,
+        customAudio: clearCustom ? null : (customAudio ?? this.customAudio),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'sceneId': sceneId,
+        'volume': volume,
+        'mixSceneId': mixSceneId,
+        'mixVolume': mixVolume,
+        'customAudio': customAudio?.toJson(),
+      };
+
+  factory FocusConfig.fromJson(Map<String, dynamic> json) => FocusConfig(
+        sceneId: json['sceneId'] as String?,
+        volume: (json['volume'] as num?)?.toDouble() ?? 0.6,
+        mixSceneId: json['mixSceneId'] as String?,
+        mixVolume: (json['mixVolume'] as num?)?.toDouble() ?? 0.3,
+        customAudio: json['customAudio'] is Map
+            ? CustomAudio.fromJson(
+                Map<String, dynamic>.from(json['customAudio'] as Map))
+            : null,
+      );
+}
+
 /// 应用设置（PRD §3 数据模型，v4.13 七套平行主题）。
 class AppSettings {
   final bool notifications;
@@ -23,6 +110,8 @@ class AppSettings {
   final bool autoSync; // v0.16.0 自动同步开关
   final String deviceName;
   final List<SubjectConfig> subjects;
+  final ReminderConfig reminder; // v0.22.0 提醒时间自定义
+  final FocusConfig focus; // v0.18.0 专注场景配置
 
   const AppSettings({
     this.notifications = false,
@@ -40,6 +129,8 @@ class AppSettings {
     this.autoSync = true,
     this.deviceName = '我的设备',
     this.subjects = const [],
+    this.reminder = const ReminderConfig(),
+    this.focus = const FocusConfig(),
   });
 
   AppSettings copyWith({
@@ -58,6 +149,8 @@ class AppSettings {
     bool? autoSync,
     String? deviceName,
     List<SubjectConfig>? subjects,
+    ReminderConfig? reminder,
+    FocusConfig? focus,
   }) {
     return AppSettings(
       notifications: notifications ?? this.notifications,
@@ -75,6 +168,8 @@ class AppSettings {
       autoSync: autoSync ?? this.autoSync,
       deviceName: deviceName ?? this.deviceName,
       subjects: subjects ?? this.subjects,
+      reminder: reminder ?? this.reminder,
+      focus: focus ?? this.focus,
     );
   }
 
@@ -94,6 +189,8 @@ class AppSettings {
         'relays': relays,
         'autoSync': autoSync,
         'subjects': subjects.map((s) => s.toJson()).toList(),
+        'reminder': reminder.toJson(),
+        'focus': focus.toJson(),
       };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -134,6 +231,14 @@ class AppSettings {
           const [],
       autoSync: json['autoSync'] != false,
       subjects: subjects,
+      reminder: json['reminder'] is Map
+          ? ReminderConfig.fromJson(
+              Map<String, dynamic>.from(json['reminder'] as Map))
+          : const ReminderConfig(),
+      focus: json['focus'] is Map
+          ? FocusConfig.fromJson(
+              Map<String, dynamic>.from(json['focus'] as Map))
+          : const FocusConfig(),
     );
   }
 }

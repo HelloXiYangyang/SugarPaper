@@ -19,6 +19,7 @@ class Task {
   int priority; // 优先级 0-2 (低/中/高)
   String taskType; // v0.17.0：checkin(打卡) / recite(背诵) / written(书面)
   bool confirmed; // v0.17.0：家庭模式家长确认（打卡类任务）
+  List<String> images; // v0.22.0 作业拍照存档（dataURL，最多 4 张，最长边 512px）
 
   Task({
     required this.id,
@@ -35,6 +36,7 @@ class Task {
     this.priority = 1,
     this.taskType = 'written',
     this.confirmed = false,
+    this.images = const [],
   });
 
   Task copyWith({
@@ -52,6 +54,7 @@ class Task {
     int? priority,
     String? taskType,
     bool? confirmed,
+    List<String>? images,
   }) {
     return Task(
       id: id ?? this.id,
@@ -68,6 +71,7 @@ class Task {
       priority: priority ?? this.priority,
       taskType: taskType ?? this.taskType,
       confirmed: confirmed ?? this.confirmed,
+      images: images ?? this.images,
     );
   }
 
@@ -87,6 +91,7 @@ class Task {
         'priority': priority,
         'taskType': taskType,
         'confirmed': confirmed,
+        'images': images,
       };
 
   factory Task.fromJson(Map<String, dynamic> json) {
@@ -107,6 +112,8 @@ class Task {
       priority: (json['priority'] as num?)?.toInt() ?? 1,
       taskType: (json['taskType'] as String?) ?? 'written',
       confirmed: json['confirmed'] == true,
+      images: (json['images'] as List?)?.whereType<String>().toList() ??
+          const [],
     );
   }
 }

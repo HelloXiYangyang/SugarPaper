@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../core/app_icons.dart';
@@ -109,6 +112,35 @@ class _TaskCardState extends State<TaskCard> {
             Text(
               task.subtitle,
               style: TextStyle(fontSize: 12, height: 1.4, color: t.text2),
+            ),
+          ],
+          if (task.images.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 56,
+              child: Row(
+                children: task.images.take(4).map((uri) {
+                  final comma = uri.indexOf(',');
+                  final bytes = comma < 0
+                      ? const <int>[]
+                      : base64Decode(uri.substring(comma + 1));
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: GestureDetector(
+                      onTap: () => _showImage(context, bytes),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.memory(
+                          Uint8List.fromList(bytes),
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ],
           const SizedBox(height: 8),
@@ -236,6 +268,21 @@ class _TaskCardState extends State<TaskCard> {
     String pad(int n) => n.toString().padLeft(2, '0');
     return '${d.year}-${pad(d.month)}-${pad(d.day)} '
         '${pad(d.hour)}:${pad(d.minute)}';
+  }
+
+  void _showImage(BuildContext context, List<int> bytes) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.black,
+        child: InteractiveViewer(
+          child: Image.memory(
+            Uint8List.fromList(bytes),
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
   }
 }
 

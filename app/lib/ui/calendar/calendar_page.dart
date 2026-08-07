@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
 import '../../data/app_state.dart';
+import '../../data/stats_engine.dart';
 import '../../models/task.dart';
 import '../home/dialogs.dart';
 import '../home/edit_sheet.dart';
@@ -265,6 +266,17 @@ class _MonthGrid extends ConsumerWidget {
       cells.add(null);
     }
 
+    // v0.24.0 日历增强：考试便签标记 + 专注分钟角标
+    final markers = <DateTime, DayMarkers>{};
+    for (final d in cells.whereType<DateTime>()) {
+      final ds = DateTime(d.year, d.month, d.day);
+      markers[ds] = StatsEngine.dayMarkers(
+        state.store.notes,
+        state.store.focusSessions,
+        ds,
+      );
+    }
+
     return Column(
       children: [
         Row(
@@ -299,6 +311,7 @@ class _MonthGrid extends ConsumerWidget {
             final isSelected = ds.year == selected.year &&
                 ds.month == selected.month &&
                 ds.day == selected.day;
+            final m = markers[ds];
             return Reveal(
               delayMs: i * 10,
               child: GestureDetector(
@@ -359,9 +372,47 @@ class _MonthGrid extends ConsumerWidget {
                               Text(
                                 '+${list.length - 3}',
                                 style: TextStyle(fontSize: 8, color: t.text3),
+                            ),
+                          ],
+                        ),
+                      if (m != null && (m.exam || m.focusMin > 0)) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (m.exam)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 3,
+                                  vertical: 0.5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: t.yellowSoft,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '考',
+                                  style: TextStyle(
+                                    fontSize: 7.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: t.yellowStrong,
+                                  ),
+                                ),
+                              ),
+                            if (m.exam && m.focusMin > 0)
+                              const SizedBox(width: 2),
+                            if (m.focusMin > 0)
+                              Text(
+                                '$m.focusMin分',
+                                style: TextStyle(
+                                  fontSize: 7.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: t.mintStrong,
+                                ),
                               ),
                           ],
                         ),
+                      ],
                     ],
                   ),
                 ),

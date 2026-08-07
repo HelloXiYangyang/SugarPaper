@@ -1,7 +1,7 @@
 name: sugarpaper
 description: 糖纸 · SugarPaper —— 全平台作业管理助手（安卓版）
 publish_to: "none"
-version: 0.17.0+42
+version: 0.25.0+43
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -21,6 +21,8 @@ dependencies:
   speech_to_text: ^7.0.0
   cryptography: ^2.7.0
   flutter_webrtc: ^0.12.6
+  file_picker: 10.3.3
+  share_plus: 10.1.2
 
 dev_dependencies:
   flutter_test:

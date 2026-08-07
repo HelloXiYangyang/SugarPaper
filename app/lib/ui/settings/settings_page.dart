@@ -23,6 +23,7 @@ import '../widgets/basic.dart';
 import '../widgets/progress_bar.dart';
 import '../widgets/sugar_switch.dart';
 import 'account_card.dart';
+import 'teacher_dialog.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -77,7 +78,7 @@ class SettingsPage extends ConsumerWidget {
               ref,
               icon: 'bell',
               title: '通知提醒',
-              desc: '截止日期提醒（规划中）',
+              desc: '作业截止与便签本地提醒（同条只提醒一次）',
               value: set.notifications,
               onChanged: (v) {
                 state.store.updateSettings({'notifications': v});
@@ -89,7 +90,7 @@ class SettingsPage extends ConsumerWidget {
               ref,
               icon: 'globe',
               title: '互联网模式',
-              desc: '跨网络同步（WebRTC · 规划中）',
+              desc: '跨网络同步（WebRTC 在线直连 / Nostr 中继）',
               value: set.internetMode,
               onChanged: (v) {
                 state.store.updateSettings({'internetMode': v});
@@ -102,6 +103,17 @@ class SettingsPage extends ConsumerWidget {
               title: '主题',
               desc: '5 套马卡龙配色 + 经典白 + 暗色，自由切换',
               trailing: _themePicker(context, ref, state, t),
+            ),
+            _row(
+              t: t,
+              icon: 'bell',
+              title: '提醒时间',
+              desc: '前一晚 ${set.reminder.eve} · 当天早上 ${set.reminder.morning} 起 2 小时',
+              trailing: SugarButton(
+                label: '调整',
+                compact: true,
+                onTap: () => _editReminderTime(context, ref),
+              ),
             ),
           ],
         ),
@@ -161,6 +173,26 @@ class SettingsPage extends ConsumerWidget {
                 compact: true,
                 danger: true,
                 onTap: () => _reset(context, ref),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _card(
+          t: t,
+          title: '教师模式',
+          children: [
+            _row(
+              t: t,
+              icon: 'file-text',
+              title: '布置作业',
+              desc: '按标准格式排好作业，复制/导出发到班级群；学生粘贴进糖纸即可一键导入',
+              trailing: SugarButton(
+                label: '打开',
+                iconName: 'bolt',
+                compact: true,
+                primary: true,
+                onTap: () => showTeacherDialog(context),
               ),
             ),
           ],
@@ -773,6 +805,39 @@ class SettingsPage extends ConsumerWidget {
     showSugarToast(
       context,
       '当前实际帧率：约 ${state.detectedFps} FPS · 动画档位 ${state.resolveFps()}',
+    );
+  }
+
+  /// v0.22.0 提醒时间自定义（对齐网页版 settings.reminder）。
+  Future<void> _editReminderTime(BuildContext context, WidgetRef ref) async {
+    final state = ref.read(appStateProvider);
+    var cfg = state.store.settings.reminder;
+
+    Future<TimeOfDay?> pick(String label, String hhmm) {
+      final parts = hhmm.split(':');
+      return showTimePicker(
+        context: context,
+        initialTime: TimeOfDay(
+          hour: int.tryParse(parts.isNotEmpty ? parts[0] : '') ?? 20,
+          minute: int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0,
+        ),
+        helpText: label,
+      );
+    }
+
+    final eve = await pick('前一晚提醒时间', cfg.eve);
+    if (eve == null || !context.mounted) return;
+    final morning = await pick('当天早上提醒窗口起点', cfg.morning);
+    if (morning == null || !context.mounted) return;
+
+    String fmt(TimeOfDay x) =>
+        '${x.hour.toString().padLeft(2, '0')}:${x.minute.toString().padLeft(2, '0')}';
+    cfg = cfg.copyWith(eve: fmt(eve), morning: fmt(morning));
+    state.store.updateSettings({'reminder': cfg.toJson()});
+    state.notify();
+    showSugarToast(
+      context,
+      '提醒时间已更新：前一晚 ${cfg.eve} · 早上 ${cfg.morning}',
     );
   }
 

@@ -3,8 +3,13 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 
 import '../../core/app_icons.dart';
 import '../../core/theme.dart';
@@ -42,6 +47,7 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
   late String _subject;
   late int _priority;
   DateTime? _dueDate;
+  List<String> _images = [];
 
   @override
   void initState() {
@@ -55,6 +61,7 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
             : '默认');
     _priority = t?.priority ?? 1;
     _dueDate = t?.dueDate ?? widget.initialDueDate;
+    _images = [...?t?.images];
   }
 
   @override
@@ -76,6 +83,46 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
     if (picked != null) setState(() => _dueDate = picked);
   }
 
+  Future<void> _pickImages() async {
+    final picked = await ImagePicker().pickMultiImage(
+      limit: 4 - _images.length,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+    if (picked.isEmpty || !mounted) return;
+    final added = <String>[];
+    for (final file in picked) {
+      final bytes = await file.readAsBytes();
+      final uri = await _compressImage(bytes);
+      if (uri != null && _images.length + added.length < 4) {
+        added.add(uri);
+      }
+    }
+    if (added.isNotEmpty && mounted) {
+      setState(() => _images = [..._images, ...added]);
+    }
+  }
+
+  Future<String?> _compressImage(List<int> bytes) async {
+    try {
+      final decoded = img.decodeImage(Uint8List.fromList(bytes));
+      if (decoded == null) return null;
+      final maxSide =
+          decoded.width > decoded.height ? decoded.width : decoded.height;
+      final scale = maxSide > 512 ? 512.0 / maxSide : 1.0;
+      final resized = img.copyResize(
+        decoded,
+        width: (decoded.width * scale).round(),
+        height: (decoded.height * scale).round(),
+      );
+      final jpg = img.encodeJpg(resized, quality: 82);
+      return 'data:image/jpeg;base64,${base64Encode(jpg)}';
+    } catch (_) {
+      return null;
+    }
+  }
+
   void _save() {
     final title = _title.text.trim();
     if (title.isEmpty) {
@@ -88,6 +135,7 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
       'subtitle': _subtitle.text.trim(),
       'subject': _subject,
       'priority': _priority,
+      'images': _images,
       'dueDate': _dueDate == null
           ? null
           : '${_dueDate!.year}-'
@@ -196,6 +244,87 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
               ),
             ],
           ),
+          if (_images.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            SizedBox(
+              height: 60,
+              child: Row(
+                children: [
+                  ..._images.map((uri) {
+                    final comma = uri.indexOf(',');
+                    final bytes = comma < 0
+                        ? const <int>[]
+                        : base64Decode(uri.substring(comma + 1));
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.memory(
+                              Uint8List.fromList(bytes),
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: -6,
+                            right: -6,
+                            child: GestureDetector(
+                              onTap: () => setState(() {
+                                _images = _images.where((x) => x != uri).toList();
+                              }),
+                              child: Container(
+                                width: 18,
+                                height: 18,
+                                decoration: const BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  if (_images.length < 4)
+                    PressableScale(
+                      onTap: _pickImages,
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: t.surface2,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: t.border),
+                        ),
+                        child: SugarIcon(
+                          'image',
+                          size: 20,
+                          color: t.pinkStrong,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            SugarButton(
+              label: '作业拍照存档（最多 4 张）',
+              iconName: 'image',
+              compact: true,
+              onTap: _pickImages,
+            ),
+          ],
           const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
