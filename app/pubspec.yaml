@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 name: sugarpaper
-description: 糖纸 · SugarPaper —— 全平台作业管理助手（网页版 / 安卓 / Windows）
+description: 糖纸 · SugarPaper —— 多平台作业管理助手（网页版 / 安卓 / Windows）
 publish_to: "none"
 version: 0.32.0+51
 
@@ -38,7 +38,9 @@ dev_dependencies:
 
 flutter_launcher_icons:
   android: true
-  ios: false
+  windows:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
   image_path: "assets/icon/app_icon.png"
   adaptive_icon_background: "#FBDCE8"
   adaptive_icon_foreground: "assets/icon/icon_foreground.png"
