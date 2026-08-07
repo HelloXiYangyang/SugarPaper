@@ -208,7 +208,7 @@ input, select, textarea { font-family: inherit; color: inherit; }
   font-size: 11px; font-weight: 700; color: var(--text-3);
   transition: color .15s ease, transform .15s ease;
 }
-.bottom-nav button .nav-emoji { font-size: 21px; }
+.bottom-nav button .nav-emoji { font-size: 18px; }
 .bottom-nav button.active { color: var(--pink-strong); transform: translateY(-2px); }
 
 /* ---------- 首页：搜索行 + 科目 Chip ---------- */
@@ -884,22 +884,6 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
   background: rgba(255, 255, 255, .62); border-radius: 999px;
   padding: 5px 10px; font-size: 11px; font-weight: 700;
 }
-
-/* 底部导航：专注中间突出按钮 */
-.bottom-nav button.nav-focus { flex: 1.25; }
-.bottom-nav button.nav-focus .nav-emoji {
-  width: 44px; height: 44px; margin-top: -20px;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, var(--pink-strong), var(--pink));
-  border-radius: 50%; color: #fff; font-size: 22px;
-  box-shadow: 0 4px 12px rgba(244, 168, 198, .45);
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.bottom-nav button.nav-focus.active .nav-emoji {
-  transform: scale(1.08);
-  box-shadow: 0 6px 18px rgba(244, 168, 198, .6);
-}
-.bottom-nav button.nav-focus.active { color: var(--pink-strong); transform: translateY(-2px); }
 
 /* ---------- 番茄钟：混音（v0.17.0） ---------- */
 .mix-row {

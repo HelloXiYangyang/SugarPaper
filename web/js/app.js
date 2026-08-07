@@ -129,7 +129,7 @@
         '<input id="global-search" placeholder="搜索作业..." value="' + util.escapeHtml(this.state.query) + '"></div>' +
         '<div class="progress-pill"><div class="bar"><i style="width:' + rate + '%"></i></div>' +
         '<span>' + rate + '% · ' + done + '/' + tasks.length + '</span></div>' +
-        '<button class="icon-btn primary" data-nav="import" title="粘贴导入 (Ctrl+N)">＋</button>' +
+        '<button class="icon-btn primary" data-nav="import" title="粘贴导入 (Ctrl+N)">' + S.icons.icon('plus', 18) + '</button>' +
         '<button class="icon-btn" data-nav="settings" title="我的">' + util.avatarHtml(store.state.settings.avatar, 'avatar-sm') + '</button>';
 
       const topTabs = document.getElementById('top-tabs');
@@ -143,10 +143,8 @@
 
       const bottomNav = document.getElementById('bottom-nav');
       bottomNav.innerHTML = TABS.map((t) =>
-        '<button data-nav="' + t.id + '"' +
-        (t.id === 'focus' ? ' class="nav-focus' + (this.state.view === t.id ? ' active' : '') + '"' :
-          (this.state.view === t.id ? ' class="active"' : '')) + '>' +
-        '<span class="nav-emoji">' + S.icons.icon(t.icon, 20) + '</span>' + t.label + '</button>').join('');
+        '<button data-nav="' + t.id + '"' + (this.state.view === t.id ? ' class="active"' : '') + '>' +
+        '<span class="nav-emoji">' + S.icons.icon(t.icon, 18) + '</span>' + t.label + '</button>').join('');
     },
 
     sidebarHtml() {
