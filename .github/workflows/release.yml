@@ -114,7 +114,7 @@ jobs:
 
           | 文件 | 说明 |
           | :--- | :--- |
-          | [SugarPaper-v${VER}-android.apk](https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${VER}/SugarPaper-v${VER}-android.apk) | 通用安装包（Android 8.0+，含全部 ABI，自动更新校验用此包） |
+          | [SugarPaper-v${VER}-android.apk](https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${VER}/SugarPaper-v${VER}-android.apk) | 通用安装包（Android 5.0+，含全部 ABI，自动更新校验用此包） |
           | SugarPaper-v${VER}-android-arm64-v8a.apk | 仅 arm64-v8a（新机型，体积更小） |
           | SugarPaper-v${VER}-android-armeabi-v7a.apk | 仅 armeabi-v7a（较老机型） |
           | SugarPaper-v${VER}-android-x86_64.apk | 仅 x86_64（模拟器 / 部分平板） |
@@ -159,6 +159,7 @@ jobs:
         env:
           SHA: ${{ steps.meta.outputs.sha }}
           VER: ${{ steps.meta.outputs.ver }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # 必须 export，node 子进程才能通过 process.env.BUILD 读取
           export BUILD=$(grep '^version:' app/pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/')
@@ -175,10 +176,16 @@ jobs:
           EOF
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # 先同步远端 main：标签触发的 checkout 处于 detached HEAD，
+          # 显式基于最新 main 提交，避免非快进被拒（v0.31.0 曾因此回填失败）。
+          git fetch origin main
+          git checkout -B main FETCH_HEAD
           git add updates/latest.json
           git commit -m "chore(updates): 发布 v${VER} 同步 latest.json" || true
-          # 标签触发的 checkout 处于 detached HEAD，没有本地 main 分支引用，
-          # 必须显式把当前提交推送到 main，否则回写 latest.json 会失败。
-          git push origin HEAD:main
+          git push origin main || { git pull --rebase origin main && git push origin main; }
           # GITHUB_TOKEN 的 push 不会触发 on:push 工作流，需显式触发 Pages 部署
-          gh workflow run deploy-pages.yml --ref main || true
+          curl -s -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/HelloXiYangyang/SugarPaper/actions/workflows/deploy-pages.yml/dispatches \
+            -d '{"ref":"main"}' || true
