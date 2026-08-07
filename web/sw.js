@@ -7,7 +7,8 @@
    缓存应用外壳实现 PWA 离线可用；网络不可用时兜底到 index.html。 */
 'use strict';
 
-const CACHE_NAME = 'sugarpaper-shell-v0.27.0';
+// v0.27.1：手机端与电脑端导航图标样式统一后，bump 缓存名强制旧客户端重新拉取新外壳
+const CACHE_NAME = 'sugarpaper-shell-v0.27.1';
 const APP_SHELL = [
   './',
   './index.html',
