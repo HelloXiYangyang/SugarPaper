@@ -277,7 +277,7 @@
         link.click();
         URL.revokeObjectURL(link.href);
         store.updateSettings({ lastExportAt: new Date().toISOString() });
-        S.ui.toast('📤 数据已导出');
+    S.ui.toast('数据已导出');
         g.App.renderView();
         return;
       }

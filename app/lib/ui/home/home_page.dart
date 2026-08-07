@@ -121,6 +121,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ),
                 ],
               )
+            else if (state.filteredTasks.isEmpty &&
+                (state.query.isNotEmpty ||
+                    state.subject != '全部' ||
+                    state.priority != 'all'))
+              const EmptyState(
+                iconName: 'search',
+                title: '没有匹配的作业',
+                subtitle: '换个关键词或筛选条件试试',
+              )
             else ...[
               // v5.0 截止分级：逾期/今天/明天/本周/长期
               if (state.groupedActiveTasks.isEmpty)
@@ -140,6 +149,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ...g.tasks.map((task) => Padding(
                             padding: const EdgeInsets.only(bottom: 10),
                             child: TaskCard(
+                              key: ValueKey(task.id),
                               task: task,
                               subjectColor:
                                   state.store.subjectColor(task.subject),
@@ -186,6 +196,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ...state.doneTasks.map((task) => Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: TaskCard(
+                        key: ValueKey(task.id),
                         task: task,
                         subjectColor: state.store.subjectColor(task.subject),
                         onToggle: () => _toggleTask(task.id),
@@ -250,8 +261,17 @@ class _HomePageState extends ConsumerState<HomePage> {
       children: [
         Row(
           children: [
-            SugarIcon('candy', size: 26, color: t.pinkStrong),
-            const SizedBox(width: 6),
+            // 品牌 Logo：与桌面图标 / 网页版 icon.svg 同源
+            ClipRRect(
+              borderRadius: BorderRadius.circular(9),
+              child: Image.asset(
+                'assets/icon/app_icon.png',
+                width: 30,
+                height: 30,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 8),
             Text(
               '糖纸',
               style: TextStyle(

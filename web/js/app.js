@@ -14,11 +14,12 @@
   const TABS = [
     { id: 'home', icon: 'home', label: '首页' },
     { id: 'notes', icon: 'file-text', label: '便签' },
+    { id: 'focus', icon: 'bolt', label: '专注' },
     { id: 'calendar', icon: 'calendar', label: '日历' },
     { id: 'stats', icon: 'chart-bar', label: '统计' },
     { id: 'settings', icon: 'user', label: '我的' }
   ];
-  const VIEW_ORDER = ['home', 'notes', 'calendar', 'stats', 'settings'];
+  const VIEW_ORDER = ['home', 'notes', 'focus', 'calendar', 'stats', 'settings'];
 
   const App = {
     state: {
@@ -142,7 +143,9 @@
 
       const bottomNav = document.getElementById('bottom-nav');
       bottomNav.innerHTML = TABS.map((t) =>
-        '<button data-nav="' + t.id + '"' + (this.state.view === t.id ? ' class="active"' : '') + '>' +
+        '<button data-nav="' + t.id + '"' +
+        (t.id === 'focus' ? ' class="nav-focus' + (this.state.view === t.id ? ' active' : '') + '"' :
+          (this.state.view === t.id ? ' class="active"' : '')) + '>' +
         '<span class="nav-emoji">' + S.icons.icon(t.icon, 20) + '</span>' + t.label + '</button>').join('');
     },
 
@@ -201,6 +204,7 @@
       wrap.appendChild(box);
       if (this.state.view === 'home') S.ui.home.render(box);
       else if (this.state.view === 'notes') S.ui.notes.render(box);
+      else if (this.state.view === 'focus') S.ui.focus.render(box);
       else if (this.state.view === 'calendar') S.ui.calendar.render(box);
       else if (this.state.view === 'stats') S.ui.stats.render(box);
       else if (this.state.view === 'settings') S.ui.settings.render(box);
@@ -302,7 +306,7 @@
         this.state.query = '';
         this.state.subject = '全部';
         this.state.priority = 'all';
-        S.ui.toast('✨ 示例数据已载入');
+      S.ui.toast('示例数据已载入');
       };
       if (store.state.tasks.some((t) => !t.isDeleted)) {
         S.ui.modal.confirm({
@@ -317,7 +321,7 @@
     },
 
     celebrate() {
-      S.ui.toast('🎉 太棒啦！全部完成！');
+      S.ui.toast('太棒啦！全部完成！');
       const colors = [
         'var(--pink-strong)', 'var(--mint-strong)', 'var(--sky-strong)',
         'var(--lavender-strong)', 'var(--peach-strong)', 'var(--yellow-strong)'

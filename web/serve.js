@@ -36,5 +36,5 @@ http.createServer((req, res) => {
     res.end(data);
   });
 }).listen(port, () => {
-  console.log(`🍬 糖纸 Web 版已启动：http://localhost:${port}`);
+  console.log(`糖纸 Web 版已启动：http://localhost:${port}`);
 });

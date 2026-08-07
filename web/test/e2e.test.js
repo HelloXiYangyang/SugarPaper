@@ -99,8 +99,10 @@ async function main() {
 
   console.log('📱 首页（手机 390x844）');
   check('底部导航可见', await page.isVisible('.bottom-nav'));
-  check('底部导航使用 SVG 图标', await page.locator('.bottom-nav svg.ico').count() === 5);
-  check('导航不再使用 emoji 图标', (await page.locator('.bottom-nav').innerText()).replace(/\s+/g, '') === '首页便签日历统计我的');
+  check('底部导航使用 SVG 图标（6 项）', await page.locator('.bottom-nav svg.ico').count() === 6);
+  check('导航不再使用 emoji 图标', (await page.locator('.bottom-nav').innerText()).replace(/\s+/g, '') === '首页便签专注日历统计我的');
+  check('底部导航包含「专注」Tab', await page.locator('.bottom-nav button[data-nav="focus"]').count() === 1);
+  check('「专注」Tab 为突出按钮', await page.locator('.bottom-nav button.nav-focus').count() === 1);
   check('顶栏品牌 Logo 使用应用图标', await page.locator('#topbar .brand img.brand-logo[src="icon.svg"]').count() === 1);
   check('加载示例后共有 9 张任务卡', await page.locator('.task-card').count() === 9);
   check('进度胶囊显示 33%', (await page.locator('.progress-pill').innerText()).includes('33%'));
@@ -112,6 +114,23 @@ async function main() {
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   check('无横向溢出', overflow <= 0, '溢出 ' + overflow + 'px');
+
+  console.log('🧘 专注页（S12）');
+  await page.locator('.bottom-nav button[data-nav="focus"]').click();
+  await page.waitForTimeout(250);
+  check('专注 Tab → 渲染独立页面', await page.locator('.focus-page').count() === 1);
+  check('专注页含番茄钟计时环', await page.locator('.focus-page .focus-ring-wrap').count() === 1);
+  check('专注页含环境与噪音卡片', await page.locator('.focus-page .focus-card-scene').count() === 1);
+  check('专注页含场景卡片网格', (await page.locator('.focus-page .scene-card').count()) >= 5);
+  check('专注页含今日统计', await page.locator('.focus-page .focus-stats').count() === 1);
+  const sceneA = await page.locator('.focus-page').getAttribute('style');
+  await page.locator('.focus-page .scene-card[data-scene="rain"]').click();
+  await page.waitForTimeout(250);
+  const sceneB = await page.locator('.focus-page').getAttribute('style');
+  check('切换场景 → 环境背景变化', sceneA !== sceneB);
+  await page.locator('.bottom-nav button[data-nav="home"]').click();
+  await page.waitForTimeout(250);
+  check('返回首页正常', await page.locator('.view-wrap .home-view, .view-wrap .task-group').count() >= 1);
 
   console.log('🖱 交互');
   await page.locator('.task-card:not(.completed) .action.done').first().click();

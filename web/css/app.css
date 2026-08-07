@@ -819,6 +819,62 @@ html[data-fps="120"] .summary-item, html[data-fps="120"] .subject-row, html[data
 }
 .breath-btn.active { background: var(--pink-soft); color: var(--pink-strong); }
 
+/* ---------- S12：专注独立页面（底部导航 Tab） ---------- */
+.focus-page {
+  position: relative; inset: auto; z-index: 1;
+  min-height: 72vh;
+  margin: 12px; border-radius: 22px; overflow: hidden;
+  box-shadow: 0 8px 28px rgba(90, 74, 82, .12);
+}
+.focus-page .focus-main { justify-content: flex-start; padding-top: 26px; }
+.focus-card {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: min(540px, 96%);
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, .62);
+  box-shadow: 0 8px 26px rgba(90, 74, 82, .10);
+}
+.focus-card-head {
+  display: flex; align-items: center; gap: 6px; align-self: flex-start;
+  font-size: 13px; font-weight: 800; color: #3A2E38;
+}
+.focus-card-head .head-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 8px;
+  background: var(--pink-soft); color: var(--pink-strong);
+}
+.focus-card-head .focus-card-sub { font-size: 10.5px; font-weight: 600; opacity: .65; }
+.focus-card-timer {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .84), rgba(244, 184, 206, .34));
+}
+.focus-card-scene {
+  background: linear-gradient(135deg, rgba(255, 255, 255, .84), rgba(185, 168, 232, .26));
+}
+.focus-card-scene .focus-scene-panel { width: 100%; }
+.focus-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+.focus-stat {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255, 255, 255, .62); border-radius: 999px;
+  padding: 5px 10px; font-size: 11px; font-weight: 700;
+}
+
+/* 底部导航：专注中间突出按钮 */
+.bottom-nav button.nav-focus { flex: 1.25; }
+.bottom-nav button.nav-focus .nav-emoji {
+  width: 44px; height: 44px; margin-top: -20px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--pink-strong), var(--pink));
+  border-radius: 50%; color: #fff; font-size: 22px;
+  box-shadow: 0 4px 12px rgba(244, 168, 198, .45);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.bottom-nav button.nav-focus.active .nav-emoji {
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(244, 168, 198, .6);
+}
+.bottom-nav button.nav-focus.active { color: var(--pink-strong); transform: translateY(-2px); }
+
 /* ---------- 番茄钟：混音（v0.17.0） ---------- */
 .mix-row {
   grid-column: 1 / -1;

@@ -45,7 +45,7 @@
   function cardHtml() {
     const acc = store.state.account;
     if (!acc) {
-      return '<div class="settings-card reveal"><h3>🔑 账号与同步</h3>' +
+      return '<div class="settings-card reveal"><h3>' + S.icons.icon('globe', 15) + ' 账号与同步</h3>' +
         '<div class="settings-row"><span class="row-icon">' + S.icons.icon('user', 15) + '</span>' +
         '<div class="row-body"><div class="row-title">创建账号</div>' +
         '<div class="row-desc">12 词助记词即账号 · 数据端到端加密 · 无需任何服务器</div></div>' +
@@ -58,7 +58,7 @@
     }
     const lastSync = acc.lastSyncAt ? util.fmtDateTime(acc.lastSyncAt) : '从未同步';
     const relay = (store.state.settings.sync && store.state.settings.sync.relays && store.state.settings.sync.relays[0]) || '未配置';
-    return '<div class="settings-card reveal"><h3>🔑 账号与同步</h3>' +
+    return '<div class="settings-card reveal"><h3>' + S.icons.icon('globe', 15) + ' 账号与同步</h3>' +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('user', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">' + util.escapeHtml(acc.displayName || '小糖') +
       ' <span class="tag pri-mid">' + util.escapeHtml(S.account.accountShortId(acc.pubkey)) + '</span></div>' +
@@ -102,7 +102,7 @@
           '<button class="btn small soft-danger" data-action="remove-family" data-profile="' + util.escapeHtml(p.id) + '">' +
           S.icons.icon('trash', 13) + '</button></span></div>').join('')
       : '<div style="font-size:12px;color:var(--text-3);padding:4px 2px">还没有家庭成员档案</div>';
-    return '<div class="settings-card reveal"><h3>👨‍👩‍👧 家庭模式</h3>' +
+    return '<div class="settings-card reveal"><h3>' + S.icons.icon('user', 15) + ' 家庭模式</h3>' +
       '<div class="settings-row" style="align-items:flex-start"><span class="row-icon">' + S.icons.icon('user', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">家庭成员档案</div>' +
       '<div class="row-desc">保存孩子/家人的助记词档案，一键切换账号代管；打卡类任务可在对应账号中确认</div>' +
@@ -125,7 +125,7 @@
       devices: [{ id: util.uuid(), name: store.state.settings.deviceName, lastSyncAt: null }]
     };
     store.setAccount(acc);
-    S.ui.toast('✅ 账号已创建，助记词即账号，请务必备份');
+    S.ui.toast('账号已创建，助记词即账号，请务必备份');
     g.App.render();
   }
 
@@ -138,7 +138,7 @@
         body:
           '<div class="field"><label>这是你的账号（12 词助记词）</label>' +
           '<div class="mn-grid">' + words + '</div>' +
-          '<div style="font-size:12px;color:var(--danger-strong);margin-top:8px;line-height:1.6">⚠️ 助记词即账号，丢失无法找回。请抄写或保存到安全的地方，不要发给任何人。</div></div>',
+          '<div style="font-size:12px;color:var(--danger-strong);margin-top:8px;line-height:1.6">助记词即账号，丢失无法找回。请抄写或保存到安全的地方，不要发给任何人。</div></div>',
         footer: ''
       });
       dlg.footEl.innerHTML =
@@ -261,7 +261,7 @@
           mnemonic: result.mnemonic.join(' '),
           pubkey: result.kp.pubkey
         });
-        S.ui.toast('✅ 已添加 ' + label + ' 的档案');
+        S.ui.toast('已添加 ' + label + ' 的档案');
         dlg.close();
         g.App.renderView();
       }).catch((err) => {
@@ -313,7 +313,7 @@
           label: '昵称',
           value: store.state.account.displayName,
           placeholder: '例如：小糖',
-          onConfirm: (v) => { store.updateAccount({ displayName: v }); S.ui.toast('✅ 昵称已更新'); }
+          onConfirm: (v) => { store.updateAccount({ displayName: v }); S.ui.toast('昵称已更新'); }
         });
       } else if (a === 'sync-now') {
         S.sync.syncNow();

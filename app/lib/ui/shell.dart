@@ -11,6 +11,7 @@ import '../core/constants.dart';
 import '../core/theme.dart';
 import '../data/app_state.dart';
 import 'calendar/calendar_page.dart';
+import 'focus/focus_page.dart';
 import 'home/home_page.dart';
 import 'notes/notes_page.dart';
 import 'settings/settings_page.dart';
@@ -18,11 +19,15 @@ import 'stats/stats_page.dart';
 
 const _tabs = [
   ('home', '首页', 'home'),
+  ('notes', '便签', 'list'),
+  ('focus', '专注', 'bolt'),
   ('calendar', '日历', 'calendar'),
   ('stats', '统计', 'chart-bar'),
-  ('notes', '便签', 'list'),
   ('settings', '我的', 'user'),
 ];
+
+/// S12：专注 Tab 在底部导航中的位置（中间突出按钮）。
+const int _focusTabIndex = 2;
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
@@ -34,9 +39,10 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   final _pages = const [
     HomePage(),
+    NotesPage(),
+    FocusPage(embedded: true),
     CalendarPage(),
     StatsPage(),
-    NotesPage(),
     SettingsPage(),
   ];
 
@@ -47,27 +53,32 @@ class _AppShellState extends ConsumerState<AppShell> {
     final state = ref.watch(appStateProvider);
     final t = Theme.of(context).extension<SugarTheme>()!.data;
     final theme = Theme.of(context).extension<SugarTheme>()!;
-    final index = _indexOf(state.view).clamp(0, 3);
+    final index = _indexOf(state.view).clamp(0, _tabs.length - 1);
     final prevIndex = _prevIndex;
     _prevIndex = index;
 
     return Scaffold(
       backgroundColor: t.bg,
-      body: AnimatedSwitcher(
-        duration: theme.animations
-            ? AnimDurations.speed(AnimDurations.pageTransition, theme.frameRate)
-            : Duration.zero,
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeIn,
-        transitionBuilder: (child, anim) => _PageTransition(
-          child: child,
-          anim: anim,
-          index: index,
-          prevIndex: prevIndex,
-        ),
-        child: KeyedSubtree(
-          key: ValueKey(state.view),
-          child: _pages[index],
+      // SafeArea：避免手机状态栏/刘海遮挡页面顶部按钮
+      body: SafeArea(
+        bottom: false,
+        child: AnimatedSwitcher(
+          duration: theme.animations
+              ? AnimDurations.speed(
+                  AnimDurations.pageTransition, theme.frameRate)
+              : Duration.zero,
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (child, anim) => _PageTransition(
+            child: child,
+            anim: anim,
+            index: index,
+            prevIndex: prevIndex,
+          ),
+          child: KeyedSubtree(
+            key: ValueKey(state.view),
+            child: _pages[index],
+          ),
         ),
       ),
       bottomNavigationBar: _BottomNav(
@@ -140,11 +151,60 @@ class _BottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 58,
+          height: 64,
           child: Row(
             children: List.generate(_tabs.length, (i) {
               final tab = _tabs[i];
               final active = i == current;
+              if (i == _focusTabIndex) {
+                // 专注：居中突出按钮（圆形 + 上浮），与普通 Tab 区分
+                return Expanded(
+                  child: InkWell(
+                    onTap: () => onTap(i),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutBack,
+                          width: active ? 44 : 38,
+                          height: active ? 44 : 38,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [t.pinkStrong, t.pink],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: t.pinkStrong.withValues(alpha: 0.45),
+                                blurRadius: active ? 14 : 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: SugarIcon(
+                            tab.$3,
+                            size: 21,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          tab.$2,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight:
+                                active ? FontWeight.w700 : FontWeight.w600,
+                            color: active ? t.pinkStrong : t.text3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
               return Expanded(
                 child: InkWell(
                   onTap: () => onTap(i),

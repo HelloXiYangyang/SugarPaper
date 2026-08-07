@@ -85,7 +85,7 @@
 
     const topHtml = s.topUnfinished && s.topUnfinished.length
       ? s.topUnfinished.map((x, i) => topRowHtml(x, i, getColor)).join('')
-      : '<text x="62" y="585" font-size="14" fill="' + C.sub + '">没有未完成的作业 🎉</text>';
+      : '<text x="62" y="585" font-size="14" fill="' + C.sub + '">没有未完成的作业</text>';
 
     return '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="880" viewBox="0 0 640 880" font-family="PingFang SC, Microsoft YaHei, sans-serif">' +
       '<rect width="640" height="880" fill="' + C.bg + '"/>' +

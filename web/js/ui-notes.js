@@ -86,9 +86,10 @@
     const archived = all.filter((n) => n.archived).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
     const showArchived = !!g.App.state.showArchivedNotes;
 
-    const section = (title, list) =>
+    const section = (title, list, iconName) =>
       list.length
-        ? '<section class="note-group"><div class="task-group-head"><span class="g-label">' + util.escapeHtml(title) + '</span>' +
+        ? '<section class="note-group"><div class="task-group-head"><span class="g-label">' +
+          (iconName ? S.icons.icon(iconName, 13) + ' ' : '') + util.escapeHtml(title) + '</span>' +
           '<span class="g-count">' + list.length + '</span><span class="g-line"></span></div>' +
           '<div class="note-list">' + list.map(noteCardHtml).join('') + '</div></section>'
         : '';
@@ -105,12 +106,12 @@
         '随手记下考试安排、老师通知、明天带什么……<br>' +
         '<button class="btn primary" data-action="new-note">' + S.icons.icon('plus', 14) + ' 新建便签</button></div>';
     } else {
-      html += section('📌 置顶', pinned) +
+      html += section('置顶', pinned, 'pin') +
         section('便签', normal) +
         (archived.length
           ? '<div class="note-archived-row"><button class="btn small" data-action="toggle-archived">' +
             S.icons.icon('save', 13) + ' 已归档 ' + archived.length + ' 条' + (showArchived ? '（收起）' : '') + '</button></div>' +
-            (showArchived ? section('🗂 归档', archived) : '')
+            (showArchived ? section('归档', archived, 'download') : '')
           : '');
     }
 

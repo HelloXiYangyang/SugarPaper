@@ -23,7 +23,7 @@
         new g.Notification(title, { body: body || '', icon: 'icon.svg' });
       } catch (e) { /* 通知失败不影响使用 */ }
     }
-    S.ui.toast('🔔 ' + title + (body ? ' · ' + body : ''));
+    S.ui.toast(title + (body ? ' · ' + body : ''));
   }
 
   function dueMap() {

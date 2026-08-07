@@ -14,15 +14,15 @@
   const store = S.store;
 
   const SCENES = [
-    { id: 'pink-noise', name: '粉红噪音', emoji: '🎧', color: '#C9C7F0', grad: ['#E8E0F6', '#C9C7F0'] },
-    { id: 'white-noise', name: '白噪音', emoji: '🌫️', color: '#B3D4F0', grad: ['#E0EEF8', '#B3D4F0'] },
-    { id: 'brown-noise', name: '棕噪音', emoji: '🍫', color: '#F0C9A8', grad: ['#F8E4D2', '#F0C9A8'] },
-    { id: 'rain', name: '雨天', emoji: '🌧️', color: '#A9C8E8', grad: ['#DCEAF6', '#8FA8C8'] },
-    { id: 'fireplace', name: '篝火', emoji: '🔥', color: '#F5A87A', grad: ['#FBE3D0', '#F5A87A'] },
-    { id: 'library', name: '图书馆', emoji: '📚', color: '#D8C8A8', grad: ['#F2EBDD', '#D8C8A8'] },
-    { id: 'forest', name: '森林鸟鸣', emoji: '🌲', color: '#A9E0CB', grad: ['#DFF2E8', '#A9E0CB'], disabled: true, hint: '音频素材待接入' },
-    { id: 'waves', name: '海浪', emoji: '🌊', color: '#8FC8E8', grad: ['#DCF0F8', '#8FC8E8'], disabled: true, hint: '音频素材待接入' },
-    { id: 'custom', name: '自定义声音', emoji: '🎵', color: '#F5C4DC', grad: ['#FBE4EE', '#F5C4DC'], custom: true }
+    { id: 'pink-noise', name: '粉红噪音', icon: 'sparkles', color: '#C9C7F0', grad: ['#E8E0F6', '#C9C7F0'] },
+    { id: 'white-noise', name: '白噪音', icon: 'cloud', color: '#B3D4F0', grad: ['#E0EEF8', '#B3D4F0'] },
+    { id: 'brown-noise', name: '棕噪音', icon: 'music', color: '#F0C9A8', grad: ['#F8E4D2', '#F0C9A8'] },
+    { id: 'rain', name: '雨天', icon: 'cloud', color: '#A9C8E8', grad: ['#DCEAF6', '#8FA8C8'] },
+    { id: 'fireplace', name: '篝火', icon: 'flame', color: '#F5A87A', grad: ['#FBE3D0', '#F5A87A'] },
+    { id: 'library', name: '图书馆', icon: 'book', color: '#D8C8A8', grad: ['#F2EBDD', '#D8C8A8'] },
+    { id: 'forest', name: '森林鸟鸣', icon: 'leaf', color: '#A9E0CB', grad: ['#DFF2E8', '#A9E0CB'], disabled: true, hint: '音频素材待接入' },
+    { id: 'waves', name: '海浪', icon: 'wave', color: '#8FC8E8', grad: ['#DCF0F8', '#8FC8E8'], disabled: true, hint: '音频素材待接入' },
+    { id: 'custom', name: '自定义声音', icon: 'music', color: '#F5C4DC', grad: ['#FBE4EE', '#F5C4DC'], custom: true }
   ];
 
   /* ---------- Web Audio：合成白噪音 ---------- */
@@ -257,6 +257,7 @@
   /* ---------- 番茄钟状态机 ---------- */
   const F = {
     overlay: null,
+    page: false,      // S12：以底部导航「专注」页呈现（不销毁容器）
     timer: null,
     mode: 'focus',      // focus | shortBreak | longBreak
     seconds: 0,
@@ -285,6 +286,7 @@
 
   function open(taskId) {
     close();
+    F.page = false;
     F.taskId = taskId || null;
     F.mode = 'focus';
     F.round = 0;
@@ -308,10 +310,101 @@
     stopTimer();
     stopScene();
     stopCustomAudio();
+    if (F.page) {
+      setDuration('focus');
+      if (F.overlay) updateUi();
+      F.overlay = null;
+      return;
+    }
     F.overlay = null;
     document.title = F._title;
     const root = document.getElementById('focus-root');
     if (root) root.remove();
+  }
+
+  /** 今日专注统计（分钟 + 番茄），供页面顶部展示 */
+  function todayStatsHtml() {
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    let minutes = 0, tomatoes = 0;
+    (store.state.focusSessions || []).forEach((s) => {
+      const end = s.endAt ? new Date(s.endAt) : null;
+      if (end && (end.getFullYear() + '-' + String(end.getMonth() + 1).padStart(2, '0') + '-' + String(end.getDate()).padStart(2, '0')) === today) {
+        minutes += s.minutes || 0;
+        if (s.completed) tomatoes++;
+      }
+    });
+    return '<div class="focus-stats">' +
+      '<span class="focus-stat">' + S.icons.icon('clock', 12) + ' 今日 ' + minutes + ' 分钟</span>' +
+      '<span class="focus-stat">' + S.icons.icon('candy', 12) + ' ' + tomatoes + ' 番茄</span>' +
+      '</div>';
+  }
+
+  /** S12：底部导航「专注」页渲染（复用浮层状态机，场景面板常显） */
+  function render(box) {
+    stopScene();
+    stopCustomAudio();
+    F.page = true;
+    if (!F.timer && !F.startedAt) {
+      F.taskId = null;
+      F.mode = 'focus';
+      F.round = 0;
+      setDuration('focus');
+    }
+    const sceneId = (store.state.settings.focus && store.state.settings.focus.sceneId) || 'pink-noise';
+    const scene = SCENES.find((s) => s.id === sceneId) || SCENES[0];
+    const root = document.createElement('div');
+    root.className = 'focus-overlay focus-page';
+    root.style.cssText = '--scene-a:' + scene.grad[0] + ';--scene-b:' + scene.grad[1];
+    F.scenePanel = true;
+    root.innerHTML =
+      '<div class="focus-top">' +
+      '<span class="focus-brand">' + S.icons.icon('bolt', 16) + ' 专注</span>' +
+      todayStatsHtml() +
+      '<div class="focus-top-actions">' +
+      '<button class="icon-btn" data-focus="scene" title="专注场景">' + S.icons.icon('music', 15) + '</button>' +
+      '</div></div>' +
+      '<div class="focus-main">' +
+      '<div class="focus-card focus-card-timer">' +
+      '<div class="focus-card-head"><span class="head-ico">' + S.icons.icon('bolt', 14) + '</span> 番茄钟</div>' +
+      '<div class="focus-breath"></div>' +
+      '<div class="focus-ring-wrap">' +
+      '<svg viewBox="0 0 240 240">' +
+      '<circle class="focus-ring-bg" cx="120" cy="120" r="110"/>' +
+      '<circle class="focus-ring-fg" cx="120" cy="120" r="110"/>' +
+      '</svg>' +
+      '<div class="focus-ring-text"><b id="focus-time">' + fmtTime(F.seconds) + '</b>' +
+      '<span id="focus-mode-label" class="mode-focus">专注</span></div>' +
+      '</div>' +
+      (F.taskId
+        ? '<div class="focus-task">关联任务：' + util.escapeHtml(F.taskId) + '</div>'
+        : '<div class="focus-task">自由专注 · 从任务卡进入可关联作业</div>') +
+      '<div class="focus-round" id="focus-round">第 ' + F.round + '/4 轮番茄</div>' +
+      '<div class="focus-controls">' +
+      '<button class="btn primary" id="focus-start" data-focus="start">' + S.icons.icon('bolt', 14) + ' 开始</button>' +
+      '<button class="btn" id="focus-pause" data-focus="pause" hidden>' + S.icons.icon('pause', 14) + ' 暂停</button>' +
+      '<button class="btn" data-focus="skip">' + S.icons.icon('chevron-right', 14) + ' 跳过</button>' +
+      '<button class="btn soft-danger" data-focus="end">' + S.icons.icon('close', 14) + ' 结束</button>' +
+      '</div>' +
+      '<div class="focus-scene-row">' +
+      '<span class="scene-current">' + S.icons.icon(scene.icon, 14) + ' ' + util.escapeHtml(scene.name) + '</span>' +
+      '<span class="vol-label">' + S.icons.icon('bell', 13) + '</span>' +
+      '<input type="range" id="focus-volume" min="0" max="100" value="' + Math.round(((store.state.settings.focus && store.state.settings.focus.volume) || 0.6) * 100) + '">' +
+      '<button class="icon-btn breath-btn" data-focus="breath" title="呼吸引导">' + S.icons.icon('target', 15) + '</button>' +
+      '</div>' +
+      '</div>' +
+      '<div class="focus-card focus-card-scene">' +
+      '<div class="focus-card-head"><span class="head-ico">' + S.icons.icon('music', 14) + '</span> 环境与噪音' +
+      '<span class="focus-card-sub">选择环境 · 背景氛围与白噪音同步切换</span></div>' +
+      '<div class="focus-scene-panel" id="focus-scene-panel">' + sceneHtml() + mixRowHtml() + customAudioRowHtml() + '</div>' +
+      '</div>' +
+      '</div>';
+    box.innerHTML = '';
+    box.appendChild(root);
+    F.overlay = root;
+    bindOverlay(root);
+    updateUi();
+    startScene(sceneId);
   }
 
   function stopTimer() {
@@ -372,7 +465,7 @@
       F.round++;
       sugarBurst();
       if ((store.state.settings.pomodoro || {}).soundOnFinish !== false) beep();
-      S.ui.toast('🍅 专注完成！收获 1 颗糖果');
+      S.ui.toast('专注完成！收获 1 颗糖果');
       const p = pomo();
       if (p.autoStartBreak) {
         F.mode = F.round % p.roundsBeforeLongBreak === 0 ? 'longBreak' : 'shortBreak';
@@ -465,7 +558,7 @@
         const hint = s.custom ? '上传音频后可用' : (s.hint || '');
         return '<button class="scene-card' + (s.id === current ? ' active' : '') + '" data-scene="' + s.id + '"' + (usable ? '' : ' disabled') +
       ' style="--scene-a:' + s.grad[0] + ';--scene-b:' + s.grad[1] + '">' +
-      '<span class="scene-emoji">' + s.emoji + '</span>' +
+      '<span class="scene-emoji">' + S.icons.icon(s.icon, 24) + '</span>' +
       '<span class="scene-name">' + (s.custom && custom ? util.escapeHtml(custom.name) : util.escapeHtml(s.name)) + '</span>' +
       (usable ? '' : '<span class="scene-hint">' + util.escapeHtml(hint) + '</span>') +
       '</button>';
@@ -478,7 +571,7 @@
       SCENES.filter((s) => sceneUsable(s.id)).map((s) => {
         const name = s.custom && focus.customAudio ? focus.customAudio.name : s.name;
         return '<option value="' + s.id + '"' + (focus.mixSceneId === s.id ? ' selected' : '') + '>' +
-          s.emoji + ' ' + util.escapeHtml(name) + '</option>';
+          util.escapeHtml(name) + '</option>';
       })
     ).join('');
     return '<div class="mix-row">' +
@@ -493,7 +586,7 @@
   function customAudioRowHtml() {
     const ca = store.state.settings.focus && store.state.settings.focus.customAudio;
     if (ca) {
-      return '<div class="mix-row"><span class="mix-label">🎵 ' + util.escapeHtml(ca.name) + '</span>' +
+      return '<div class="mix-row"><span class="mix-label">' + S.icons.icon('music', 13) + ' ' + util.escapeHtml(ca.name) + '</span>' +
         '<button class="btn small soft-danger" data-focus="remove-custom">删除</button></div>';
     }
     return '<div class="mix-row"><span class="mix-label">' + S.icons.icon('upload', 13) + ' 自定义声音</span>' +
@@ -540,7 +633,7 @@
       '<button class="btn soft-danger" data-focus="end">' + S.icons.icon('close', 14) + ' 结束</button>' +
       '</div>' +
       '<div class="focus-scene-row">' +
-      '<span class="scene-current">' + scene.emoji + ' ' + util.escapeHtml(scene.name) + '</span>' +
+      '<span class="scene-current">' + S.icons.icon(scene.icon, 14) + ' ' + util.escapeHtml(scene.name) + '</span>' +
       '<span class="vol-label">' + S.icons.icon('bell', 13) + '</span>' +
       '<input type="range" id="focus-volume" min="0" max="100" value="' + Math.round(((store.state.settings.focus && store.state.settings.focus.volume) || 0.6) * 100) + '">' +
       '<button class="icon-btn breath-btn" data-focus="breath" title="呼吸引导">' + S.icons.icon('target', 15) + '</button>' +
@@ -581,7 +674,12 @@
         store.updateSettings({ focus: Object.assign({}, store.state.settings.focus, { sceneId: sc.dataset.scene }) });
         const scene = SCENES.find((s) => s.id === sc.dataset.scene);
         const cur = root.querySelector('.scene-current');
-        if (cur && scene) cur.textContent = scene.emoji + ' ' + scene.name;
+        if (cur && scene) cur.innerHTML = S.icons.icon(scene.icon, 14) + ' ' + scene.name;
+        // 环境背景氛围随场景切换（S12，对齐安卓版）
+        if (scene && scene.grad) {
+          root.style.setProperty('--scene-a', scene.grad[0]);
+          root.style.setProperty('--scene-b', scene.grad[1]);
+        }
         root.querySelectorAll('.scene-card').forEach((c) => c.classList.toggle('active', c.dataset.scene === sc.dataset.scene));
         startScene(sc.dataset.scene);
       }
@@ -602,7 +700,7 @@
       });
     }
     root.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape' && !F.page) close();
     });
     root.setAttribute('tabindex', '-1');
     root.focus();
@@ -659,5 +757,5 @@
 
   g.Sugar = g.Sugar || {};
   g.Sugar.ui = g.Sugar.ui || {};
-  g.Sugar.ui.focus = { open, close, SCENES, toggleBreath, isOpen: () => !!F.overlay };
+  g.Sugar.ui.focus = { open, close, render, SCENES, toggleBreath, isOpen: () => !!F.overlay };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -652,7 +652,16 @@ class SettingsPage extends ConsumerWidget {
       child: SugarCard(
         child: Column(
           children: [
-            SugarIcon('candy', size: 40, color: t.pinkStrong),
+            // 应用图标：与桌面图标 / 网页版 icon.svg 同源
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: Image.asset(
+                'assets/icon/app_icon.png',
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               '糖纸 · SugarPaper',

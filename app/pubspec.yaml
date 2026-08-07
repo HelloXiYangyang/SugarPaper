@@ -4,7 +4,7 @@
 name: sugarpaper
 description: 糖纸 · SugarPaper —— 全平台作业管理助手（安卓版）
 publish_to: "none"
-version: 0.25.0+43
+version: 0.26.0+44
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -45,3 +45,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/avatar-default.jpg
+    - assets/icon/

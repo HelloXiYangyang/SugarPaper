@@ -142,7 +142,7 @@
       '</span></div>' +
       '</div>' +
 
-      '<div class="settings-card reveal"><h3>🍅 番茄钟与专注场景</h3>' +
+      '<div class="settings-card reveal"><h3>' + S.icons.icon('bolt', 15) + ' 番茄钟与专注场景</h3>' +
       segRow('clock', '专注时长', '一个番茄的时长（分钟）', 'pomo-focus-seg', [25, 45, 60], 'pomo-focus', set.pomodoro.focusMin) +
       segRow('moon', '短休息', '专注之间的短休息（分钟）', 'pomo-break-seg', [5, 10, 15], 'pomo-break', set.pomodoro.shortBreakMin) +
       segRow('sun', '长休息', '每 4 轮番茄后的长休息（分钟）', 'pomo-long-seg', [15, 20, 30], 'pomo-long', set.pomodoro.longBreakMin) +
@@ -153,7 +153,7 @@
       '<div class="row-desc">开始专注时自动播放的声音环境</div></div>' +
       '<span class="row-action"><select id="focus-scene">' +
       (S.ui.focus ? S.ui.focus.SCENES.filter((s) => !s.disabled && !(s.custom && !set.focus.customAudio)).map((s) =>
-        '<option value="' + s.id + '"' + (set.focus.sceneId === s.id ? ' selected' : '') + '>' + s.emoji + ' ' +
+        '<option value="' + s.id + '"' + (set.focus.sceneId === s.id ? ' selected' : '') + '>' +
         (s.custom && set.focus.customAudio ? util.escapeHtml(set.focus.customAudio.name) : util.escapeHtml(s.name)) + '</option>').join('') : '') +
       '</select></span></div>' +
       '</div>' +
@@ -161,7 +161,7 @@
       (S.ui.account ? S.ui.account.cardHtml() : '') +
       (S.ui.account ? S.ui.account.familyCardHtml() : '') +
 
-      '<div class="settings-card reveal"><h3>🧑‍🏫 教师模式</h3>' +
+      '<div class="settings-card reveal"><h3>' + S.icons.icon('book', 15) + ' 教师模式</h3>' +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('file-text', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">布置作业</div>' +
       '<div class="row-desc">按标准格式排好作业，复制/下载发到班级群；学生粘贴进糖纸即可一键导入</div></div>' +
@@ -327,7 +327,7 @@
             label: '设备名称',
             value: store.state.settings.deviceName,
             placeholder: '例如：我的 MacBook',
-            onConfirm: (v) => { store.updateSettings({ deviceName: v }); S.ui.toast('✅ 设备名称已更新'); }
+    onConfirm: (v) => { store.updateSettings({ deviceName: v }); S.ui.toast('设备名称已更新'); }
           });
         } else if (a === 'change-avatar') {
           openAvatarModal();
@@ -336,7 +336,7 @@
             const mode = g.App.resolveFps();
             const desc = wrap.querySelector('#fps-result');
             if (desc) desc.textContent = '当前实际帧率：约 ' + fps + ' FPS · 动画档位 ' + mode;
-            S.ui.toast('📶 当前流畅度：约 ' + fps + ' FPS');
+    S.ui.toast('当前流畅度：约 ' + fps + ' FPS');
           });
         } else if (a === 'export-data') {
           const blob = new Blob([store.exportJSON()], { type: 'application/json;charset=utf-8' });
@@ -346,7 +346,7 @@
           link.click();
           URL.revokeObjectURL(link.href);
           store.updateSettings({ lastExportAt: new Date().toISOString() });
-          S.ui.toast('📤 数据已导出');
+    S.ui.toast('数据已导出');
           g.App.renderView();
         } else if (a === 'import-data') {
           wrap.querySelector('#import-file').click();
@@ -358,7 +358,7 @@
             message: '将删除所有任务、科目与设置，且无法恢复。建议先导出备份。',
             confirmText: '清空',
             danger: true,
-            onConfirm: () => { store.reset(); S.ui.toast('🧹 数据已清空'); }
+    onConfirm: () => { store.reset(); S.ui.toast('数据已清空'); }
           });
         } else if (a === 'add-subject') {
           openSubjectModal();
@@ -399,10 +399,10 @@
         reader.onload = () => {
           try {
             store.importJSON(reader.result);
-            S.ui.toast('✅ 数据导入成功');
+    S.ui.toast('数据导入成功');
             g.App.render();
           } catch (err) {
-            S.ui.toast('❌ 导入失败：' + err.message);
+    S.ui.toast('导入失败：' + err.message);
           }
         };
         reader.readAsText(f, 'utf-8');
@@ -442,10 +442,10 @@
       if (!n) { S.ui.toast('科目名称不能为空'); return; }
       if (existing) {
         store.updateSubject(existing.name, { name: n, color });
-        S.ui.toast('✅ 科目已更新');
+    S.ui.toast('科目已更新');
       } else {
         const ok = store.addSubject(n, color);
-        S.ui.toast(ok ? '✅ 科目已添加' : '❌ 科目已存在');
+    S.ui.toast(ok ? '科目已添加' : '科目已存在');
       }
       dlg.close();
     });

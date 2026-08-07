@@ -32,10 +32,25 @@ const _presets = [
   ('free', '自由', 0),
 ];
 
+/// S12：场景氛围渐变（环境背景随所选场景切换，对齐网页版 --scene-a/--scene-b）。
+const _sceneGrads = {
+  'none': [Color(0xFFFBF6F2), Color(0xFFF2E8EC)],
+  'rain': [Color(0xFFDCEAF6), Color(0xFF8FA8C8)],
+  'ocean': [Color(0xFFDCF0F8), Color(0xFF8FC8E8)],
+  'forest': [Color(0xFFDFF2E8), Color(0xFFA9E0CB)],
+  'cafe': [Color(0xFFF3E4D5), Color(0xFFD9BFA5)],
+  'fire': [Color(0xFFFBE3D0), Color(0xFFF5A87A)],
+  'pink': [Color(0xFFFBE4EE), Color(0xFFF5C4DC)],
+  'brown': [Color(0xFFF0E3D8), Color(0xFFC9A98C)],
+  'library': [Color(0xFFF2EBDD), Color(0xFFD8C8A8)],
+  'night': [Color(0xFF232136), Color(0xFF4A4565)],
+};
+
 class FocusPage extends ConsumerStatefulWidget {
   final Task? task;
+  final bool embedded; // S12：作为底部导航「专注」Tab 时隐藏关闭按钮
 
-  const FocusPage({super.key, this.task});
+  const FocusPage({super.key, this.task, this.embedded = false});
 
   @override
   ConsumerState<FocusPage> createState() => _FocusPageState();
@@ -342,6 +357,161 @@ class _FocusPageState extends ConsumerState<FocusPage>
     );
   }
 
+  Widget _statChip(SugarThemeData t, String label, String icon) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: t.surface.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: t.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SugarIcon(icon, size: 12, color: t.pinkStrong),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: t.text,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// S12：专注页卡片容器（圆角 + 柔和阴影 + 可选渐变底色），
+  /// 让番茄钟 / 环境噪音 / 声音氛围各自成块，符合糖纸马卡龙风格。
+  Widget _focusCard({
+    required SugarThemeData t,
+    required String title,
+    required String icon,
+    String? subtitle,
+    Color? tint,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      decoration: BoxDecoration(
+        gradient: tint == null
+            ? null
+            : LinearGradient(
+                colors: [t.surface, tint],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+        color: tint == null ? t.surface.withValues(alpha: 0.86) : null,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.65)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF7A5C68).withValues(alpha: 0.09),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: t.pinkSoft,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SugarIcon(icon, size: 14, color: t.pinkStrong),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w800,
+                  color: t.text,
+                ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 10.5, color: t.text3),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
+      ),
+    );
+  }
+
+  /// S12：场景卡片（渐变氛围 + 图标 + 名称），点击切换环境并播放噪音。
+  Widget _sceneCard(SugarThemeData t, String id, String name, String icon) {
+    final grads = _sceneGrads[id] ?? _sceneGrads['none']!;
+    final active = _scene == id;
+    final fg = id == 'night' ? Colors.white : const Color(0xFF5A4A52);
+    return PressableScale(
+      onTap: () => _selectScene(id),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 74,
+        height: 78,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: grads,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: active
+                ? t.pinkStrong
+                : Colors.white.withValues(alpha: 0.55),
+            width: active ? 2.4 : 1,
+          ),
+          boxShadow: active
+              ? [
+                  BoxShadow(
+                    color: t.pinkStrong.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SugarIcon(icon, size: 20, color: fg),
+            const SizedBox(height: 6),
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: fg,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String get _timeText {
     if (_preset == 'free') return '∞';
     final m = (_remaining ~/ 60).toString().padLeft(2, '0');
@@ -366,12 +536,29 @@ class _FocusPageState extends ConsumerState<FocusPage>
               s.startedAt.day == now.day;
         })
         .fold<int>(0, (sum, s) => sum + s.durationSec);
+    final todayPomo = state.store.focusSessions
+        .where((s) {
+          final now = DateTime.now();
+          return s.startedAt.year == now.year &&
+              s.startedAt.month == now.month &&
+              s.startedAt.day == now.day;
+        })
+        .fold<int>(0, (sum, s) => sum + s.pomodoros);
+    final grads = _sceneGrads[_scene] ?? _sceneGrads['none']!;
 
     return Scaffold(
       backgroundColor: t.bg,
-      body: SafeArea(
-        child: Stack(
-          children: [
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: grads,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
             // 呼吸引导光晕
             if (_breathOn)
               AnimatedBuilder(
@@ -400,20 +587,24 @@ class _FocusPageState extends ConsumerState<FocusPage>
               children: [
                 Row(
                   children: [
-                    PressableScale(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: t.surface,
-                          borderRadius: BorderRadius.circular(11),
-                          border: Border.all(color: t.border),
+                    if (!widget.embedded) ...[
+                      PressableScale(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: t.surface,
+                            borderRadius: BorderRadius.circular(11),
+                            border: Border.all(color: t.border),
+                          ),
+                          child: SugarIcon('close', size: 17, color: t.text2),
                         ),
-                        child: SugarIcon('close', size: 17, color: t.text2),
                       ),
-                    ),
-                    const SizedBox(width: 10),
+                      const SizedBox(width: 10),
+                    ],
+                    SugarIcon('bolt', size: 18, color: t.pinkStrong),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,16 +618,30 @@ class _FocusPageState extends ConsumerState<FocusPage>
                             ),
                           ),
                           Text(
-                            '今日已专注 ${todaySec ~/ 60} 分钟',
+                            widget.task != null
+                                ? '关联任务：${widget.task!.title}'
+                                : '今日已专注 ${todaySec ~/ 60} 分钟 · $todayPomo 番茄',
                             style: TextStyle(fontSize: 11, color: t.text3),
                           ),
                         ],
                       ),
                     ),
+                    if (widget.embedded)
+                      _statChip(t, '${todaySec ~/ 60} 分钟', 'clock')
+                    else
+                      _statChip(t, '$todayPomo 番茄', 'candy'),
                   ],
                 ),
-                const SizedBox(height: 34),
-                Center(
+                const SizedBox(height: 12),
+                _focusCard(
+                  t: t,
+                  title: '番茄钟',
+                  icon: 'bolt',
+                  tint: t.pinkSoft.withValues(alpha: 0.45),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 4),
+                      Center(
                   child: Container(
                     width: 230,
                     height: 230,
@@ -584,118 +789,55 @@ class _FocusPageState extends ConsumerState<FocusPage>
                     ),
                   ],
                 ),
-                const SizedBox(height: 22),
-                Text(
-                  '专注场景（白噪音）',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: t.text2,
+                    ],
                   ),
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '呼吸引导',
-                        style: TextStyle(fontSize: 12, color: t.text2),
+                const SizedBox(height: 14),
+                _focusCard(
+                  t: t,
+                  title: '环境与噪音',
+                  icon: 'music',
+                  subtitle: '选择环境 · 背景氛围与白噪音同步切换',
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          ...kSoundScenes.map((sc) =>
+                              _sceneCard(t, sc.$1, sc.$2, sc.$3)),
+                          if (state.store.settings.focus.customAudio != null)
+                            _sceneCard(t, 'custom', '自定义声音', 'sparkles'),
+                        ],
                       ),
-                    ),
-                    SugarSwitch(
-                      value: _breathOn,
-                      onChanged: (_) => _toggleBreath(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ...kSoundScenes.map((sc) {
-                      final active = _scene == sc.$1;
-                      return PressableScale(
-                        onTap: () => _selectScene(sc.$1),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 7,
-                          ),
-                          decoration: BoxDecoration(
-                            color: active ? t.pinkSoft : t.surface,
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: active ? t.pink : t.border,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SugarIcon(
-                                sc.$3,
-                                size: 13,
-                                color: active ? t.pinkStrong : t.text2,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                sc.$2,
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: active ? t.pinkStrong : t.text2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                    if (state.store.settings.focus.customAudio != null)
-                      PressableScale(
-                        onTap: () => _selectScene('custom'),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 7,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _scene == 'custom' ? t.pinkSoft : t.surface,
-                            borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: _scene == 'custom' ? t.pink : t.border,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SugarIcon(
-                                'sparkles',
-                                size: 13,
-                                color: _scene == 'custom'
-                                    ? t.pinkStrong
-                                    : t.text2,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                '自定义声音',
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: _scene == 'custom'
-                                      ? t.pinkStrong
-                                      : t.text2,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 14),
+                _focusCard(
+                  t: t,
+                  title: '声音与氛围',
+                  icon: 'bell',
+                  tint: t.lavenderSoft.withValues(alpha: 0.4),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '呼吸引导',
+                              style: TextStyle(fontSize: 12, color: t.text2),
+                            ),
+                          ),
+                          SugarSwitch(
+                            value: _breathOn,
+                            onChanged: (_) => _toggleBreath(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                 // 主场景音量（v0.18.0 双音轨混音）
                 Row(
                   children: [
@@ -795,12 +937,16 @@ class _FocusPageState extends ConsumerState<FocusPage>
                       ),
                     ],
                   ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

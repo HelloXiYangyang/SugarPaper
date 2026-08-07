@@ -247,7 +247,7 @@
       a.href = canvas.toDataURL('image/png');
       a.download = '糖纸-统计报告-' + util.todayStr() + '.png';
       a.click();
-      S.ui.toast('📊 统计报告图片已导出');
+    S.ui.toast('统计报告图片已导出');
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);

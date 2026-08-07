@@ -47,6 +47,8 @@ class _TaskCardState extends State<TaskCard> {
   bool _leaving = false;
 
   void _toggle() {
+    // 防重入：滑出动画期间忽略重复点击（避免多次切换状态）
+    if (_leaving) return;
     final enabled = Theme.of(context).extension<SugarTheme>()!.animations;
     if (!enabled) {
       widget.onToggle();
