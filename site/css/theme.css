@@ -255,64 +255,16 @@ code {
 .feature-tags .feature-tags-main { font-size: 32px; color: var(--text-primary); }
 .platform-requirement { font-size: 13px; color: var(--text-secondary); }
 
-/* Hero 右侧产品演示窗口 */
-.mock-window {
+/* Hero 右侧真实软件截图 */
+.screenshot-frame {
   width: min(500px, 36vw);
-  background: #171a1d;
+}
+.screenshot-frame img {
+  display: block; width: 100%; height: auto;
+  border-radius: 8px;
   border: 1px solid var(--stroke-strong);
-  border-radius: 8px;
   box-shadow: 0 24px 64px rgba(0, 0, 0, .45);
-  overflow: hidden;
 }
-.mock-window__titlebar {
-  height: 40px; display: flex; align-items: center; gap: 8px;
-  padding: 0 14px;
-  background: rgba(255, 255, 255, .03);
-  border-bottom: 1px solid var(--stroke-default);
-}
-.mock-dot { width: 12px; height: 12px; border-radius: 50%; }
-.mock-dot--close { background: #ff5f57; }
-.mock-dot--min { background: #febc2e; }
-.mock-dot--max { background: #28c840; }
-.mock-window__title {
-  margin-left: 8px; font-size: 12.5px; color: var(--text-secondary);
-}
-.mock-window__body { padding: 18px; }
-.mock-today { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
-.mock-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; margin-bottom: 10px;
-  background: rgba(255, 255, 255, .04);
-  border: 1px solid var(--stroke-default);
-  border-radius: 8px;
-}
-.mock-tag {
-  flex-shrink: 0; font-size: 11px; font-weight: 700;
-  padding: 2px 8px; border-radius: 4px;
-}
-.mock-tag--danger { background: rgba(255, 107, 129, .14); color: #ff6b81; }
-.mock-tag--warn { background: rgba(255, 184, 2, .14); color: #ffb802; }
-.mock-tag--ok { background: rgba(109, 212, 168, .14); color: #6dd4a8; }
-.mock-item-main { min-width: 0; }
-.mock-item-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.mock-item-meta { font-size: 12px; color: var(--text-secondary); }
-.mock-focus {
-  display: flex; align-items: center; gap: 14px;
-  margin-top: 4px; padding: 14px;
-  background: linear-gradient(135deg, rgba(96, 205, 255, .12), rgba(160, 255, 225, .06));
-  border: 1px solid rgba(96, 205, 255, .28);
-  border-radius: 8px;
-}
-.mock-focus-ring {
-  width: 52px; height: 52px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  border: 3px solid var(--accent);
-  border-right-color: rgba(96, 205, 255, .25);
-  border-radius: 50%;
-  font-size: 12px; font-weight: 700;
-}
-.mock-focus-title { font-size: 14px; font-weight: 600; }
-.mock-focus-meta { font-size: 12px; color: var(--text-secondary); }
 
 /* ---------- 分节标题 ---------- */
 .headline-wrap { margin-bottom: 36px; }
