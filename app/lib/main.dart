@@ -114,7 +114,8 @@ class _SugarPaperAppState extends ConsumerState<SugarPaperApp> {
       extensions: [
         SugarTheme(
           data: data,
-          animations: state.store.settings.animations,
+          // v0.29.0：移除「动态动画」开关，动画默认全程开启（兼容旧数据不再关闭）
+          animations: true,
           frameRate: state.resolveFps(),
         ),
       ],

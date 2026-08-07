@@ -11,7 +11,7 @@ import 'svg_path.dart';
 /// path 数据与 Web 版 `web/js/icons.js` 完全一致（PRD §5.8 跨平台基准）。
 const Map<String, String> kStrokeIcons = {
   'home': 'M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5M9 21v-6h6v6',
-  'calendar': 'M3 5h18v16H3zM8 3v4M16 3v4M3 10h18',
+  'calendar': 'M6 5h12a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zM8 3v4M16 3v4M3 10h18',
   'chart-bar': 'M4 20v-9M10 20V5M16 20v-12M3 20h18',
   'chart-line': 'M3 20h18m-17 0 5-6 4 3 6-8',
   'chart-pie': 'M12 3a9 9 0 1 0 9 9h-9zM15 3.5A9 9 0 0 1 20.5 9H15z',
@@ -40,7 +40,7 @@ const Map<String, String> kStrokeIcons = {
   'sparkles': 'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM18.5 14l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z',
   'book': 'M4 5a2 2 0 0 1 2-2h14v18H6a2 2 0 0 0-2 2zM4 19a2 2 0 0 1 2-2h14',
   'camera': 'M4 8h3l2-3h6l2 3h3v12H4zM12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
-  'image': 'M3 4h18v16H3zM9 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-5 9 5-5 3 3 4-4 4 4',
+  'image': 'M6 4h12a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zM9 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm-5 9 5-5 3 3 4-4 4 4',
   'close': 'M6 6l12 12M18 6 6 18',
   'eye': 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7zm10-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
   'gauge': 'M5 19a9 9 0 1 1 14 0M12 13l4-4M12 13a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2z',
@@ -48,7 +48,7 @@ const Map<String, String> kStrokeIcons = {
   'save': 'M5 3h11l5 5v13H5zM8 3v6h8V3M8 21v-8h8v8',
   'file-text': 'M6 3h9l5 5v13H6zM14 3v6h6M9 12h6M9 16h6',
   'paperclip': 'M9 4v11a4 4 0 0 0 8 0V6M17 6v9a6 6 0 0 1-12 0V5',
-  'list': 'M4 4h16v16H4zM9 8h6M9 12h6M9 16h4',
+  'list': 'M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM9 8h6M9 12h6M9 16h4',
   'pin': 'M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11zM12 10a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
   'clock': 'M12 12a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-5v5l3 2',
   'flame': 'M12 2c.8 2.5-.8 3.7-.8 5.5a2.8 2.8 0 0 0 5.6 0C19 9.5 21 12.5 21 16a9 9 0 1 1-18 0c0-4 2.5-7.5 5-9-.3 1.6.5 2.6 1.6 3.2C9.2 6 10 3.5 12 2z',

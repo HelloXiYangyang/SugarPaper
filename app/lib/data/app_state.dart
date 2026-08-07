@@ -230,9 +230,8 @@ final appStateProvider =
 
 final themeKeyProvider = Provider<String>((ref) => ref.watch(appStateProvider).store.settings.theme);
 
-final animationsEnabledProvider = Provider<bool>(
-  (ref) => ref.watch(appStateProvider).store.settings.animations,
-);
+// v0.29.0：移除「动态动画」总开关，动画默认全程开启
+final animationsEnabledProvider = Provider<bool>((ref) => true);
 
 final frameRateProvider = Provider<String>(
   (ref) => ref.watch(appStateProvider).store.settings.frameRate,

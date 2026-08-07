@@ -29,10 +29,13 @@ const List<SubjectConfig> kDefaultSubjects = [
 
 /// 科目管理配色面板（与 Web 版 COLOR_PALETTE 一致）
 const List<String> kSubjectPalette = [
-  '#F4B8CE', '#A9E0CB', '#B3D4F0', '#C9C7F0',
-  '#FBE6B9', '#BFE8C9', '#E8D5F0', '#C9E8F0',
-  '#F0C9C9', '#FAD1B8', '#F5C4DC', '#F2D4A8',
-  '#B8D8E8', '#C8D8C0', '#F0DEB8', '#D8C8F0',
+  // 按色系顺序排列：粉红 → 桃橙 → 金黄 → 绿 → 蓝 → 紫（同色系相邻）
+  '#F4B8CE', '#F5C4DC', '#F0C9C9',
+  '#FAD1B8', '#F2D4A8',
+  '#FBE6B9', '#F0DEB8',
+  '#A9E0CB', '#BFE8C9', '#C8D8C0',
+  '#B3D4F0', '#C9E8F0', '#B8D8E8',
+  '#C9C7F0', '#E8D5F0', '#D8C8F0',
 ];
 
 /// 七套平行主题

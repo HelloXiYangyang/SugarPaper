@@ -69,7 +69,7 @@
       const isDark = theme === 'dark';
       document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
       document.documentElement.dataset.palette = isDark ? 'classic' : theme;
-      document.documentElement.classList.toggle('no-anim', !set.animations);
+      // v0.29.0：移除「动态动画」开关，动画默认全程开启（兼容旧数据不再关闭）
       document.documentElement.dataset.fps = this.resolveFps();
       const meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', isDark ? '#231D2B' : '#FBF6F2');

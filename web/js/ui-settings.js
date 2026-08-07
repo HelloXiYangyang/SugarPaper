@@ -12,10 +12,13 @@
   const store = S.store;
 
   const COLOR_PALETTE = [
-    '#F4B8CE', '#A9E0CB', '#B3D4F0', '#C9C7F0',
-    '#FBE6B9', '#BFE8C9', '#E8D5F0', '#C9E8F0',
-    '#F0C9C9', '#FAD1B8', '#F5C4DC', '#F2D4A8',
-    '#B8D8E8', '#C8D8C0', '#F0DEB8', '#D8C8F0'
+    // 按色系顺序排列：粉红 → 桃橙 → 金黄 → 绿 → 蓝 → 紫（同色系相邻）
+    '#F4B8CE', '#F5C4DC', '#F0C9C9',
+    '#FAD1B8', '#F2D4A8',
+    '#FBE6B9', '#F0DEB8',
+    '#A9E0CB', '#BFE8C9', '#C8D8C0',
+    '#B3D4F0', '#C9E8F0', '#B8D8E8',
+    '#C9C7F0', '#E8D5F0', '#D8C8F0'
   ];
   const THEMES = [
     ['classic', '经典白', 'linear-gradient(135deg,#FBF6F2,#F4B8CE)'],
@@ -110,7 +113,6 @@
       '</div></div>' +
 
       '<div class="settings-card reveal"><h3>个性化</h3>' +
-      switchRow('sparkles', '动态动画', '界面丝滑动效（关闭后全部动画禁用）', 'animations') +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('bolt', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">帧率模式</div>' +
       '<div class="row-desc">高刷新率设备更丝滑，动画自动调速</div></div>' +

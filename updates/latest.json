@@ -1,15 +1,15 @@
 {
   "app": "SugarPaper",
   "latest": {
-    "version": "0.28.0",
-    "build": 47,
+    "version": "0.29.0",
+    "build": 48,
     "published_at": "2026-08-07T00:00:00Z",
-    "notes": "- 新增首启强制用户协议与隐私政策（首次打开须阅读并同意后才能使用）\n- 设置页新增「法律与隐私」随时查看\n- 网页版与安卓版同步发布"
+    "notes": "- 移除「动态动画」总开关，动画默认全程开启\n- 科目配色按色系顺序排列\n- 跨端图标统一（圆角对齐）\n- 网页版与安卓版同步发布"
   },
   "platforms": {
     "android": {
-      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.28.0/SugarPaper-v0.28.0-android.apk",
-      "sha256": "f1825fce41e44043e2dad3a9868af08860640a8ef7a6110c97aa1d4d5810b503"
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.29.0/SugarPaper-v0.29.0-android.apk",
+      "sha256": ""
     },
     "web": {
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",

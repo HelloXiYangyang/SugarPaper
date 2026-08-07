@@ -46,18 +46,6 @@ class SettingsPage extends ConsumerWidget {
           t: t,
           title: '个性化',
           children: [
-            _switchRow(
-              context,
-              ref,
-              icon: 'sparkles',
-              title: '动态动画',
-              desc: '界面丝滑动效（关闭后全部动画禁用）',
-              value: set.animations,
-              onChanged: (v) {
-                state.store.updateSettings({'animations': v});
-                state.notify();
-              },
-            ),
             _row(
               t: t,
               icon: 'bolt',
