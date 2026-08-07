@@ -196,6 +196,21 @@
       '<button class="btn small soft-pink" data-action="add-subject">添加</button></div>' +
       '</div>' +
 
+      '<div class="settings-card reveal"><h3>' + S.icons.icon('download', 15) + ' 更新</h3>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('candy', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">当前版本</div>' +
+      '<div class="row-desc">网页版 v' + store.APP_VERSION + ' · 与安卓版同步发布</div></div></div>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('globe', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">最新版本</div>' +
+      '<div class="row-desc" id="latest-version-desc">检查中…</div></div>' +
+      '<button class="btn small" data-action="check-update">检查</button></div>' +
+      '<div class="settings-row" id="update-actions-row" hidden><span class="row-icon">' + S.icons.icon('bolt', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">发现新版本</div>' +
+      '<div class="row-desc">刷新页面即可获取最新网页版</div></div>' +
+      '<button class="btn small primary" data-action="update-refresh">立即刷新</button>' +
+      '<a class="btn small" href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">更新记录</a></div>' +
+      '</div>' +
+
       '<div class="settings-card reveal"><div class="about-block">' +
       '<img class="about-icon" src="icon.svg" alt="糖纸图标">' +
       '<div class="about-name">糖纸 · SugarPaper</div>' +
@@ -208,6 +223,37 @@
 
     wrap.innerHTML = html;
     bind(wrap);
+
+    // 更新状态行：进入设置页时同步最新检查结果
+    const updater = S.updater;
+    if (updater) refreshUpdateRow(wrap, updater);
+  }
+
+  function refreshUpdateRow(wrap, updater) {
+    const desc = wrap.querySelector('#latest-version-desc');
+    const row = wrap.querySelector('#update-actions-row');
+    if (!desc) return;
+    const st = updater.state;
+    if (st.checking) {
+      desc.textContent = '正在检查更新…';
+      if (row) row.hidden = true;
+      return;
+    }
+    if (st.latest) {
+      if (st.updateAvailable) {
+        desc.textContent = 'v' + st.latest.version + ' · 可更新';
+        if (row) row.hidden = false;
+      } else {
+        desc.textContent = 'v' + st.latest.version + ' · 已是最新版本';
+        if (row) row.hidden = true;
+      }
+    } else if (st.error) {
+      desc.textContent = '检查失败（离线或元数据未部署）';
+      if (row) row.hidden = true;
+    } else {
+      desc.textContent = '尚未检查';
+      if (row) row.hidden = true;
+    }
   }
 
   function bind(wrap) {
@@ -364,6 +410,14 @@
           openSubjectModal();
         } else if (a === 'open-teacher') {
           S.ui.teacher.openTeacherModal();
+        } else if (a === 'check-update') {
+          const updater = S.updater;
+          if (!updater) return;
+          const desc = wrap.querySelector('#latest-version-desc');
+          if (desc) desc.textContent = '正在检查更新…';
+          updater.check(true).then(() => refreshUpdateRow(wrap, updater));
+        } else if (a === 'update-refresh') {
+          if (S.updater) S.updater.refresh();
         }
         return;
       }

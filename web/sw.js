@@ -18,6 +18,7 @@ const APP_SHELL = [
   './js/icons.js',
   './js/parser.js',
   './js/store.js',
+  './js/updater.js',
   './js/account.js',
   './js/sync.js',
   './js/stats.js',
@@ -61,16 +62,19 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/relay')) return; // 本地测试中继不缓存
+  const isMetadata = /\/updates\/latest\.json$/.test(url.pathname);
   event.respondWith(
-    caches.match(req).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then((res) => {
-        if (res.ok && req.url.indexOf('sw.js') < 0) {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-        }
-        return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+    isMetadata
+      ? fetch(req).catch(() => caches.match('./index.html'))
+      : caches.match(req).then((hit) => {
+        if (hit) return hit;
+        return fetch(req).then((res) => {
+          if (res.ok && req.url.indexOf('sw.js') < 0) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          }
+          return res;
+        }).catch(() => caches.match('./index.html'));
+      })
   );
 });

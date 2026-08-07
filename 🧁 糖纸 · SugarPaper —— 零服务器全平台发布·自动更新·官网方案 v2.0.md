@@ -176,10 +176,10 @@ GET https://helloxiyangyang.github.io/SugarPaper/updates/latest.json
 
 ### 4.7 Web PWA
 
-- 项目已有 service worker（`web/sw.js`，缓存名 `sugarpaper-shell-v0.19.0`），机制天然支持：
-  - 每次发版 bump `CACHE_NAME`（如 `v0.26.0`）；
-  - 前端启动时 `navigator.serviceWorker.getRegistration()` + `reg.update()`，检测到新 SW 时弹"有新版本，点击刷新"；
-  - 配合 `skipWaiting()` + `clients.claim()` 实现新版本接管。
+- 网页版（`web/js/updater.js`）采用「版本元数据 + SW 外壳」双通道检测：
+  - **版本元数据**：启动 3 秒后读取 `updates/latest.json`（`../../updates/latest.json`，兼容 `/app/` 子路径），与本地 `APP_VERSION` 语义化对比；发现新版弹出横幅（立即刷新 / 更新记录 / 本次忽略），设置页「更新」卡片可手动检查并一键刷新；
+  - **SW 外壳**：`web/sw.js`（缓存名 `sugarpaper-shell-v0.27.0`）每次发版 bump `CACHE_NAME`；`updatefound` + `skipWaiting()` + `clients.claim()` 检测到新外壳时复用同一横幅提示刷新，`controllerchange` 后自动刷新接管；
+  - 元数据请求带时间戳参数且不落缓存（SW 对 `/updates/latest.json` 直连网络，保证每次都拿到最新版本号）。
 - **部署**：GitHub Pages 就是免费静态托管，`push` 到 main 后由 Actions 自动部署，PWA 顺带解决。
 
 ---
