@@ -197,6 +197,13 @@
       (S.ui.account ? S.ui.account.cardHtml() : '') +
       (S.ui.account ? S.ui.account.familyCardHtml() : '') +
 
+      '<div class="settings-card reveal"><h3>' + S.icons.icon('heart', 15) + ' 好友直连</h3>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('globe', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">端到端加密好友</div>' +
+      '<div class="row-desc">加好友、加密消息、分享作业（无中心服务器）</div></div>' +
+      '<button class="btn small soft-pink" data-action="open-friends">打开</button></div>' +
+      '</div>' +
+
       '<div class="settings-card reveal"><h3>' + S.icons.icon('book', 15) + ' 教师模式</h3>' +
       '<div class="settings-row"><span class="row-icon">' + S.icons.icon('file-text', 15) + '</span>' +
       '<div class="row-body"><div class="row-title">布置作业</div>' +
@@ -497,6 +504,8 @@
           if (S.legal) S.legal.view('terms');
         } else if (a === 'view-privacy') {
           if (S.legal) S.legal.view('privacy');
+        } else if (a === 'open-friends') {
+          if (S.ui.friends) S.ui.friends.openPanel();
         }
         return;
       }

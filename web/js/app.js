@@ -55,6 +55,7 @@
       this.initReveal();
       this.bindScrollEffects();
       S.reminders.init();
+      if (S.friends) S.friends.init(); // v0.33.0：好友直连订阅
       this.render();
       // 后台测量实际刷新率，供「跟随系统」档位使用
       this.detectFps().then((fps) => {

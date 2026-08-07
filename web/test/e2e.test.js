@@ -596,6 +596,8 @@ async function main() {
   const pubkey = await page.evaluate(() => window.Sugar.store.state.account && window.Sugar.store.state.account.pubkey);
   check('账号创建成功（生成公钥）', typeof pubkey === 'string' && pubkey.length >= 40);
   check('账号卡片显示短 ID', (await page.locator('.settings-card', { hasText: '账号与同步' }).locator('.tag').count()) >= 1);
+  await page.locator('[data-action="backup-mnemonic"]').scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollBy(0, -90)); // 避开 sticky 顶栏
   await page.locator('[data-action="backup-mnemonic"]').click();
   await page.waitForTimeout(250);
   check('备份助记词弹窗展示 12 词', await page.locator('.mn-word').count() === 12);
@@ -641,6 +643,8 @@ async function main() {
   await page.waitForTimeout(1000);
   const switchedPub = await page.evaluate(() => window.Sugar.store.state.account && window.Sugar.store.state.account.pubkey);
   check('切换到成员账号（同一助记词同一公钥）', switchedPub === pubkey2, switchedPub + ' vs ' + pubkey2);
+  await page.locator('[data-action="remove-family"]').scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollBy(0, -90)); // 避开 sticky 顶栏
   await page.locator('[data-action="remove-family"]').click();
   await page.waitForTimeout(200);
   await page.locator('.modal-foot [data-action="ok"]').click();
@@ -722,6 +726,70 @@ async function main() {
   await page.evaluate(() => window.Sugar.sync.stopDirect());
   await pageB.evaluate(() => window.Sugar.sync.stopDirect());
   await ctxB.close();
+
+  console.log('🤝 好友直连（S18 模块二）');
+  const ctxF = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const pageF = await ctxF.newPage();
+  await pageF.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  await agreeLegal(pageF);
+
+  await page.evaluate(async (relay) => {
+    window.Sugar.store.reset();
+    window.Sugar.store.updateSettings({ sync: { autoSync: false, relays: [relay] } });
+    const r = await window.Sugar.account.createAccount();
+    window.Sugar.store.setAccount({
+      pubkey: r.kp.pubkey, displayName: '设备A', seedB64: window.Sugar.account.b64url(r.seed),
+      mnemonic: r.mnemonic.join(' '), version: 1, createdAt: new Date().toISOString(), lastSyncAt: null, devices: []
+    });
+    await window.Sugar.friends.init();
+  }, relayUrl);
+  const accB = await pageF.evaluate(async (relay) => {
+    window.Sugar.store.reset();
+    window.Sugar.store.updateSettings({ sync: { autoSync: false, relays: [relay] } });
+    const r = await window.Sugar.account.createAccount();
+    window.Sugar.store.setAccount({
+      pubkey: r.kp.pubkey, displayName: '设备B', seedB64: window.Sugar.account.b64url(r.seed),
+      mnemonic: r.mnemonic.join(' '), version: 1, createdAt: new Date().toISOString(), lastSyncAt: null, devices: []
+    });
+    await window.Sugar.friends.init();
+    const kp = await window.Sugar.account.seedToKeyPair(r.seed);
+    return { pubHex: window.Sugar.account.bytesToHex(kp.publicKeyRaw) };
+  }, relayUrl);
+
+  const invite = await page.evaluate(async () => {
+    const r = await window.Sugar.friends.makeInvite();
+    return r.text || r.error;
+  });
+  check('A 生成好友邀请（含共享密钥）', typeof invite === 'string' && invite.startsWith('sugarpaper://friend') && invite.includes('&key='));
+
+  const impB = await pageF.evaluate((t) => window.Sugar.friends.addByInvite(t), invite);
+  check('B 导入邀请添加 A 为好友', !!(impB && impB.ok));
+  // B 打开好友面板（注册来信回调：消息 Toast、分享确认导入）
+  await pageF.evaluate(() => window.Sugar.ui.friends.openPanel());
+
+  await page.waitForTimeout(2400);
+  const aHasB = await page.evaluate((pub) => {
+    const f = window.Sugar.friends.list();
+    return { ok: !!f.find((x) => x.pubkey === pub), n: f.length };
+  }, accB.pubHex);
+  check('A 收到回执并自动确认（双向好友）', aHasB.ok, JSON.stringify(aHasB));
+
+  const aFid = await page.evaluate(() => window.Sugar.friends.list()[0].id);
+  await page.evaluate((id) => window.Sugar.friends.sendMessage(id, '你好糖纸'), aFid);
+  await pageF.waitForTimeout(2400);
+  const gotMsg = await pageF.evaluate(() => (document.getElementById('toast-root') || { innerText: '' }).innerText || '');
+  check('B 收到端到端加密消息', gotMsg.includes('你好糖纸'), gotMsg.slice(0, 80));
+
+  await page.evaluate(() => window.Sugar.store.addTask({ subject: '数学', title: '好友分享试卷', priority: 1 }));
+  await page.evaluate((id) => window.Sugar.friends.shareTask(id, window.Sugar.store.state.tasks.find((t) => t.title === '好友分享试卷')), aFid);
+  await pageF.waitForTimeout(2400);
+  const shareTxt = await pageF.evaluate(() => (document.querySelector('.modal-mask') || { innerText: '' }).innerText || '');
+  check('B 收到作业分享弹窗', shareTxt.includes('好友分享试卷'), shareTxt.slice(0, 80));
+  await pageF.locator('.modal-foot [data-action="ok"]').click();
+  await pageF.waitForTimeout(400);
+  const imported = await pageF.evaluate(() => !!window.Sugar.store.state.tasks.find((t) => t.title === '好友分享试卷'));
+  check('B 确认后作业导入成功', imported);
+  await ctxF.close();
 
   console.log('💻 响应式布局');
   for (const [w, h, nav] of [[768, 1024, '.top-tabs'], [1024, 900, '.sidebar'], [1440, 900, '.sidebar'], [1700, 1000, '.right-panel']]) {

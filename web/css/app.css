@@ -1249,3 +1249,45 @@ html.no-anim .switch .thumb {
 }
 .badge-item.unlocked .badge-ico { color: var(--icon-main, var(--pink-strong)); animation: badge-item-in .45s cubic-bezier(.34, 1.56, .64, 1); }
 @keyframes badge-item-in { from { transform: scale(.4) rotate(-12deg); } to { transform: none; } }
+
+/* ---------- v0.33.0：好友直连 ---------- */
+.friend-tip {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-2);
+  background: var(--icon-soft, var(--pink-soft)); border-radius: 12px;
+  padding: 8px 12px; margin-bottom: 12px;
+}
+.friend-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+.friend-invite {
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--surface-2); border-radius: 12px; padding: 12px; margin-bottom: 12px;
+}
+.friend-invite-title { font-size: 12px; font-weight: 700; color: var(--text-2); }
+.friend-invite textarea {
+  width: 100%; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--surface); color: var(--text); font-size: 12px;
+  padding: 8px 10px; resize: vertical;
+}
+.friend-list { display: flex; flex-direction: column; gap: 8px; }
+.friend-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 14px;
+  background: var(--surface);
+}
+.friend-avatar {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 12px; flex: none;
+  background: var(--icon-soft, var(--pink-soft)); color: var(--icon-main, var(--pink-strong));
+}
+.friend-info { flex: 1; min-width: 0; }
+.friend-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.friend-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.friend-ops { display: flex; gap: 6px; flex: none; }
+.friend-share-list { display: flex; flex-direction: column; gap: 8px; max-height: 46vh; overflow-y: auto; }
+.friend-share-item {
+  display: flex; align-items: center; gap: 8px; text-align: left;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text);
+}
+.friend-share-item:hover { border-color: var(--icon-main, var(--pink)); }
+.friend-share-sub { margin-left: auto; font-size: 11px; color: var(--text-3); }
