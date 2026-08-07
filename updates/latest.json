@@ -9,7 +9,7 @@
   "platforms": {
     "android": {
       "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.27.0/SugarPaper-v0.27.0-android.apk",
-      "sha256": ""
+      "sha256": "4cd9a29803f7e61e7fcd2dbf9ff7dee3b66951e0e76826c2515607cbf0c7e757"
     },
     "web": {
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",

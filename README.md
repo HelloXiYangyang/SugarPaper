@@ -203,6 +203,7 @@ web/
 - 新增：**发布流水线**——`.github/workflows/release.yml`：推送 `v*` 标签后自动构建 Android APK → 上传 GitHub Releases → 计算 SHA-256 → 回写 latest.json
 - 变更：网页版 `APP_VERSION` 与安卓版对齐为 v0.27.0（此前为 v0.25.1，跨端版本号不同步）
 - 变更：需求文档《零服务器全平台发布·自动更新·官网方案 v2.0》登记至「📄 文档」章节
+- 修复：**发布流水线回写失败**——标签触发的 checkout 处于 detached HEAD（无本地 `main` 分支引用），`git push origin main` 报 `src refspec main does not match any`；改为 `git push origin HEAD:main` 显式推送，并修正两个工作流文件的中文乱码
 - 测试：单元测试 40 项全通过；端到端 137 项全通过
 
 #### v0.26.1（2026-08-07）—— 跨端互通修复：网页版 ↔ 安卓版真正连上
