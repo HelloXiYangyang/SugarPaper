@@ -46,6 +46,17 @@ async function main() {
   });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  // v0.28.0：首启协议同意
+  if (await page.locator('#legal-gate').count()) {
+    await page.waitForFunction(() => {
+      const b = document.querySelector('[data-legal-body]');
+      return b && b.innerText.length > 100;
+    });
+    await page.locator('[data-legal-check]').check();
+    await page.locator('[data-legal-accept]').click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(300);
+  }
   await page.evaluate(() => {
     const btn = document.querySelector('.bottom-nav button[data-nav="focus"]');
     if (btn) btn.click();
@@ -57,6 +68,16 @@ async function main() {
 
   const wide = await browser.newPage({ viewport: { width: 900, height: 800 } });
   await wide.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  if (await wide.locator('#legal-gate').count()) {
+    await wide.waitForFunction(() => {
+      const b = document.querySelector('[data-legal-body]');
+      return b && b.innerText.length > 100;
+    });
+    await wide.locator('[data-legal-check]').check();
+    await wide.locator('[data-legal-accept]').click();
+    await wide.waitForLoadState('networkidle');
+    await wide.waitForTimeout(300);
+  }
   await wide.evaluate(() => {
     const btn = document.querySelector('.top-tabs button[data-nav="focus"], .bottom-nav button[data-nav="focus"]');
     if (btn) btn.click();

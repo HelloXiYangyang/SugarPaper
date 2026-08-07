@@ -13,20 +13,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme.dart';
 import 'data/app_state.dart';
+import 'data/legal_store.dart';
 import 'data/reminder_service.dart';
 import 'data/store.dart';
 import 'data/sync_service.dart';
 import 'data/update_service.dart';
 import 'ui/settings/update_dialog.dart';
+import 'ui/legal/legal_page.dart';
 import 'ui/shell.dart';
 
 /// 根导航 key：用于启动后自动检查更新弹窗。
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 
+/// v0.28.0：用户协议 / 隐私政策同意状态（顶层单例，供启动页决策）。
+final LegalStore appLegalStore = LegalStore();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final store = AppStore();
   await store.load();
+  // v0.28.0：首次打开必须同意《用户协议》《隐私政策》后才能进入应用
+  await appLegalStore.load();
   await ReminderService.instance.init();
   if (store.settings.notifications) {
     await ReminderService.instance.requestPermission();
@@ -157,7 +164,9 @@ class _SugarPaperAppState extends ConsumerState<SugarPaperApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const AppShell(),
+      home: appLegalStore.isAgreed
+          ? const AppShell()
+          : LegalGatePage(legal: appLegalStore),
     );
   }
 

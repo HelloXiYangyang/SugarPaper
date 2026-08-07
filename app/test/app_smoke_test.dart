@@ -6,11 +6,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugarpaper/data/app_state.dart';
+import 'package:sugarpaper/data/legal_store.dart';
 import 'package:sugarpaper/data/store.dart';
 import 'package:sugarpaper/main.dart';
 
 void main() {
   testWidgets('统计页在有数据/无数据时均正常渲染', (tester) async {
+    // v0.28.0：跳过首启协议门，直接进入应用主界面
+    appLegalStore.agreedVersion = LegalStore.legalVersion;
     // FakeAsync 环境下不做真实文件 IO，直接使用内存态。
     final store = AppStore();
 

@@ -26,6 +26,7 @@ import '../widgets/sugar_switch.dart';
 import 'account_card.dart';
 import 'teacher_dialog.dart';
 import 'update_dialog.dart';
+import '../legal/legal_page.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -246,8 +247,43 @@ class SettingsPage extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
+        _card(
+          t: t,
+          title: '法律与隐私',
+          children: [
+            _row(
+              t: t,
+              icon: 'file-text',
+              title: '用户协议',
+              desc: 'v1.0.0 · 首次使用需阅读并同意',
+              trailing: SugarButton(
+                label: '查看',
+                compact: true,
+                onTap: () => _openLegal(context, 'terms'),
+              ),
+            ),
+            _row(
+              t: t,
+              icon: 'file-text',
+              title: '隐私政策',
+              desc: 'v1.0.0 · 个人信息处理规则',
+              trailing: SugarButton(
+                label: '查看',
+                compact: true,
+                onTap: () => _openLegal(context, 'privacy'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         _aboutCard(t, state),
       ],
+    );
+  }
+
+  void _openLegal(BuildContext context, String kind) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => LegalViewerPage(kind: kind)),
     );
   }
 

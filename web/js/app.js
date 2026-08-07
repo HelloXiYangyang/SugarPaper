@@ -35,6 +35,11 @@
     },
 
     init() {
+      // v0.28.0：首次打开必须阅读并同意《用户协议》《隐私政策》后才能进入应用
+      if (S.legal && !S.legal.isAgreed()) {
+        S.legal.showGate();
+        return;
+      }
       this.applyPrefs();
       store.subscribe(() => {
         this.applyPrefs();

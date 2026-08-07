@@ -55,6 +55,17 @@ async function main() {
   page.on('pageerror', (err) => errors.push('[pageerror] ' + err.message));
 
   await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  // v0.28.0：首启协议同意
+  if (await page.locator('#legal-gate').count()) {
+    await page.waitForFunction(() => {
+      const b = document.querySelector('[data-legal-body]');
+      return b && b.innerText.length > 100;
+    });
+    await page.locator('[data-legal-check]').check();
+    await page.locator('[data-legal-accept]').click();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(300);
+  }
   await page.evaluate(() => window.App.loadSample());
   await page.waitForTimeout(400);
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });

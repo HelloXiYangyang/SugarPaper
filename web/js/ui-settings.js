@@ -211,6 +211,17 @@
       '<a class="btn small" href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">更新记录</a></div>' +
       '</div>' +
 
+      '<div class="settings-card reveal"><h3>' + S.icons.icon('book', 15) + ' 法律与隐私</h3>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('file-text', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">用户协议</div>' +
+      '<div class="row-desc">v1.0.0 · 首次使用需阅读并同意</div></div>' +
+      '<button class="btn small" data-action="view-terms">查看</button></div>' +
+      '<div class="settings-row"><span class="row-icon">' + S.icons.icon('file-text', 15) + '</span>' +
+      '<div class="row-body"><div class="row-title">隐私政策</div>' +
+      '<div class="row-desc">v1.0.0 · 个人信息处理规则</div></div>' +
+      '<button class="btn small" data-action="view-privacy">查看</button></div>' +
+      '</div>' +
+
       '<div class="settings-card reveal"><div class="about-block">' +
       '<img class="about-icon" src="icon.svg" alt="糖纸图标">' +
       '<div class="about-name">糖纸 · SugarPaper</div>' +
@@ -418,6 +429,10 @@
           updater.check(true).then(() => refreshUpdateRow(wrap, updater));
         } else if (a === 'update-refresh') {
           if (S.updater) S.updater.refresh();
+        } else if (a === 'view-terms') {
+          if (S.legal) S.legal.view('terms');
+        } else if (a === 'view-privacy') {
+          if (S.legal) S.legal.view('privacy');
         }
         return;
       }

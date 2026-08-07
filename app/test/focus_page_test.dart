@@ -7,12 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sugarpaper/data/app_state.dart';
+import 'package:sugarpaper/data/legal_store.dart';
 import 'package:sugarpaper/data/store.dart';
 import 'package:sugarpaper/main.dart';
 import 'package:sugarpaper/ui/focus/focus_page.dart';
 
 void main() {
   testWidgets('S12 专注页：embedded 模式渲染番茄钟卡片与环境噪音卡片', (tester) async {
+    // v0.28.0：跳过首启协议门，直接进入应用主界面
+    appLegalStore.agreedVersion = LegalStore.legalVersion;
     final store = AppStore();
     store.addFocusSession({
       'taskTitle': '自由专注',

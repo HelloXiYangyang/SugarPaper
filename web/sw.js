@@ -7,8 +7,8 @@
    缓存应用外壳实现 PWA 离线可用；网络不可用时兜底到 index.html。 */
 'use strict';
 
-// v0.27.1：手机端与电脑端导航图标样式统一后，bump 缓存名强制旧客户端重新拉取新外壳
-const CACHE_NAME = 'sugarpaper-shell-v0.27.1';
+// v0.28.0：首启强制同意用户协议/隐私政策；bump 缓存名强制旧客户端重新拉取新外壳
+const CACHE_NAME = 'sugarpaper-shell-v0.28.0';
 const APP_SHELL = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const APP_SHELL = [
   './js/icons.js',
   './js/parser.js',
   './js/store.js',
+  './js/legal.js',
   './js/updater.js',
   './js/account.js',
   './js/sync.js',
@@ -37,6 +38,8 @@ const APP_SHELL = [
   './js/reminders.js',
   './js/app.js',
   './manifest.webmanifest',
+  './legal/terms.md',
+  './legal/privacy.md',
   './icon.svg',
   './assets/avatar-default.jpg'
 ];

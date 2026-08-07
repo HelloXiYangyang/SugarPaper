@@ -67,6 +67,19 @@ function check(name, ok, extra) {
   else { failed++; console.error('  ❌ ' + name + (extra ? ' —— ' + extra : '')); }
 }
 
+/** 快速同意首启协议（用于非首启断言场景的第二个页面） */
+async function agreeLegal(page) {
+  await page.waitForSelector('#legal-gate', { timeout: 5000 });
+  await page.waitForFunction(() => {
+    const b = document.querySelector('[data-legal-body]');
+    return b && b.innerText.length > 100;
+  });
+  await page.locator('[data-legal-check]').check();
+  await page.locator('[data-legal-accept]').click();
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(300);
+}
+
 async function main() {
   const server = await startServer();
   attachMiniRelay(server);
@@ -82,6 +95,27 @@ async function main() {
   page.on('console', (m) => { if (m.type() === 'error' && !/favicon|404/.test(m.text())) errors.push(m.text()); });
 
   await page.goto(base + '/index.html', { waitUntil: 'networkidle' });
+
+  console.log('⚖️ 首启协议同意（v0.28.0）');
+  await page.waitForSelector('#legal-gate', { timeout: 5000 });
+  check('首次打开显示协议同意遮罩', await page.locator('#legal-gate').count() === 1);
+  check('协议遮罩含「用户协议 / 隐私政策」Tab', await page.locator('.legal-tab').count() === 2);
+  await page.waitForFunction(() => {
+    const b = document.querySelector('[data-legal-body]');
+    return b && b.innerText.length > 100;
+  });
+  check('用户协议内容已渲染', (await page.locator('[data-legal-body]').innerText()).includes('用户协议'));
+  check('未勾选时「同意并继续使用」禁用', await page.locator('[data-legal-accept]').isDisabled());
+  await page.locator('.legal-tab[data-legal-tab="privacy"]').click();
+  await page.waitForTimeout(350);
+  check('隐私政策内容可切换查看', (await page.locator('[data-legal-body]').innerText()).includes('隐私政策'));
+  await page.locator('[data-legal-check]').check();
+  check('勾选后「同意并继续使用」可用', await page.locator('[data-legal-accept]').isEnabled());
+  await page.locator('[data-legal-accept]').click();
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(400);
+  check('同意后不再显示协议遮罩', await page.locator('#legal-gate').count() === 0);
+
   await page.evaluate(() => window.App.loadSample());
   await page.waitForTimeout(300);
 
@@ -235,6 +269,12 @@ async function main() {
   console.log('⚙️ 设置');
   await page.evaluate(() => window.App.navigate('settings'));
   await page.waitForTimeout(200);
+  check('设置页含「法律与隐私」卡片', await page.locator('[data-action="view-terms"]').count() === 1 && await page.locator('[data-action="view-privacy"]').count() === 1);
+  await page.locator('[data-action="view-terms"]').click();
+  await page.waitForTimeout(400);
+  check('设置页可打开用户协议查看', await page.locator('.modal .legal-body').count() === 1);
+  await page.locator('.modal-foot [data-action="close"]').click();
+  await page.waitForTimeout(150);
   check('主题选择器渲染 7 套', await page.locator('#theme-picker .palette-swatch').count() === 7);
   check('科目管理列表渲染 16 科', await page.locator('.subject-row').count() === 16);
   await page.evaluate(() => { window.__boxRef = document.querySelector('.view-box'); });
@@ -541,6 +581,7 @@ async function main() {
   pageB.on('pageerror', (e) => errorsB.push(e.message));
   pageB.on('console', (m) => { if (m.type() === 'error' && !/favicon|404/.test(m.text())) errorsB.push(m.text()); });
   await pageB.goto(base + '/index.html', { waitUntil: 'networkidle' });
+  await agreeLegal(pageB);
   // WebRTC 能力探针：部分 Edge 无头构建的信令状态机存在缺陷（应答后 signalingState 仍为 stable）
   const webrtcProbe = await page.evaluate(async () => {
     try {
