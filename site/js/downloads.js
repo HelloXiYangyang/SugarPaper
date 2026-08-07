@@ -38,8 +38,6 @@
       setDownload('dl-android', FALLBACK_RELEASE, 'Android APK');
     }
     if (platforms.windows) setDownload('dl-windows', platforms.windows.url, 'Windows');
-    if (platforms.macos) setDownload('dl-macos', platforms.macos.url, 'macOS');
-    if (platforms.linux) setDownload('dl-linux', platforms.linux.url, 'Linux');
     if (platforms.harmonyos) setDownload('dl-hap', platforms.harmonyos.url, '鸿蒙 HAP');
 
     var notes = latest.notes || '';

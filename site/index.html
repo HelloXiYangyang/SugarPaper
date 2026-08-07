@@ -8,233 +8,460 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>糖纸 · SugarPaper</title>
-  <meta name="description" content="让作业管理像糖果一样甜美简单 —— 离线优先的跨平台作业管理助手">
+  <title>糖纸 · SugarPaper — 作业管理小助手</title>
+  <meta name="description" content="糖纸 · SugarPaper 是一款离线优先的跨平台作业管理小助手：秒级录入、截止分级、番茄专注、日历统计，全部本地可用、端到端加密同步。">
+  <meta name="keywords" content="糖纸,SugarPaper,作业管理,作业清单,番茄钟,白噪音,截止提醒,离线,端到端加密">
+  <meta property="og:title" content="糖纸 · SugarPaper — 作业管理小助手">
+  <meta property="og:description" content="让作业管理像糖果一样甜美简单：秒级录入、截止分级、番茄专注、私有同步。">
+  <meta property="og:image" content="assets/icon.svg">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
 </head>
-<body>
-  <header class="site-header">
-    <div class="container">
-      <a class="brand" href="#top">
-        <img src="assets/icon.svg" alt="糖纸图标">
-        <span>糖纸 · SugarPaper</span>
+<body class="v-theme--dark">
+  <header class="fluent-app-bar">
+    <div class="fluent-app-bar__content">
+      <div class="fluent-app-bar__left">
+        <button class="fluent-button fluent-button--text nav-icon" id="nav-open" aria-label="打开导航">
+          <span class="fluent-button__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3H14.5M1.5 8H14.5M1.5 13H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+        </button>
+        <a class="fluent-app-bar__title-link" href="#top">
+          <img src="assets/icon.svg" width="26" height="26" alt="糖纸图标" class="app-bar-logo">
+          <h1 class="fluent-app-bar__title">糖纸 · SugarPaper</h1>
+        </a>
+        <nav class="fluent-selector-bar app-bar-tabs" id="app-bar-tabs" aria-label="主导航">
+          <a class="fluent-selector-bar__item router-link-active" href="#features">功能<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="#download">下载<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="#platforms">平台<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="#update">更新<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="#faq">常见问题<span class="fluent-selector-bar__pill"></span></a>
+          <a class="fluent-selector-bar__item" href="app/" target="_blank" rel="noopener">在线使用<span class="fluent-selector-bar__pill"></span></a>
+        </nav>
+      </div>
+      <a class="fluent-button fluent-button--primary app-bar-download" href="#download">
+        <span class="fluent-button__icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="fluent-button__text">立即下载</span>
       </a>
-      <nav class="site-nav">
-        <a href="#features">功能</a>
-        <a href="#platforms">平台</a>
-        <a href="#download">下载</a>
-        <a href="#update">更新</a>
-        <a href="#changelog">更新日志</a>
-        <a href="#faq">常见问题</a>
-        <a href="app/">在线使用</a>
-      </nav>
     </div>
   </header>
 
+  <div class="fluent-drawer-overlay" id="drawer-overlay" hidden>
+    <div class="fluent-drawer">
+      <div class="fluent-drawer__header">
+        <a class="fluent-app-bar__title-link" href="#top">
+          <img src="assets/icon.svg" width="24" height="24" alt="糖纸图标">
+          <h1 class="fluent-app-bar__title">糖纸 · SugarPaper</h1>
+        </a>
+      </div>
+      <nav class="fluent-drawer__content" id="drawer-nav" aria-label="移动端导航">
+        <a class="fluent-side-nav__item" href="#features"><div class="fluent-side-nav__item-base">功能</div></a>
+        <a class="fluent-side-nav__item" href="#download"><div class="fluent-side-nav__item-base">下载</div></a>
+        <a class="fluent-side-nav__item" href="#platforms"><div class="fluent-side-nav__item-base">平台</div></a>
+        <a class="fluent-side-nav__item" href="#update"><div class="fluent-side-nav__item-base">更新</div></a>
+        <a class="fluent-side-nav__item" href="#faq"><div class="fluent-side-nav__item-base">常见问题</div></a>
+        <a class="fluent-side-nav__item" href="app/" target="_blank" rel="noopener"><div class="fluent-side-nav__item-base">在线使用</div></a>
+      </nav>
+    </div>
+  </div>
+
   <main id="top">
-    <section class="hero">
-      <div class="container">
-        <img class="app-icon" src="assets/icon.svg" alt="糖纸">
-        <h1>糖纸 · SugarPaper</h1>
-        <p class="slogan">让作业管理像糖果一样甜美简单</p>
-        <p class="tagline">面向小学到大学的跨平台作业管理助手：秒级录入、截止分级、番茄钟专注、日历与统计，全部离线可用、端到端加密同步。</p>
-        <div class="hero-actions">
-          <a class="btn primary" href="#download">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
-            下载最新版
-          </a>
-          <a class="btn ghost" href="app/">在线使用网页版</a>
-          <a class="btn ghost" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg>
-            GitHub 仓库
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-alt" id="features">
-      <div class="container">
-        <h2 class="section-title">核心功能</h2>
-        <p class="section-sub">以下功能均已在网页版与安卓版实现，详见 README 功能清单</p>
-        <div class="feature-grid">
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2"/><path d="M7 3v2M11 3v2M15 3v2"/></svg></div>
-            <h3>秒级录入</h3>
-            <p>粘贴老师消息自动解析为结构化作业清单；支持 .txt / .md 文件导入、拖拽文本与语音速记（zh-CN）。</p>
+    <!-- ======== Hero ======== -->
+    <div class="introduction-container">
+      <div class="introduction-bg"></div>
+      <div class="introduction content margin-x">
+        <div class="introduction-col description">
+          <div class="brand-home d-flex flex-row flex-wrap intro-seq" style="--intro-delay:80ms;">
+            <img src="assets/icon.svg" width="42" height="42" alt="糖纸 App 图标">
+            <h1 class="brand-title">糖纸 · SugarPaper</h1>
+            <p class="brand-description">作业管理小助手</p>
           </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
-            <h3>截止分级</h3>
-            <p>已逾期 / 今天 / 明天 / 本周 / 长期自动分组，逾期置顶标红并显示逾期天数。</p>
+          <div class="feature-main mt-6 intro-seq" style="--intro-delay:130ms;">
+            让作业管理像<span class="cyrene">糖果</span>一样甜美简单
           </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
-            <h3>日历与统计</h3>
-            <p>月 / 周视图、考试便签标记、专注分钟角标；进度环 / 柱状 / 饼图 / 折线图、准时率与科目欠账排行，可导出 TXT 或 PNG。</p>
+          <div class="feature-tags mt-3 intro-seq" style="--intro-delay:180ms;">
+            <span class="feature-tags-main">秒级录入 · 截止分级 · 番茄专注 · 私有同步</span>
           </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c.8 2.5-.8 3.7-.8 5.5a2.8 2.8 0 0 0 5.6 0C19 9.5 21 12.5 21 16a9 9 0 1 1-18 0c0-3.5 2-6.5 2-6.5s1.4 1.2 1.4 3A5.4 5.4 0 0 1 12 2z"/></svg></div>
-            <h3>番茄钟专注</h3>
-            <p>番茄钟四档预设 + 9 种白噪音环境、自定义声音上传、主 / 叠加双音轨混音、呼吸引导与今日专注统计。</p>
-          </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
-            <h3>便签与提醒</h3>
-            <p>便签支持 Markdown、待办清单一键转作业、图片附件；作业截止与便签定时提醒，时间可自定义，本地通知同条只提醒一次。</p>
-          </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>
-            <h3>私密同步</h3>
-            <p>12 词助记词即账号，AES-256-GCM 端到端加密 + Ed25519 签名；Nostr 中继或 WebRTC 直连，网页版与安卓版可跨端互通。</p>
-          </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
-            <h3>拍照存档</h3>
-            <p>作业可附最多 4 张图片（自动压缩至最长边 512px，仅存本机），卡片缩略图 + 点击查看大图。</p>
-          </div>
-          <div class="feature">
-            <div class="feat-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
-            <h3>教师与家庭模式</h3>
-            <p>教师模式一键生成标准作业文本发班级群；家庭模式成员档案切换与打卡任务家长确认。</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="platforms">
-      <div class="container">
-        <h2 class="section-title">全平台支持</h2>
-        <p class="section-sub">状态以 README「版本一览」为准</p>
-        <div class="platform-grid">
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>Android<span class="p-status ok">APK 可下载</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>Web PWA<span class="p-status ok">在线可用</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>Windows<span class="p-status">工程就绪</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10c0-3 1.5-5 4-5h8c2.5 0 4 2 4 5 0 2-1 3.5-2 4v2H6v-2c-1-.5-2-2-2-4z"/><path d="M9 19h6M10 10v4M14 10v4"/></svg></div>Linux<span class="p-status">工程就绪</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-2 1.6-3 3.8-3 6 0 2.8 1.6 5 3 5s3-2.2 3-5c0-2.2-1-4.4-3-6z"/><path d="M8 12c-2 1.2-3 3-3 5 0 2 1 4 3 4s3-2 3-4c0-2-1-3.8-3-5zM16 12c-2 1.2-3 3-3 5 0 2 1 4 3 4s3-2 3-4c0-2-1-3.8-3-5z"/></svg></div>macOS<span class="p-status">需 macOS 构建</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 20h8"/></svg></div>iOS<span class="p-status">需 macOS 构建</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg></div>鸿蒙<span class="p-status">规划中</span></div>
-          <div class="platform"><div class="p-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-9 9c0 1.6.4 3.1 1.1 4.4L3 21l4.8-1.2A9 9 0 1 0 12 3z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg></div>微信小程序<span class="p-status">规划中</span></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-alt" id="download">
-      <div class="container">
-        <h2 class="section-title">下载</h2>
-        <p class="section-sub">安装包托管在 GitHub Releases，按钮自动指向最新版本，与仓库同步</p>
-        <div class="download-card">
-          <div class="dl-head">糖纸 · SugarPaper</div>
-          <div class="dl-ver" id="dl-ver">正在读取最新版本…</div>
-          <div class="dl-list">
-            <a class="dl-row" id="dl-android" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest">
-              <div><div class="dl-name" id="dl-android-name">Android APK</div>
-              <div class="dl-desc">通用安装包 · Android 7.0+ · 来自 GitHub Releases</div></div>
-              <span class="dl-go">下载</span>
+          <div class="d-flex ga-2 flex-wrap mt-3 intro-seq" style="--intro-delay:230ms;">
+            <a href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">
+              <img src="https://img.shields.io/github/stars/HelloXiYangyang/SugarPaper" alt="GitHub Stars">
             </a>
-            <a class="dl-row" id="dl-windows" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest">
-              <div><div class="dl-name" id="dl-windows-name">Windows</div>
-              <div class="dl-desc">工程已就绪 · setup.exe / 绿色版待发布</div></div>
-              <span class="dl-go">Releases</span>
-            </a>
-            <a class="dl-row" id="dl-macos" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest">
-              <div><div class="dl-name" id="dl-macos-name">macOS</div>
-              <div class="dl-desc">工程已就绪 · 需 macOS 构建与签名</div></div>
-              <span class="dl-go">Releases</span>
-            </a>
-            <a class="dl-row" id="dl-linux" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest">
-              <div><div class="dl-name" id="dl-linux-name">Linux</div>
-              <div class="dl-desc">工程已就绪 · AppImage 待发布</div></div>
-              <span class="dl-go">Releases</span>
-            </a>
-            <a class="dl-row" id="dl-hap" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest">
-              <div><div class="dl-name" id="dl-hap-name">鸿蒙 HAP</div>
-              <div class="dl-desc">规划中 · 主渠道为 AppGallery</div></div>
-              <span class="dl-go">Releases</span>
+            <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/LICENSE" target="_blank" rel="noopener">
+              <img src="https://img.shields.io/github/license/HelloXiYangyang/SugarPaper?style=flat-square" alt="开源许可证">
             </a>
           </div>
-          <p class="dl-note">
-            网页版可在线直接使用：<a href="app/" style="color:var(--pink-strong);font-weight:700">SugarPaper/app/</a> ·
-            <a href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener" style="color:var(--pink-strong);font-weight:700">查看全部版本</a>
+          <div class="d-flex ga-4 flex-wrap mt-8 intro-seq" style="--intro-delay:280ms;">
+            <a class="fluent-button fluent-button--primary" href="#download">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fluent-button__text">下载最新版</span>
+            </a>
+            <a class="fluent-button fluent-button--hyperlink" href="app/" target="_blank" rel="noopener">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.5 9.5L13.5 2.5M13.5 2.5H9M13.5 2.5V7M9.5 6.5V12.5C9.5 13.0523 9.05228 13.5 8.5 13.5H3.5C2.94772 13.5 2.5 13.0523 2.5 12.5V7.5C2.5 6.94772 2.94772 6.5 3.5 6.5H9.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="fluent-button__text">在线使用网页版</span>
+            </a>
+            <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">
+              <span class="fluent-button__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+              </span>
+              <span class="fluent-button__text">GitHub 仓库</span>
+            </a>
+          </div>
+          <p class="mt-4 platform-requirement intro-seq" style="--intro-delay:330ms;">
+            支持在 Android · Web PWA 上运行，Windows 工程就绪，鸿蒙 / 微信小程序规划中。
           </p>
         </div>
-      </div>
-    </section>
-
-    <section class="section" id="update">
-      <div class="container">
-        <h2 class="section-title">更新机制</h2>
-        <p class="section-sub">零服务器：GitHub Releases 存安装包，GitHub Pages 存元数据，GitHub Actions 自动发布</p>
-        <div class="faq">
-          <details open>
-            <summary>客户端如何检查更新？</summary>
-            <p>安卓版启动后或手动「检查更新」时读取 <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/updates/latest.json" target="_blank" rel="noopener" style="color:var(--pink-strong)">updates/latest.json</a>，比较 build 号，发现新版后流式下载并校验 SHA-256，再交给系统安装器。</p>
-          </details>
-          <details>
-            <summary>网页版如何更新？</summary>
-            <p>网页版部署在 GitHub Pages，启动后自动读取 <code>updates/latest.json</code> 与本地版本对比，发现新版会提示「发现新版本 · 立即刷新」；也可以在「我的 → 更新」里手动检查并一键刷新。</p>
-          </details>
-          <details>
-            <summary>发布流程是怎样的？</summary>
-            <p>推送 <code>v*</code> 标签后，GitHub Actions 自动构建 Android APK、上传到 <a href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener" style="color:var(--pink-strong)">Releases</a>、计算 SHA-256 并回写 latest.json，官网下载按钮随之自动指向新版本。</p>
-          </details>
+        <div class="img-col">
+          <div class="desktop-img mock-window" aria-hidden="true">
+            <div class="mock-window__titlebar">
+              <span class="mock-dot mock-dot--close"></span>
+              <span class="mock-dot mock-dot--min"></span>
+              <span class="mock-dot mock-dot--max"></span>
+              <span class="mock-window__title">糖纸 · 今日作业</span>
+            </div>
+            <div class="mock-window__body">
+              <div class="mock-today">8 月 8 日 · 星期五</div>
+              <div class="mock-item">
+                <span class="mock-tag mock-tag--danger">今天</span>
+                <div class="mock-item-main">
+                  <div class="mock-item-title">数学 · 练习册 P102–P105</div>
+                  <div class="mock-item-meta">18:00 截止 · 剩余 3 小时</div>
+                </div>
+              </div>
+              <div class="mock-item">
+                <span class="mock-tag mock-tag--warn">明天</span>
+                <div class="mock-item-main">
+                  <div class="mock-item-title">语文 · 作文《我的暑假》</div>
+                  <div class="mock-item-meta">明天 08:00 截止</div>
+                </div>
+              </div>
+              <div class="mock-item">
+                <span class="mock-tag mock-tag--ok">本周</span>
+                <div class="mock-item-main">
+                  <div class="mock-item-title">英语 · Unit 3 单词抄写</div>
+                  <div class="mock-item-meta">周日 23:59 截止</div>
+                </div>
+              </div>
+              <div class="mock-focus">
+                <div class="mock-focus-ring">25:00</div>
+                <div>
+                  <div class="mock-focus-title">番茄专注中</div>
+                  <div class="mock-focus-meta">白噪音 · 雨声 · 今日 2 个番茄</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="section section-alt" id="changelog">
-      <div class="container">
-        <h2 class="section-title">更新日志</h2>
-        <p class="section-sub">与仓库 README 版本日志同步（自动读取 latest.json）</p>
-        <div class="changelog" id="changelog-list"></div>
-        <p style="text-align:center;margin-top:18px">
-          <a class="btn ghost" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener">查看 README 完整更新日志</a>
-        </p>
-      </div>
-    </section>
-
-    <section class="section" id="faq">
-      <div class="container">
-        <h2 class="section-title">常见问题</h2>
-        <p class="section-sub">关于安装、更新、同步与隐私</p>
-        <div class="faq">
-          <details>
-            <summary>安装 APK 提示「未知来源」怎么办？</summary>
-            <p>这是 Android 系统安全机制。请在系统设置中允许「安装未知来源应用」后重试；应用会先校验 SHA-256 再打开安装器。</p>
-          </details>
-          <details>
-            <summary>数据会传到服务器吗？</summary>
-            <p>不会。数据默认只存本机；开启同步后经 AES-256-GCM 端到端加密上传到 Nostr 中继或经 WebRTC 直连传输，中继只能看到密文，且带 Ed25519 签名防篡改。</p>
-          </details>
-          <details>
-            <summary>网页版和安卓版能互通吗？</summary>
-            <p>可以。两端使用同一套助记词账号与加密算法（v0.26.1 起完成跨端互通修复），同一句助记词即可互相同步数据。</p>
-          </details>
-          <details>
-            <summary>需要账号吗？</summary>
-            <p>不需要注册。12 词助记词即账号，创建后妥善保管即可跨设备恢复，丢失无法找回。</p>
-          </details>
-          <details>
-            <summary>下载慢怎么办？</summary>
-            <p>GitHub 在中国大陆可能较慢，可在设置页配置镜像源；网页版也可通过免费 CDN 加速访问。</p>
-          </details>
+    <!-- ======== 核心功能 · 功能强 ======== -->
+    <div class="content" id="features">
+      <div class="margin-x">
+        <div class="headline-wrap text-center">
+          <h2 class="headline-feature">一款<span class="gradient-base" style="background-image: linear-gradient(135deg, #01FFFD, #00bdfd);">功能强</span>的作业管理助手</h2>
+          <p class="opacity-75 section-sub">以下功能均已在网页版与安卓版实现，详见 README 功能清单</p>
+        </div>
+        <div class="feature-grid feature-grid--cyan">
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2"/><path d="M7 3v2M11 3v2M15 3v2"/></svg></div>
+              <h3 class="fluent-card__title">秒级录入</h3>
+            </div>
+            <div class="fluent-card__content">粘贴老师消息自动解析为结构化作业清单；支持 .txt / .md 文件导入、拖拽文本与语音速记（zh-CN）。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+              <h3 class="fluent-card__title">截止分级</h3>
+            </div>
+            <div class="fluent-card__content">已逾期 / 今天 / 明天 / 本周 / 长期自动分组，逾期置顶标红并显示逾期天数。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
+              <h3 class="fluent-card__title">日历与统计</h3>
+            </div>
+            <div class="fluent-card__content">月 / 周视图、考试便签标记、专注分钟标签；进度环 / 柱状 / 饼图 / 折线图、准时率与科目欠账排行，可导出 TXT 或 PNG。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c.8 2.5-.8 3.7-.8 5.5a2.8 2.8 0 0 0 5.6 0C19 9.5 21 12.5 21 16a9 9 0 1 1-18 0c0-3.5 2-6.5 2-6.5s1.4 1.2 1.4 3A5.4 5.4 0 0 1 12 2z"/></svg></div>
+              <h3 class="fluent-card__title">番茄专注</h3>
+            </div>
+            <div class="fluent-card__content">番茄钟四档预设 + 9 种白噪音环境、自定义声音上传、主 / 叠加双音轨混音、呼吸引导与今日专注统计。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
+              <h3 class="fluent-card__title">便签与提醒</h3>
+            </div>
+            <div class="fluent-card__content">便签支持 Markdown、待办清单一键转作业、图片附件；作业截止与便签定时提醒，时间可自定义，本地通知同条只提醒一次。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>
+              <h3 class="fluent-card__title">私有同步</h3>
+            </div>
+            <div class="fluent-card__content">12 词助记词即账号，AES-256-GCM 端到端加密 + Ed25519 签名；Nostr 中继或 WebRTC 直连，网页版与安卓版可跨端互通。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
+              <h3 class="fluent-card__title">拍照存档</h3>
+            </div>
+            <div class="fluent-card__content">作业可附最多 4 张图片（自动压缩至最长边 512px，仅存本机），卡片缩略图 + 点击查看大图。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
+              <h3 class="fluent-card__title">教师与家庭模式</h3>
+            </div>
+            <div class="fluent-card__content">教师模式一键生成标准作业文本发班级群；家庭模式成员档案切换与打印任务家长确认。</div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- ======== 下载与更新 · 可定制 ======== -->
+    <div class="content section-alt" id="download">
+      <div class="margin-x">
+        <div class="headline-wrap text-center">
+          <h2 class="headline-feature">一款<span class="gradient-base" style="background-image: var(--cyrene-gradient);">可定制</span>的作业管理助手</h2>
+          <p class="opacity-75 section-sub">安装包托管在 GitHub Releases，按钮自动指向最新版本，与仓库同步</p>
+        </div>
+        <div class="d-flex flex-1-1 align-content-start margin-x flex-wrap ga-8 mt-12 download-update-grid">
+          <div class="download-col">
+            <div class="fluent-card download-card">
+              <div class="fluent-card__header">
+                <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg></div>
+                <h3 class="fluent-card__title">下载 · 糖纸 SugarPaper</h3>
+              </div>
+              <div class="dl-ver" id="dl-ver">正在读取最新版本…</div>
+              <div class="dl-list">
+                <a class="dl-row" id="dl-android" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
+                  <div class="dl-row-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+                  </div>
+                  <div class="dl-row-main">
+                    <div class="dl-name" id="dl-android-name">Android APK</div>
+                    <div class="dl-desc">通用安装包 · Android 7.0+ · 来自 GitHub Releases</div>
+                  </div>
+                  <span class="dl-go">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </a>
+                <a class="dl-row" id="dl-windows" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
+                  <div class="dl-row-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                  </div>
+                  <div class="dl-row-main">
+                    <div class="dl-name" id="dl-windows-name">Windows</div>
+                    <div class="dl-desc">工程已就绪 · setup.exe / 绿色版待发布</div>
+                  </div>
+                  <span class="dl-go">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </a>
+                <a class="dl-row" id="dl-hap" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
+                  <div class="dl-row-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg>
+                  </div>
+                  <div class="dl-row-main">
+                    <div class="dl-name" id="dl-hap-name">鸿蒙 HAP</div>
+                    <div class="dl-desc">规划中 · 主流道为 AppGallery</div>
+                  </div>
+                  <span class="dl-go">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </a>
+              </div>
+              <div class="dl-note opacity-75">
+                网页版可在线直接使用：<a href="app/" target="_blank" rel="noopener">SugarPaper/app/</a> ·
+                <a href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">查看全部版本</a>
+              </div>
+            </div>
+          </div>
+          <div class="update-col">
+            <div class="fluent-card feature-card-divided reveal">
+              <div class="fluent-card__header">
+                <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></div>
+                <h3 class="fluent-card__title">零服务器更新机制</h3>
+              </div>
+              <div class="fluent-card__content opacity-75">GitHub Releases 存安装包，GitHub Pages 存元数据，GitHub Actions 自动发布。</div>
+            </div>
+            <div class="fluent-card feature-card-divided reveal">
+              <div class="fluent-card__header">
+                <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
+                <h3 class="fluent-card__title">客户端如何检查更新？</h3>
+              </div>
+              <div class="fluent-card__content opacity-75">安卓版启动后或手动「检查更新」时读取 <code>updates/latest.json</code>，比较 build 号，发现新版后流式下载并校验 SHA-256，再交给系统安装器。</div>
+            </div>
+            <div class="fluent-card feature-card-divided reveal">
+              <div class="fluent-card__header">
+                <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>
+                <h3 class="fluent-card__title">网页版如何更新？</h3>
+              </div>
+              <div class="fluent-card__content opacity-75">网页版部署在 GitHub Pages，启动后自动读取 <code>updates/latest.json</code> 与本地版本对比，发现新版会提示「发现新版本 · 立即刷新」。</div>
+            </div>
+            <div class="fluent-card feature-card-divided reveal">
+              <div class="fluent-card__header">
+                <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
+                <h3 class="fluent-card__title">发布流程是怎样的？</h3>
+              </div>
+              <div class="fluent-card__content opacity-75">推送 <code>v*</code> 标签后，GitHub Actions 自动构建 Android APK、上传到 Releases、计算 SHA-256 并回写 latest.json，官网下载按钮随之自动指向新版本。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== 多平台支持 · 跨平台 ======== -->
+    <div class="content" id="platforms">
+      <div class="margin-x">
+        <div class="headline-wrap text-center">
+          <h2 class="headline-feature">一款<span class="gradient-base" style="background-image: linear-gradient(135deg, #ffb802, #ffb802);">跨平台</span>的作业管理助手</h2>
+          <p class="opacity-75 section-sub">状态以 README「版本一览」为准</p>
+        </div>
+        <div class="platforms-grid">
+          <div class="fluent-card platform-card reveal">
+            <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+            <div class="platform-name">Android</div>
+            <div class="platform-status ok">APK 可下载</div>
+          </div>
+          <div class="fluent-card platform-card reveal">
+            <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>
+            <div class="platform-name">Web PWA</div>
+            <div class="platform-status ok">在线可用</div>
+          </div>
+          <div class="fluent-card platform-card reveal">
+            <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+            <div class="platform-name">Windows</div>
+            <div class="platform-status">工程就绪</div>
+          </div>
+          <div class="fluent-card platform-card reveal">
+            <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg></div>
+            <div class="platform-name">鸿蒙</div>
+            <div class="platform-status">规划中</div>
+          </div>
+          <div class="fluent-card platform-card reveal">
+            <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-9 9c0 1.6.4 3.1 1.1 4.4L3 21l4.8-1.2A9 9 0 1 0 12 3z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg></div>
+            <div class="platform-name">微信小程序</div>
+            <div class="platform-status">规划中</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== 除了这些… ======== -->
+    <div class="content section-alt" id="update">
+      <div class="margin-x">
+        <h2 class="headline-feature text-center">除了这些…</h2>
+        <div class="d-flex flex-1-1 align-content-start margin-x flex-wrap ga-8 mt-12">
+          <div class="flex-grow-1 d-flex flex-column gap-4" id="faq" style="flex-basis: 375px;">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #66ccff;">#更新日志</p>
+              <h3 class="feature-header">与仓库同步</h3>
+            </div>
+            <p class="opacity-75">自动读取 latest.json，展示最新版本更新内容。</p>
+            <div class="changelog" id="changelog-list"></div>
+            <p>
+              <a class="fluent-button fluent-button--standard" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener">
+                <span class="fluent-button__text">查看 README 完整更新日志</span>
+              </a>
+            </p>
+          </div>
+          <div class="flex-grow-1 d-flex flex-column gap-4" style="flex-basis: 375px;">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #FF7900;">#常见问题</p>
+              <h3 class="feature-header">安装、更新、同步与隐私</h3>
+            </div>
+            <div class="faq">
+              <details class="faq-item">
+                <summary>安装 APK 提示「未知来源」怎么办？</summary>
+                <div class="faq-body">这是 Android 系统安全机制。请在系统设置中允许「安装未知来源应用」后重试；应用会先校验 SHA-256 再打开安装器。</div>
+              </details>
+              <details class="faq-item">
+                <summary>数据会传到服务器吗？</summary>
+                <div class="faq-body">不会。数据默认只存本机；开启同步后经 AES-256-GCM 端到端加密上传到 Nostr 中继或经 WebRTC 直连传输，中继只能看到密文，且带 Ed25519 签名防篡改。</div>
+              </details>
+              <details class="faq-item">
+                <summary>网页版和安卓版能互通吗？</summary>
+                <div class="faq-body">可以。两端使用同一套助记词账号与加密算法（v0.26.1 起完成跨端互通修复），同一句助记词即可互相同步数据。</div>
+              </details>
+              <details class="faq-item">
+                <summary>需要账号吗？</summary>
+                <div class="faq-body">不需要注册。12 词助记词即账号，创建后妥善保存即可跨设备恢复，丢失无法找回。</div>
+              </details>
+              <details class="faq-item">
+                <summary>下载慢怎么办？</summary>
+                <div class="faq-body">GitHub 在中国大陆可能较慢，可在设置页配置镜像源；网页版也可通过免费 CDN 加速访问。</div>
+              </details>
+            </div>
+            <div class="d-flex ga-4 flex-wrap">
+              <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/issues" target="_blank" rel="noopener">
+                <span class="fluent-button__text">反馈问题</span>
+              </a>
+              <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/🧁%20糖纸%20·%20SugarPaper%20——%20用户协议.md" target="_blank" rel="noopener">
+                <span class="fluent-button__text">用户协议</span>
+              </a>
+              <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/🧁%20糖纸%20·%20SugarPaper%20——%20隐私政策.md" target="_blank" rel="noopener">
+                <span class="fluent-button__text">隐私政策</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== CTA ======== -->
+    <div class="content d-flex flex-column ga-8 margin-x">
+      <div class="d-flex flex-row ga-2 align-self-center">
+        <span class="text-h5 align-self-center">更多功能留给您自行探索！</span>
+      </div>
+      <div class="d-flex flex-row ga-2 align-self-center flex-wrap justify-center">
+        <a class="fluent-button fluent-button--primary" href="#download">
+          <span class="fluent-button__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="fluent-button__text">立即下载 SugarPaper</span>
+        </a>
+        <a class="fluent-button fluent-button--standard" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">
+          <span class="fluent-button__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+          </span>
+          <span class="fluent-button__text">了解更多</span>
+        </a>
+      </div>
+    </div>
   </main>
 
-  <footer class="site-footer">
-    <div class="links">
-      <a href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">GitHub 仓库</a>
-      <a href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">Releases</a>
-      <a href="https://github.com/HelloXiYangyang/SugarPaper/issues" target="_blank" rel="noopener">反馈问题</a>
-      <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener">README</a>
-      <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/🧁%20糖纸%20·%20SugarPaper%20——%20用户协议.md" target="_blank" rel="noopener">用户协议</a>
-      <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/🧁%20糖纸%20·%20SugarPaper%20——%20隐私政策.md" target="_blank" rel="noopener">隐私政策</a>
+  <footer class="fluent-footer">
+    <div class="fluent-footer__content">
+      <span class="fluent-footer__text">© 2026 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖</span>
+      <div class="fluent-footer__social">
+        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener" aria-label="GitHub 仓库" title="GitHub 仓库">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+        </a>
+        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener" aria-label="Releases" title="Releases">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper/issues" target="_blank" rel="noopener" aria-label="反馈问题" title="反馈问题">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5C4.41 1.5 1.5 4.19 1.5 7.5C1.5 10.81 4.41 13.5 8 13.5C8.77 13.5 9.5 13.39 10.18 13.19L13 14.5L12.44 11.9C13.52 10.8 14.5 9.3 14.5 7.5C14.5 4.19 11.59 1.5 8 1.5ZM8 3C10.76 3 13 5.02 13 7.5C13 9.98 10.76 12 8 12C7.1 12 6.26 11.83 5.5 11.53L4.5 12L4.93 9.9C3.71 9.21 3 8.41 3 7.5C3 5.02 5.24 3 8 3ZM5.5 6C5.22 6 5 6.22 5 6.5C5 6.78 5.22 7 5.5 7C5.78 7 6 6.78 6 6.5C6 6.22 5.78 6 5.5 6ZM8 6C7.72 6 7.5 6.22 7.5 6.5C7.5 6.78 7.72 7 8 7C8.28 7 8.5 6.78 8.5 6.5C8.5 6.22 8.28 6 8 6ZM10.5 6C10.22 6 10 6.22 10 6.5C10 6.78 10.22 7 10.5 7C10.78 7 11 6.78 11 6.5C11 6.22 10.78 6 10.5 6Z" fill="currentColor"/></svg>
+        </a>
+        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener" aria-label="README" title="README">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2.5C2 1.67 2.67 1 3.5 1H13.5V15H3.5C2.67 15 2 14.33 2 13.5V2.5ZM3.5 2.5V13.5C3.5 13.78 3.72 14 4 14H12V2H3.5C3.22 2 3 2.22 3 2.5ZM5 4H11V5H5V4ZM5 6H11V7H5V6ZM5 8H11V9H5V8ZM5 10H9V11H5V10Z" fill="currentColor"/></svg>
+        </a>
+      </div>
     </div>
-    <div>糖纸 · SugarPaper © 2026 · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖</div>
   </footer>
 
+  <script src="js/site.js"></script>
   <script src="js/downloads.js"></script>
 </body>
 </html>
