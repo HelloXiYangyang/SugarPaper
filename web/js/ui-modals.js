@@ -370,6 +370,10 @@
         dueDate: dlg.bodyEl.querySelector('#edit-due').value || null,
         images: taskImages
       };
+      // 编辑后按新标题重新识别任务类型（打卡/背诵/书面），避免类型陈旧
+      if (g.Sugar.parser) {
+        patch.taskType = g.Sugar.parser.detectTaskType(patch.title + ' ' + patch.subtitle);
+      }
       if (existing) {
         const done = dlg.bodyEl.querySelector('#edit-done').checked;
         if (done !== existing.isCompleted) {

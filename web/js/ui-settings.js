@@ -68,6 +68,23 @@
       '</span></div>';
   }
 
+  /** 设置项静默更新：避免触发整页重建导致闪屏/开关跳动 */
+  function quietSettingsUpdate(fn) {
+    if (g.App) g.App._suspendView = true;
+    try {
+      fn();
+    } finally {
+      if (g.App) g.App._suspendView = false;
+    }
+  }
+
+  function setSegActive(segEl, attrKey, val) {
+    if (!segEl) return;
+    segEl.querySelectorAll('button').forEach((b) => {
+      b.classList.toggle('active', b.dataset[attrKey] === String(val));
+    });
+  }
+
   function subjectRowHtml(s, i) {
     return '<div class="subject-row" style="--i:' + (i || 0) + '" data-subject="' + util.escapeHtml(s.name) + '">' +
       '<span class="dot" style="background:' + s.color + '"></span>' +
@@ -197,8 +214,10 @@
     if (S.ui.account) S.ui.account.bind(wrap);
     wrap.querySelectorAll('input[data-toggle]').forEach((inp) => {
       inp.addEventListener('change', () => {
-        patchSetting(inp.dataset.toggle, inp.checked);
-        g.App.applyPrefs();
+        quietSettingsUpdate(() => {
+          patchSetting(inp.dataset.toggle, inp.checked);
+          g.App.applyPrefs();
+        });
         if (inp.dataset.toggle === 'notifications' && inp.checked && g.Notification && g.Notification.requestPermission) {
           g.Notification.requestPermission();
         }
@@ -210,8 +229,8 @@
       pomoFocus.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-pomo-focus]');
         if (!btn) return;
-        patchSetting('pomodoro.focusMin', +btn.dataset.pomoFocus);
-        g.App.renderView();
+        quietSettingsUpdate(() => patchSetting('pomodoro.focusMin', +btn.dataset.pomoFocus));
+        setSegActive(pomoFocus, 'pomoFocus', btn.dataset.pomoFocus);
       });
     }
     const pomoBreak = wrap.querySelector('#pomo-break-seg');
@@ -219,8 +238,8 @@
       pomoBreak.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-pomo-break]');
         if (!btn) return;
-        patchSetting('pomodoro.shortBreakMin', +btn.dataset.pomoBreak);
-        g.App.renderView();
+        quietSettingsUpdate(() => patchSetting('pomodoro.shortBreakMin', +btn.dataset.pomoBreak));
+        setSegActive(pomoBreak, 'pomoBreak', btn.dataset.pomoBreak);
       });
     }
     const pomoLong = wrap.querySelector('#pomo-long-seg');
@@ -228,28 +247,28 @@
       pomoLong.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-pomo-long]');
         if (!btn) return;
-        patchSetting('pomodoro.longBreakMin', +btn.dataset.pomoLong);
-        g.App.renderView();
+        quietSettingsUpdate(() => patchSetting('pomodoro.longBreakMin', +btn.dataset.pomoLong));
+        setSegActive(pomoLong, 'pomoLong', btn.dataset.pomoLong);
       });
     }
     const sceneSel = wrap.querySelector('#focus-scene');
     if (sceneSel) {
       sceneSel.addEventListener('change', () => {
-        patchSetting('focus.sceneId', sceneSel.value);
+        quietSettingsUpdate(() => patchSetting('focus.sceneId', sceneSel.value));
         S.ui.toast('默认场景已更新');
       });
     }
     const reminderEve = wrap.querySelector('#reminder-eve');
     if (reminderEve) {
       reminderEve.addEventListener('change', () => {
-        store.updateSettings({ reminder: Object.assign({}, store.state.settings.reminder, { eve: reminderEve.value }) });
+        quietSettingsUpdate(() => store.updateSettings({ reminder: Object.assign({}, store.state.settings.reminder, { eve: reminderEve.value }) }));
         S.ui.toast('前一晚提醒时间已更新');
       });
     }
     const reminderMorning = wrap.querySelector('#reminder-morning');
     if (reminderMorning) {
       reminderMorning.addEventListener('change', () => {
-        store.updateSettings({ reminder: Object.assign({}, store.state.settings.reminder, { morning: reminderMorning.value }) });
+        quietSettingsUpdate(() => store.updateSettings({ reminder: Object.assign({}, store.state.settings.reminder, { morning: reminderMorning.value }) }));
         S.ui.toast('早上提醒时间已更新');
       });
     }
@@ -275,9 +294,11 @@
       fpsSeg.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-frame-rate]');
         if (!btn) return;
-        store.updateSettings({ frameRate: btn.dataset.frameRate });
-        g.App.applyPrefs();
-        g.App.renderView();
+        quietSettingsUpdate(() => {
+          store.updateSettings({ frameRate: btn.dataset.frameRate });
+          g.App.applyPrefs();
+        });
+        setSegActive(fpsSeg, 'frameRate', btn.dataset.frameRate);
       });
     }
 
@@ -286,9 +307,13 @@
       themePicker.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-theme-swatch]');
         if (!btn) return;
-        store.updateSettings({ theme: btn.dataset.themeSwatch });
-        g.App.applyPrefs();
-        g.App.renderView();
+        quietSettingsUpdate(() => {
+          store.updateSettings({ theme: btn.dataset.themeSwatch });
+          g.App.applyPrefs();
+        });
+        themePicker.querySelectorAll('.palette-swatch').forEach((s) => {
+          s.classList.toggle('active', s.dataset.themeSwatch === btn.dataset.themeSwatch);
+        });
       });
     }
 

@@ -36,7 +36,13 @@
     init() {
       this.applyPrefs();
       store.subscribe(() => {
-        this.render();
+        this.applyPrefs();
+        // 设置页控件操作期间静默：只刷新主题/顶栏，不重建视图（避免整页闪屏与开关跳动）
+        if (this._suspendView) {
+          this.renderChrome();
+        } else {
+          this.render();
+        }
         if (S.sync && typeof S.sync.scheduleSync === 'function') S.sync.scheduleSync();
       });
       this.bindGlobalEvents();

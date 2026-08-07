@@ -947,6 +947,13 @@ html.no-anim *, html.no-anim *::before, html.no-anim *::after {
   transition: none !important;
 }
 html.no-anim .reveal { opacity: 1 !important; transform: none !important; }
+/* 动画总开关关闭时，开关控件自身过渡保留：操作中的开关不跳动（v0.25.1 修复） */
+html.no-anim .switch .track,
+html.no-anim .switch .track::before,
+html.no-anim .switch .track::after,
+html.no-anim .switch .thumb {
+  transition: all .3s ease !important;
+}
 
 /* ============================================================
    五档响应式断点

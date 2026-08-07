@@ -8,7 +8,7 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.25.0';
+  const APP_VERSION = '0.25.1';
 
   // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
   const DEFAULT_SUBJECTS = [
@@ -489,6 +489,7 @@
     state.settings.pomodoro = Object.assign({}, defaultState().settings.pomodoro, (d.settings && d.settings.pomodoro) || {});
     state.settings.focus = Object.assign({}, defaultState().settings.focus, (d.settings && d.settings.focus) || {});
     state.settings.sync = Object.assign({}, defaultState().settings.sync, (d.settings && d.settings.sync) || {});
+    state.settings.reminder = Object.assign({}, defaultState().settings.reminder, (d.settings && d.settings.reminder) || {});
     persist();
     emit();
   }

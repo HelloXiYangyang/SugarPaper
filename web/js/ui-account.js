@@ -292,7 +292,12 @@
   function bind(wrap) {
     wrap.querySelectorAll('input[data-toggle="sync.autoSync"]').forEach((inp) => {
       inp.addEventListener('change', () => {
-        store.updateSettings({ sync: Object.assign({}, store.state.settings.sync, { autoSync: inp.checked }) });
+        if (g.App) g.App._suspendView = true;
+        try {
+          store.updateSettings({ sync: Object.assign({}, store.state.settings.sync, { autoSync: inp.checked }) });
+        } finally {
+          if (g.App) g.App._suspendView = false;
+        }
       });
     });
     wrap.addEventListener('click', (e) => {
