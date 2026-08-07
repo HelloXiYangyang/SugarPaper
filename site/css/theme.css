@@ -3,24 +3,41 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-/* 糖纸 · SugarPaper 官网 —— 马卡龙主题 */
+/* 糖纸 · SugarPaper 官网 —— 马卡龙主题（Token 与 web/css/theme.css 完全一致） */
 :root {
   --bg: #FBF6F2;
   --surface: #FFFFFF;
-  --surface-2: #F7EFF3;
-  --border: #F0E2E8;
+  --surface-2: #F7EEE9;
+  --surface-3: #F0E3DD;
   --text: #463B45;
   --text-2: #8C7E88;
-  --text-3: #B9A9B0;
-  --pink: #F4A8C6;
-  --pink-strong: #E883AD;
-  --pink-soft: #FBE4EE;
-  --mint: #7ED3B2;
-  --mint-soft: #E0F4EC;
-  --lavender: #B9A8E8;
-  --lavender-soft: #EFEBFA;
+  --text-3: #B8AAB3;
+  --border: #EFE1DA;
+  --border-2: #E2D1C9;
+  --glass: rgba(255, 255, 255, 0.82);
+  --pink: #F4B8CE;
+  --pink-strong: #E292B4;
+  --pink-soft: #FBE4EC;
+  --mint: #A9E0CB;
+  --mint-strong: #5FB894;
+  --mint-soft: #DEF3EA;
+  --sky: #B3D4F0;
+  --sky-strong: #6FA8D6;
+  --sky-soft: #E2EEF9;
+  --lavender: #C9C7F0;
+  --lavender-strong: #8F89D9;
+  --lavender-soft: #ECEBFA;
+  --peach: #FAD1B8;
+  --peach-strong: #E89A6B;
+  --peach-soft: #FDEBE0;
+  --yellow: #FBE6B9;
+  --yellow-strong: #D9A94A;
+  --yellow-soft: #FDF4DC;
+  --danger: #E58B8B;
+  --danger-strong: #D96A6A;
+  --danger-soft: #FBE6E6;
   --radius: 18px;
-  --shadow: 0 8px 28px rgba(122, 92, 104, .10);
+  --shadow: 0 8px 28px rgba(122, 92, 104, .12);
   --shadow-sm: 0 1px 3px rgba(122, 92, 104, .10);
 }
 
@@ -103,6 +120,11 @@ a { color: inherit; text-decoration: none; }
   padding: 18px 14px; text-align: center; font-weight: 700; font-size: 14px;
 }
 .platform .p-ico { font-size: 26px; margin-bottom: 8px; color: var(--pink-strong); }
+.platform .p-status {
+  display: block; margin-top: 6px;
+  font-size: 11px; font-weight: 600; color: var(--text-3);
+}
+.platform .p-status.ok { color: var(--mint-strong); }
 
 /* ---------- 下载区 ---------- */
 .download-card {
