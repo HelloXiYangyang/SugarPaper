@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -177,7 +177,7 @@ class _TeacherDialogState extends ConsumerState<_TeacherDialog> {
         children: [
           Row(
             children: [
-              SugarIcon('file-text', size: 17, color: t.pinkStrong),
+              SugarIcon('file-text', size: 17, color: t.iconMain),
               const SizedBox(width: 6),
               Text(
                 '教师模式 · 布置作业',
@@ -382,7 +382,7 @@ class _TeacherDialogState extends ConsumerState<_TeacherDialog> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SugarIcon(icon, size: 13, color: t.pinkStrong),
+            SugarIcon(icon, size: 13, color: t.iconMain),
             const SizedBox(width: 5),
             Text(
               label,

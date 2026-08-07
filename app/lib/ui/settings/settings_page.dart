@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -319,7 +319,7 @@ class SettingsPage extends ConsumerWidget {
                   vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: active ? t.pinkStrong : t.surface2,
+                  color: active ? t.iconMain : t.surface2,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
@@ -485,7 +485,7 @@ class SettingsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? t.pinkStrong : t.text3,
+                  color: active ? t.iconMain : t.text3,
                 ),
               ),
             ),
@@ -524,13 +524,13 @@ class SettingsPage extends ConsumerWidget {
               ),
               shape: BoxShape.circle,
               border: Border.all(
-                color: active ? t.pinkStrong : Colors.transparent,
+                color: active ? t.iconMain : Colors.transparent,
                 width: 2.5,
               ),
               boxShadow: active
                   ? [
                       BoxShadow(
-                        color: t.pinkStrong.withValues(alpha: 0.4),
+                        color: t.iconMain.withValues(alpha: 0.4),
                         blurRadius: 6,
                       ),
                     ]
@@ -632,7 +632,7 @@ class SettingsPage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          SugarIcon(icon, size: 16, color: t.pinkStrong),
+          SugarIcon(icon, size: 16, color: t.iconMain),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -1062,7 +1062,7 @@ class SettingsPage extends ConsumerWidget {
                         color: SugarThemeData.hex(c),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: active ? t.pinkStrong : Colors.transparent,
+                          color: active ? t.iconMain : Colors.transparent,
                           width: 2.5,
                         ),
                       ),

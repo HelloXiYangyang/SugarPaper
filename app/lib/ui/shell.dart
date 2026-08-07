@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -166,7 +166,7 @@ class _BottomNav extends StatelessWidget {
                         child: SugarIcon(
                           tab.$3,
                           size: 21,
-                          color: active ? t.pinkStrong : t.text3,
+                          color: active ? t.iconMain : t.text3,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -175,7 +175,7 @@ class _BottomNav extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                          color: active ? t.pinkStrong : t.text3,
+                          color: active ? t.iconMain : t.text3,
                         ),
                       ),
                     ],

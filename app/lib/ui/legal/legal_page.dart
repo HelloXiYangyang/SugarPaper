@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -67,7 +67,7 @@ class _LegalContentViewState extends State<LegalContentView> {
         _md!,
         text: t.text,
         text2: t.text2,
-        accent: t.pinkStrong,
+        accent: t.iconMain,
         base: const TextStyle(fontSize: 13.5),
       ),
     );
@@ -106,7 +106,7 @@ class _LegalGatePageState extends State<LegalGatePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text('再看看', style: TextStyle(color: t.pinkStrong)),
+            child: Text('再看看', style: TextStyle(color: t.iconMain)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -192,7 +192,7 @@ class _LegalGatePageState extends State<LegalGatePage> {
                             value: _checked,
                             onChanged: (v) =>
                                 setState(() => _checked = v ?? false),
-                            activeColor: t.pinkStrong,
+                            activeColor: t.iconMain,
                             visualDensity: VisualDensity.compact,
                           ),
                           const SizedBox(width: 2),
@@ -257,7 +257,7 @@ class _LegalGatePageState extends State<LegalGatePage> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: active ? t.pinkStrong : t.text2,
+              color: active ? t.iconMain : t.text2,
             ),
           ),
         ),

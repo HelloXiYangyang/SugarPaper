@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -378,7 +378,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SugarIcon(icon, size: 12, color: t.pinkStrong),
+          SugarIcon(icon, size: 12, color: t.iconMain),
           const SizedBox(width: 4),
           Text(
             label,
@@ -427,10 +427,10 @@ class _FocusPageState extends ConsumerState<FocusPage>
                 width: 26,
                 height: 26,
                 decoration: BoxDecoration(
-                  color: t.pinkSoft,
+                  color: t.iconSoft,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: SugarIcon(icon, size: 14, color: t.pinkStrong),
+                child: SugarIcon(icon, size: 14, color: t.iconMain),
               ),
               const SizedBox(width: 8),
               Text(
@@ -484,14 +484,14 @@ class _FocusPageState extends ConsumerState<FocusPage>
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: active
-                ? t.pinkStrong
+                ? t.iconMain
                 : Colors.white.withValues(alpha: 0.55),
             width: active ? 2.4 : 1,
           ),
           boxShadow: active
               ? [
                   BoxShadow(
-                    color: t.pinkStrong.withValues(alpha: 0.35),
+                    color: t.iconMain.withValues(alpha: 0.35),
                     blurRadius: 10,
                   ),
                 ]
@@ -571,7 +571,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                       height: 220 + 90 * v,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: t.pinkSoft.withValues(alpha: 0.35 + 0.2 * (1 - v)),
+                        color: t.iconSoft.withValues(alpha: 0.35 + 0.2 * (1 - v)),
                       ),
                     ),
                   ),
@@ -599,7 +599,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                       ),
                       const SizedBox(width: 10),
                     ],
-                    SugarIcon('bolt', size: 18, color: t.pinkStrong),
+                    SugarIcon('bolt', size: 18, color: t.iconMain),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -646,7 +646,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                       border: Border.all(color: t.border),
                       boxShadow: [
                         BoxShadow(
-                          color: t.pinkStrong.withValues(alpha: 0.12),
+                          color: t.iconMain.withValues(alpha: 0.12),
                           blurRadius: 28,
                         ),
                       ],
@@ -706,10 +706,10 @@ class _FocusPageState extends ConsumerState<FocusPage>
                             vertical: 7,
                           ),
                           decoration: BoxDecoration(
-                            color: active ? t.pinkStrong : t.surface,
+                            color: active ? t.iconMain : t.surface,
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: active ? t.pinkStrong : t.border,
+                              color: active ? t.iconMain : t.border,
                             ),
                           ),
                           child: Text(
@@ -750,11 +750,11 @@ class _FocusPageState extends ConsumerState<FocusPage>
                         width: 76,
                         height: 76,
                         decoration: BoxDecoration(
-                          color: t.pinkStrong,
+                          color: t.iconMain,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: t.pinkStrong.withValues(alpha: 0.4),
+                              color: t.iconMain.withValues(alpha: 0.4),
                               blurRadius: 18,
                             ),
                           ],
@@ -831,7 +831,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                 // 主场景音量（v0.18.0 双音轨混音）
                 Row(
                   children: [
-                    SugarIcon('bell', size: 14, color: t.pinkStrong),
+                    SugarIcon('bell', size: 14, color: t.iconMain),
                     const SizedBox(width: 6),
                     Text(
                       '主场景音量',
@@ -903,7 +903,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                 else
                   Row(
                     children: [
-                      SugarIcon('sparkles', size: 14, color: t.pinkStrong),
+                      SugarIcon('sparkles', size: 14, color: t.iconMain),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(

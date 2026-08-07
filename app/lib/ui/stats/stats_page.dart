@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -100,7 +100,7 @@ class StatsPage extends ConsumerWidget {
   ) {
     return Row(
       children: [
-        SugarIcon('chart-bar', size: 17, color: t.pinkStrong),
+        SugarIcon('chart-bar', size: 17, color: t.iconMain),
         const SizedBox(width: 6),
         Text(
           '统计',
@@ -144,7 +144,7 @@ class StatsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? t.pinkStrong : t.text3,
+                  color: active ? t.iconMain : t.text3,
                 ),
               ),
             ),
@@ -446,7 +446,7 @@ class StatsPage extends ConsumerWidget {
           children: [
             Row(
               children: [
-                SugarIcon(icon, size: 15, color: t.pinkStrong),
+                SugarIcon(icon, size: 15, color: t.iconMain),
                 const SizedBox(width: 6),
                 Text(
                   title,

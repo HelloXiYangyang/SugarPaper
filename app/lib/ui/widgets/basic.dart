@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -209,7 +209,7 @@ class EmptyState extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Column(
         children: [
-          SugarIcon(iconName, size: 44, color: t.pinkStrong),
+          SugarIcon(iconName, size: 44, color: t.iconMain),
           const SizedBox(height: 10),
           Text(
             title,
@@ -260,11 +260,9 @@ class SugarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).extension<SugarTheme>()!.data;
-    final bg = danger
-        ? t.danger
-        : primary
-            ? t.pinkStrong
-            : t.surface2;
+    final bg = danger ? t.danger : t.surface2;
+    // v0.30.0：主按钮使用主题图标渐变（iconMain → iconAccent），随主题切换
+    final isPrimary = primary && !danger;
     final fg = (danger || primary) ? Colors.white : t.text;
     return PressableScale(
       onTap: onTap,
@@ -274,7 +272,10 @@ class SugarButton extends StatelessWidget {
           vertical: compact ? 7 : 11,
         ),
         decoration: BoxDecoration(
-          color: bg,
+          color: isPrimary ? null : bg,
+          gradient: isPrimary
+              ? LinearGradient(colors: [t.iconMain, t.iconAccent])
+              : null,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -384,9 +385,9 @@ class SubjectChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
         decoration: BoxDecoration(
-          color: active ? t.pinkStrong : t.surface,
+          color: active ? t.iconMain : t.surface,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: active ? t.pinkStrong : t.border),
+          border: Border.all(color: active ? t.iconMain : t.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -395,7 +396,7 @@ class SubjectChip extends StatelessWidget {
               SugarIcon(
                 'sparkles',
                 size: 13,
-                color: active ? Colors.white : t.pinkStrong,
+                color: active ? Colors.white : t.iconMain,
               )
             else
               Container(

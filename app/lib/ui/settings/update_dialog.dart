@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -102,7 +102,7 @@ class _UpdateDialogState extends State<_UpdateDialog> {
         children: [
           Row(
             children: [
-              SugarIcon('download', size: 17, color: t.pinkStrong),
+              SugarIcon('download', size: 17, color: t.iconMain),
               const SizedBox(width: 6),
               Text(
                 '发现新版本 v${widget.update.version}',
@@ -154,7 +154,7 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                 value: _progress,
                 minHeight: 8,
                 backgroundColor: t.surface2,
-                color: t.pinkStrong,
+                color: t.iconMain,
               ),
             ),
             const SizedBox(height: 6),

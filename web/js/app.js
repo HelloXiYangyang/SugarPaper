@@ -352,7 +352,7 @@
     const offset = c * (1 - Math.min(rate, 100) / 100);
     return '<svg viewBox="0 0 100 100" style="width:74px;height:74px;flex:none">' +
       '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
-      '<stop offset="0" stop-color="var(--pink-strong)"/><stop offset="1" stop-color="var(--mint-strong)"/>' +
+      '<stop offset="0" stop-color="var(--icon-main, var(--pink-strong))"/><stop offset="1" stop-color="var(--icon-accent, var(--mint-strong))"/>' +
       '</linearGradient></defs>' +
       '<circle cx="50" cy="50" r="' + r + '" fill="none" stroke="var(--surface-3)" stroke-width="10"/>' +
       '<circle cx="50" cy="50" r="' + r + '" fill="none" stroke="url(#' + gid + ')" stroke-width="10" stroke-linecap="round" ' +

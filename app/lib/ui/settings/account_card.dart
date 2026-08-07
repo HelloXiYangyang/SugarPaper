@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -319,7 +319,7 @@ class _AccountCardState extends ConsumerState<AccountCard> {
       children: [
         Row(
           children: [
-            SugarIcon('globe', size: 16, color: t.pinkStrong),
+            SugarIcon('globe', size: 16, color: t.iconMain),
             const SizedBox(width: 8),
             Text(
               '账号与同步',
@@ -367,7 +367,7 @@ class _AccountCardState extends ConsumerState<AccountCard> {
                   color: t.pinkSoft,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: SugarIcon('user', size: 18, color: t.pinkStrong),
+                child: SugarIcon('user', size: 18, color: t.iconMain),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -515,7 +515,7 @@ class _AccountCardState extends ConsumerState<AccountCard> {
       padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
         children: [
-          SugarIcon(icon, size: 14, color: t.pinkStrong),
+          SugarIcon(icon, size: 14, color: t.iconMain),
           const SizedBox(width: 8),
           Expanded(
             child: Column(

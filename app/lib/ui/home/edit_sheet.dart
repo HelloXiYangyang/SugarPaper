@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -60,7 +60,11 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
             ? ref.read(appStateProvider).enabledSubjects.first.name
             : '默认');
     _priority = t?.priority ?? 1;
-    _dueDate = t?.dueDate ?? widget.initialDueDate;
+    // v0.30.0：新建作业默认当日；快捷规划可选明天/后天/本周/下周/长期
+    final now = DateTime.now();
+    _dueDate = t?.dueDate ??
+        widget.initialDueDate ??
+        DateTime(now.year, now.month, now.day);
     _images = [...?t?.images];
   }
 
@@ -81,6 +85,55 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
       helpText: '选择截止日期',
     );
     if (picked != null) setState(() => _dueDate = picked);
+  }
+
+  /// 截止日期快捷规划（由用户自主选择，不自动拆分）
+  DateTime? _quickDue(String kind) {
+    if (kind == 'long') return null;
+    final now = DateTime.now();
+    final base = DateTime(now.year, now.month, now.day);
+    final offset = switch (kind) {
+      'tomorrow' => 1,
+      'dayafter' => 2,
+      'week' => (7 - now.weekday) % 7, // 本周最后一天（周日）
+      'nextweek' => (7 - now.weekday) % 7 + 7, // 下周最后一天
+      _ => 0,
+    };
+    return base.add(Duration(days: offset));
+  }
+
+  bool _isQuickActive(String kind) {
+    final due = _dueDate;
+    if (kind == 'long') return due == null;
+    final target = _quickDue(kind);
+    if (due == null || target == null) return false;
+    return due.year == target.year &&
+        due.month == target.month &&
+        due.day == target.day;
+  }
+
+  Widget _quickChip(SugarThemeData t, String kind, String label) {
+    final active = _isQuickActive(kind);
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: () => setState(() => _dueDate = _quickDue(kind)),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+        decoration: BoxDecoration(
+          color: active ? t.iconSoft : t.surface2,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: active ? t.iconMain : t.border),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: active ? t.iconMain : t.text2,
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _pickImages() async {
@@ -165,7 +218,7 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
           Row(
             children: [
               SugarIcon(widget.task == null ? 'plus' : 'edit',
-                  size: 17, color: t.pinkStrong),
+                  size: 17, color: t.iconMain),
               const SizedBox(width: 6),
               Text(
                 widget.task == null ? '添加作业' : '编辑作业',
@@ -244,6 +297,22 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final (kind, label) in [
+                ('today', '今天'),
+                ('tomorrow', '明天'),
+                ('dayafter', '后天'),
+                ('week', '本周内'),
+                ('nextweek', '下周'),
+                ('long', '长期'),
+              ])
+                _quickChip(t, kind, label),
+            ],
+          ),
           if (_images.isNotEmpty) ...[
             const SizedBox(height: 14),
             SizedBox(
@@ -309,7 +378,7 @@ class _EditSheetState extends ConsumerState<_EditSheet> {
                         child: SugarIcon(
                           'image',
                           size: 20,
-                          color: t.pinkStrong,
+                          color: t.iconMain,
                         ),
                       ),
                     ),
@@ -404,7 +473,7 @@ class _Picker extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SugarIcon(icon, size: 13, color: t.pinkStrong),
+            SugarIcon(icon, size: 13, color: t.iconMain),
             const SizedBox(width: 5),
             Text(
               label,

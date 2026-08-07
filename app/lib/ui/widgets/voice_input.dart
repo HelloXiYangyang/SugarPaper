@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -81,12 +81,12 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: _listening ? t.pinkStrong : t.surface2,
+          color: _listening ? t.iconMain : t.surface2,
           borderRadius: BorderRadius.circular(11),
           boxShadow: _listening
               ? [
                   BoxShadow(
-                    color: t.pinkStrong.withValues(alpha: 0.5),
+                    color: t.iconMain.withValues(alpha: 0.5),
                     blurRadius: 10,
                   ),
                 ]
@@ -98,7 +98,7 @@ class _VoiceInputButtonState extends State<VoiceInputButton> {
             SugarIcon(
               _listening ? 'close' : 'sparkles',
               size: 16,
-              color: _listening ? Colors.white : t.pinkStrong,
+              color: _listening ? Colors.white : t.iconMain,
             ),
             if (_listening)
               Positioned(

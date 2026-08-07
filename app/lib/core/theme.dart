@@ -42,6 +42,11 @@ class SugarThemeData {
   final Color dangerSoft;
   final Color success;
 
+  // v0.30.0：主题化图标配色（图标主体不变，颜色随主题切换）
+  final Color iconMain;
+  final Color iconAccent;
+  final Color iconSoft;
+
   const SugarThemeData({
     required this.dark,
     required this.bg,
@@ -76,6 +81,9 @@ class SugarThemeData {
     required this.dangerStrong,
     required this.dangerSoft,
     required this.success,
+    required this.iconMain,
+    required this.iconAccent,
+    required this.iconSoft,
   });
 
   /// 从 16 进制色串解析颜色。
@@ -110,6 +118,9 @@ class SugarThemeData {
     Color yellowStrong = const Color(0xFFD9A94A),
     Color yellowSoft = const Color(0xFFFDF4DC),
     Color success = const Color(0xFF5FB894),
+    Color iconMain = const Color(0xFFE292B4),
+    Color iconAccent = const Color(0xFF8F89D9),
+    Color iconSoft = const Color(0xFFFBE4EC),
   }) {
     return SugarThemeData(
       dark: false,
@@ -145,6 +156,9 @@ class SugarThemeData {
       dangerStrong: const Color(0xFFD96A6A),
       dangerSoft: const Color(0xFFFBE6E6),
       success: success,
+      iconMain: iconMain,
+      iconAccent: iconAccent,
+      iconSoft: iconSoft,
     );
   }
 
@@ -184,6 +198,9 @@ class SugarThemeData {
       dangerStrong: Color(0xFFE89A9A),
       dangerSoft: Color(0xFF452F2F),
       success: Color(0xFF8FD4B4),
+      iconMain: Color(0xFFE6A6C0),
+      iconAccent: Color(0xFF9CC3E2),
+      iconSoft: Color(0xFF4A3345),
     );
   }
 
@@ -214,6 +231,9 @@ class SugarThemeData {
           yellowStrong: hex('#CBAB4C'),
           yellowSoft: hex('#FAF3DB'),
           success: hex('#55B39A'),
+          iconMain: hex('#55B39A'),
+          iconAccent: hex('#5FA8C9'),
+          iconSoft: hex('#DDF2EA'),
         );
       case 'sunshine':
         return light(
@@ -239,6 +259,9 @@ class SugarThemeData {
           yellowStrong: hex('#D1A846'),
           yellowSoft: hex('#FAF2D8'),
           success: hex('#B0B255'),
+          iconMain: hex('#E8A85F'),
+          iconAccent: hex('#D1A846'),
+          iconSoft: hex('#FCEEDD'),
         );
       case 'rose':
         return light(
@@ -264,6 +287,9 @@ class SugarThemeData {
           yellowStrong: hex('#CFA44E'),
           yellowSoft: hex('#FAF1DA'),
           success: hex('#63B294'),
+          iconMain: hex('#E2889B'),
+          iconAccent: hex('#D18AA6'),
+          iconSoft: hex('#FCE6EA'),
         );
       case 'lavender':
         return light(
@@ -289,6 +315,9 @@ class SugarThemeData {
           yellowStrong: hex('#CDA94E'),
           yellowSoft: hex('#FAF3DB'),
           success: hex('#5FB894'),
+          iconMain: hex('#9F8FE0'),
+          iconAccent: hex('#7F8FD4'),
+          iconSoft: hex('#EFEBFB'),
         );
       case 'mint':
         return light(
@@ -314,6 +343,9 @@ class SugarThemeData {
           yellowStrong: hex('#CBAB54'),
           yellowSoft: hex('#FAF4DF'),
           success: hex('#5FB894'),
+          iconMain: hex('#6FC79B'),
+          iconAccent: hex('#5FB894'),
+          iconSoft: hex('#E4F5E9'),
         );
       case 'dark':
         return darkTheme();

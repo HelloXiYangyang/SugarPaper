@@ -56,6 +56,11 @@
   --font: "PingFang SC", "Microsoft YaHei", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --header-h: 62px;
   --bottom-nav-h: 62px;
+
+  /* v0.30.0：主题化图标配色（图标主体不变，颜色随主题切换） */
+  --icon-main: #E292B4;
+  --icon-accent: #8F89D9;
+  --icon-soft: #FBE4EC;
 }
 
 html[data-theme="dark"] {
@@ -92,6 +97,9 @@ html[data-theme="dark"] {
   --danger-strong: #E89A9A;
   --danger-soft: #452F2F;
   --success: #8FD4B4;
+  --icon-main: #E6A6C0;
+  --icon-accent: #9CC3E2;
+  --icon-soft: #4A3345;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.42);
@@ -115,6 +123,7 @@ html[data-palette="bluegreen"] {
   --peach: #F6D9B2; --peach-strong: #E2A468; --peach-soft: #FCEFE0;
   --yellow: #F2E3A8; --yellow-strong: #CBAB4C; --yellow-soft: #FAF3DB;
   --success: #55B39A;
+  --icon-main: #55B39A; --icon-accent: #5FA8C9; --icon-soft: #DDF2EA;
 }
 /* ---------- 阳光黄桃 ---------- */
 html[data-palette="sunshine"] {
@@ -128,6 +137,7 @@ html[data-palette="sunshine"] {
   --peach: #F9C9A8; --peach-strong: #E2976B; --peach-soft: #FCE8DA;
   --yellow: #F7E2A2; --yellow-strong: #D1A846; --yellow-soft: #FAF2D8;
   --success: #B0B255;
+  --icon-main: #E8A85F; --icon-accent: #D1A846; --icon-soft: #FCEEDD;
 }
 /* ---------- 玫瑰粉 ---------- */
 html[data-palette="rose"] {
@@ -141,6 +151,7 @@ html[data-palette="rose"] {
   --peach: #F6C8B0; --peach-strong: #E08E68; --peach-soft: #FCE8DC;
   --yellow: #F6E0AE; --yellow-strong: #CFA44E; --yellow-soft: #FAF1DA;
   --success: #63B294;
+  --icon-main: #E2889B; --icon-accent: #D18AA6; --icon-soft: #FCE6EA;
 }
 /* ---------- 梦幻紫 ---------- */
 html[data-palette="lavender"] {
@@ -154,6 +165,7 @@ html[data-palette="lavender"] {
   --peach: #F2C4D8; --peach-strong: #D98FAC; --peach-soft: #F9E8EF;
   --yellow: #F4E2A8; --yellow-strong: #CDA94E; --yellow-soft: #FAF3DB;
   --success: #5FB894;
+  --icon-main: #9F8FE0; --icon-accent: #7F8FD4; --icon-soft: #EFEBFB;
 }
 html[data-palette="mint"] {
   --bg: #F1FAF4;
@@ -166,4 +178,5 @@ html[data-palette="mint"] {
   --peach: #F6D9C4; --peach-strong: #E3A076; --peach-soft: #FCEEE3;
   --yellow: #F2E6B8; --yellow-strong: #CBAB54; --yellow-soft: #FAF4DF;
   --success: #5FB894;
+  --icon-main: #6FC79B; --icon-accent: #5FB894; --icon-soft: #E4F5E9;
 }

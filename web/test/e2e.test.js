@@ -188,6 +188,29 @@ async function main() {
   await page.locator('.chip[data-subject="全部"]').click();
   await page.waitForTimeout(200);
 
+  console.log('📆 截止日期快捷规划（v0.30.0）');
+  await page.evaluate(() => window.Sugar.ui.modal.openEdit());
+  await page.waitForTimeout(300);
+  const dueToday = await page.evaluate(() => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  });
+  check('新建作业默认截止为今天', (await page.locator('#edit-due').inputValue()) === dueToday, await page.locator('#edit-due').inputValue());
+  await page.locator('#due-quick [data-due="tomorrow"]').click();
+  await page.waitForTimeout(150);
+  const dueTomorrow = await page.evaluate(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  });
+  check('点「明天」截止日期变为明天', (await page.locator('#edit-due').inputValue()) === dueTomorrow);
+  check('「明天」快捷按钮高亮', await page.locator('#due-quick [data-due="tomorrow"].active').count() === 1);
+  await page.locator('#due-quick [data-due="long"]').click();
+  await page.waitForTimeout(150);
+  check('点「长期」不设截止日期', (await page.locator('#edit-due').inputValue()) === '');
+  await page.locator('.modal-foot [data-action="cancel"]').click();
+  await page.waitForTimeout(150);
+
   console.log('🎬 动态动画');
   const dirLeft = await page.evaluate(() => {
     window.App.navigate('calendar');
@@ -312,9 +335,19 @@ async function main() {
   check('切到清新蓝绿生效', await page.evaluate(() => document.documentElement.dataset.palette === 'bluegreen'));
   const paletteBg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   check('背景色随配色变化', paletteBg === 'rgb(242, 250, 247)');
+  const navColorBluegreen = await page.evaluate(() => {
+    const el = document.querySelector('.bottom-nav button.active');
+    return el ? getComputedStyle(el).color : null;
+  });
+  check('图标颜色随主题切换（蓝绿主题图标色）', navColorBluegreen === 'rgb(85, 179, 154)', String(navColorBluegreen));
   await page.locator('[data-theme-swatch="classic"]').click();
   await page.waitForTimeout(250);
   check('恢复经典白', await page.evaluate(() => document.documentElement.dataset.theme === 'light' && document.documentElement.dataset.palette === 'classic'));
+  const navColorClassic = await page.evaluate(() => {
+    const el = document.querySelector('.bottom-nav button.active');
+    return el ? getComputedStyle(el).color : null;
+  });
+  check('图标颜色随主题恢复（经典粉）', navColorClassic === 'rgb(226, 146, 180)', String(navColorClassic));
 
   console.log('🧑‍🏫 教师模式（S11）');
   await page.locator('[data-action="open-teacher"]').click();

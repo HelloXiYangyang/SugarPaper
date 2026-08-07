@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -143,7 +143,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         accent: g.key == 'overdue'
                             ? t.dangerStrong
                             : g.key == 'today'
-                                ? t.pinkStrong
+                                ? t.iconMain
                                 : t.skyStrong,
                       ),
                       ...g.tasks.map((task) => Padding(
@@ -290,7 +290,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   color: t.pinkSoft,
                   borderRadius: BorderRadius.circular(11),
                 ),
-                child: SugarIcon('plus', size: 18, color: t.pinkStrong),
+                child: SugarIcon('plus', size: 18, color: t.iconMain),
               ),
             ),
             const SizedBox(width: 8),
@@ -584,7 +584,7 @@ class _ConfettiOverlayState extends State<_ConfettiOverlay>
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w800,
-                          color: t.pinkStrong,
+                          color: t.iconMain,
                         ),
                       ),
                       Text(

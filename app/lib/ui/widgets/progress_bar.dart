@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -64,9 +64,9 @@ class _ShimmerProgressBarState extends ConsumerState<ShimmerProgressBar>
                   borderRadius: BorderRadius.circular(999),
                   gradient: LinearGradient(
                     colors: [
-                      t.pinkStrong,
+                      t.iconMain,
                       t.mintStrong,
-                      t.pinkStrong,
+                      t.iconMain,
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     transform: _SlideGradientTransform(start, barWidth),

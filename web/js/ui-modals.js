@@ -271,7 +271,16 @@
       '<div class="field"><label>作业内容</label><input type="text" id="edit-title" placeholder="例如：试卷一张"></div>' +
       '<div class="field"><label>附加描述（可选）</label><input type="text" id="edit-subtitle" placeholder="例如：写在一张纸上，周一收"></div>' +
       '<div class="field-row">' +
-      '<div class="field"><label>截止日期</label><input type="date" id="edit-due"></div>' +
+      '<div class="field"><label>截止日期（快捷规划）</label>' +
+      '<div class="due-quick" id="due-quick">' +
+      '<button type="button" data-due="today">今天</button>' +
+      '<button type="button" data-due="tomorrow">明天</button>' +
+      '<button type="button" data-due="dayafter">后天</button>' +
+      '<button type="button" data-due="week">本周内</button>' +
+      '<button type="button" data-due="nextweek">下周</button>' +
+      '<button type="button" data-due="long">长期</button>' +
+      '</div>' +
+      '<input type="date" id="edit-due"></div>' +
       (existing ? '<div class="field" style="display:flex;align-items:flex-end;padding-bottom:8px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="edit-done" style="width:16px;height:16px"> 已完成</label></div>' : '') +
       '</div>' +
       '<div class="field"><label>作业图片（可选，最多 4 张 · 拍照存档）</label>' +
@@ -291,6 +300,47 @@
       });
     }
     setPrio(prio);
+
+    // v0.30.0：截止日期快捷规划（今天/明天/后天/本周内/下周/长期），由用户自主选择
+    const dueInput = () => dlg.bodyEl.querySelector('#edit-due');
+    const dueBtns = () => dlg.bodyEl.querySelectorAll('#due-quick [data-due]');
+    function fmtDay(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+    function dueValue(kind) {
+      const now = new Date();
+      const day = (n) => { const d = new Date(now); d.setDate(d.getDate() + n); return fmtDay(d); };
+      if (kind === 'today') return day(0);
+      if (kind === 'tomorrow') return day(1);
+      if (kind === 'dayafter') return day(2);
+      if (kind === 'week') return day((7 - now.getDay()) % 7); // 本周最后一天（周日）
+      if (kind === 'nextweek') return day((7 - now.getDay()) % 7 + 7); // 下周最后一天
+      return null; // 长期：不设截止日期
+    }
+    function highlightDue() {
+      const v = dueInput() ? dueInput().value : '';
+      const now = new Date();
+      const day = (n) => { const d = new Date(now); d.setDate(d.getDate() + n); return fmtDay(d); };
+      const map = {
+        today: day(0),
+        tomorrow: day(1),
+        dayafter: day(2),
+        week: day((7 - now.getDay()) % 7),
+        nextweek: day((7 - now.getDay()) % 7 + 7)
+      };
+      dueBtns().forEach((b) => {
+        const kind = b.dataset.due;
+        const hit = kind === 'long' ? !v : map[kind] === v;
+        b.classList.toggle('active', hit);
+      });
+    }
+    dueBtns().forEach((b) => {
+      b.addEventListener('click', () => {
+        dueInput().value = dueValue(b.dataset.due) || '';
+        highlightDue();
+      });
+    });
+
     let taskImages = existing ? (existing.images || []).slice() : [];
     const taskImagesEl = () => dlg.bodyEl.querySelector('#task-images');
     function renderTaskImages() {
@@ -332,7 +382,11 @@
       dlg.bodyEl.querySelector('#edit-done').checked = existing.isCompleted;
     } else if (defaults.dueDate) {
       dlg.bodyEl.querySelector('#edit-due').value = defaults.dueDate;
+    } else {
+      // 新建作业默认当日
+      dlg.bodyEl.querySelector('#edit-due').value = dueValue('today');
     }
+    highlightDue();
     if (defaults.subject) {
       try { dlg.bodyEl.querySelector('#edit-subject').value = defaults.subject; } catch (e) { /* 忽略 */ }
     }

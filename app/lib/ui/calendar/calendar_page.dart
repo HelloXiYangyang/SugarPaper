@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -52,7 +52,7 @@ class CalendarPage extends ConsumerWidget {
     final selected = state.calSelected;
     return Row(
       children: [
-        SugarIcon('calendar', size: 17, color: t.pinkStrong),
+        SugarIcon('calendar', size: 17, color: t.iconMain),
         const SizedBox(width: 6),
         Text(
           '${selected.year}年 ${selected.month}月',
@@ -210,7 +210,7 @@ class _Segmented extends StatelessWidget {
                   SugarIcon(
                     o.$1 == 'month' ? 'calendar' : 'list',
                     size: 12,
-                    color: active ? t.pinkStrong : t.text3,
+                    color: active ? t.iconMain : t.text3,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -218,7 +218,7 @@ class _Segmented extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                      color: active ? t.pinkStrong : t.text3,
+                      color: active ? t.iconMain : t.text3,
                     ),
                   ),
                 ],
@@ -320,14 +320,14 @@ class _MonthGrid extends ConsumerWidget {
                   duration: const Duration(milliseconds: 180),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? t.pinkStrong
+                        ? t.iconMain
                         : isToday
                             ? t.pinkSoft
                             : t.surface,
                     borderRadius: BorderRadius.circular(11),
                     border: Border.all(
                       color: isSelected
-                          ? t.pinkStrong
+                          ? t.iconMain
                           : isToday
                               ? t.pink
                               : t.border,
@@ -345,7 +345,7 @@ class _MonthGrid extends ConsumerWidget {
                           color: isSelected
                               ? Colors.white
                               : isToday
-                                  ? t.pinkStrong
+                                  ? t.iconMain
                                   : t.text,
                         ),
                       ),
@@ -471,7 +471,7 @@ class _WeekView extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: isToday ? t.pinkStrong : t.text2,
+                      color: isToday ? t.iconMain : t.text2,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -551,7 +551,7 @@ class _DayList extends ConsumerWidget {
       children: [
         Row(
           children: [
-            SugarIcon('list', size: 15, color: t.pinkStrong),
+            SugarIcon('list', size: 15, color: t.iconMain),
             const SizedBox(width: 6),
             Text(
               '${isToday ? '今天' : '${date.month}月${date.day}日'} 的任务',

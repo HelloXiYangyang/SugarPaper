@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -83,14 +83,14 @@ class _SugarSwitchState extends State<SugarSwitch>
               borderRadius: BorderRadius.circular(height / 2),
               gradient: LinearGradient(
                 colors: [
-                  t.pinkStrong.withValues(alpha: 0.45),
+                  t.iconMain.withValues(alpha: 0.45),
                   t.mintStrong.withValues(alpha: 0.45),
                 ],
               ),
               boxShadow: [
                 if (_glow.value > 0.01)
                   BoxShadow(
-                    color: t.pinkStrong.withValues(alpha: 0.35 * _glow.value),
+                    color: t.iconMain.withValues(alpha: 0.35 * _glow.value),
                     blurRadius: 8,
                     spreadRadius: 1,
                   ),
@@ -107,7 +107,7 @@ class _SugarSwitchState extends State<SugarSwitch>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(height / 2),
                     color: widget.value
-                        ? t.pinkStrong.withValues(alpha: 0.9)
+                        ? t.iconMain.withValues(alpha: 0.9)
                         : t.surface3.withValues(alpha: 0.55),
                   ),
                 ),

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2026 HelloXiYangyang
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
@@ -47,7 +47,7 @@ class NotesPage extends ConsumerWidget {
       children: [
         Row(
           children: [
-            SugarIcon('list', size: 17, color: t.pinkStrong),
+            SugarIcon('list', size: 17, color: t.iconMain),
             const SizedBox(width: 6),
             Text(
               '便签',
@@ -316,7 +316,7 @@ class _NoteCard extends StatelessWidget {
                   if (note.pinned)
                     Padding(
                       padding: const EdgeInsets.only(right: 6),
-                      child: SugarIcon('pin', size: 14, color: t.pinkStrong),
+                      child: SugarIcon('pin', size: 14, color: t.iconMain),
                     ),
                   _miniIcon(context, 'edit', () => onTap()),
                 ],
@@ -608,7 +608,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
                 SugarIcon(
                   widget.note == null ? 'plus' : 'edit',
                   size: 17,
-                  color: t.pinkStrong,
+                  color: t.iconMain,
                 ),
                 const SizedBox(width: 6),
                 Text(
@@ -672,7 +672,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
                           _content.text,
                           text: t.text,
                           text2: t.text2,
-                          accent: t.pinkStrong,
+                          accent: t.iconMain,
                         ),
                       ),
               )
@@ -718,7 +718,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
                       color: SugarThemeData.hex(c),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: active ? t.pinkStrong : Colors.transparent,
+                        color: active ? t.iconMain : Colors.transparent,
                         width: 2.5,
                       ),
                     ),
@@ -729,7 +729,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
             const SizedBox(height: 12),
             Row(
               children: [
-                SugarIcon('bell', size: 15, color: t.pinkStrong),
+                SugarIcon('bell', size: 15, color: t.iconMain),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -827,7 +827,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
                           child: SugarIcon(
                             'image',
                             size: 20,
-                            color: t.pinkStrong,
+                            color: t.iconMain,
                           ),
                         ),
                       ),
@@ -879,7 +879,7 @@ class _NoteEditorState extends ConsumerState<_NoteEditor> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: active ? t.pinkStrong : t.surface2,
+          color: active ? t.iconMain : t.surface2,
           borderRadius: BorderRadius.circular(9),
         ),
         child: Text(

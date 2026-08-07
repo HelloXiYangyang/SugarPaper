@@ -4,7 +4,7 @@
 name: sugarpaper
 description: 糖纸 · SugarPaper —— 全平台作业管理助手（安卓版）
 publish_to: "none"
-version: 0.29.0+48
+version: 0.30.0+49
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
