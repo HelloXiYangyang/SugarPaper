@@ -1,3 +1,6 @@
+# Copyright (C) 2026 HelloXiYangyang
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.13)
 project(runner LANGUAGES CXX)

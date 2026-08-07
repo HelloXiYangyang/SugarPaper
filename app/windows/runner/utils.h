@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
 #ifndef RUNNER_UTILS_H_
 #define RUNNER_UTILS_H_
 

@@ -1,3 +1,6 @@
+// Copyright (C) 2026 HelloXiYangyang
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // Application-level settings for the Runner target.
 //
 // This may be replaced with something auto-generated from metadata (e.g., pubspec.yaml) in the
