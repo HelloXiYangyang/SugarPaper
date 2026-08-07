@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   android:
@@ -159,7 +160,8 @@ jobs:
           SHA: ${{ steps.meta.outputs.sha }}
           VER: ${{ steps.meta.outputs.ver }}
         run: |
-          BUILD=$(grep '^version:' app/pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/')
+          # 必须 export，node 子进程才能通过 process.env.BUILD 读取
+          export BUILD=$(grep '^version:' app/pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/')
           node - <<'EOF'
           const fs = require('fs');
           const path = 'updates/latest.json';
@@ -178,3 +180,5 @@ jobs:
           # 标签触发的 checkout 处于 detached HEAD，没有本地 main 分支引用，
           # 必须显式把当前提交推送到 main，否则回写 latest.json 会失败。
           git push origin HEAD:main
+          # GITHUB_TOKEN 的 push 不会触发 on:push 工作流，需显式触发 Pages 部署
+          gh workflow run deploy-pages.yml --ref main || true
