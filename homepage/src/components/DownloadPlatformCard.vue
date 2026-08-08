@@ -36,7 +36,7 @@ const props = defineProps({
 
 <style scoped lang="scss">
 .download-platform-card {
-  height: 100%;
+  height: auto; /* 保持 auto，让外层 flex 容器的 stretch 把所有卡片拉伸到等高 */
 }
 
 .download-card-content {
