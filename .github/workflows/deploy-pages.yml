@@ -1,3 +1,6 @@
+# Copyright (C) 2026 HelloXiYangyang
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 name: Deploy Pages
 
 on:
@@ -20,15 +23,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 组装站点（官网 → 根路径，网页版 → /app/，元数据 → /updates/）
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 构建官网（Vue 3 + Vuetify + vite-ssg）
+        working-directory: homepage
+        run: |
+          corepack enable
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: 构建文档站（VuePress 2 + Theme Hope）
+        working-directory: docs-src
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm docs:build
+
+      - name: 组装站点（官网 → 根路径，文档 → /docs/，网页版 → /app/，元数据 → /updates/）
         run: |
           mkdir -p _site
-          cp -r site/* _site/
+          cp -r homepage/dist/* _site/
+          cp -r docs-src/src/.vuepress/dist _site/docs
           cp -r web _site/app
           cp -r updates _site/updates
 
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
       - uses: actions/deploy-pages@v4
