@@ -29,6 +29,8 @@ jobs:
 
       - name: 构建官网（Vue 3 + Vuetify + vite-ssg）
         working-directory: homepage
+        env:
+          HUSKY: 0
         run: |
           corepack enable
           yarn install --frozen-lockfile
