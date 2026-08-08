@@ -171,6 +171,10 @@ async function main() {
     await page.locator('.bottom-nav button.nav-focus').count() === 0 &&
     await page.locator('.bottom-nav button svg.ico').count() === 6);
   check('顶栏品牌 Logo 使用应用图标', await page.locator('#topbar .brand img.brand-logo[src="icon.svg"]').count() === 1);
+  check('浏览器标签页图标为软件 Logo（icon.svg）', await page.evaluate(() => {
+    const link = document.querySelector('link[rel="icon"]');
+    return !!link && /icon\.svg/.test(link.getAttribute('href') || '');
+  }));
   check('加载示例后共有 9 张任务卡', await page.locator('.task-card').count() === 9);
   check('进度胶囊显示 33%', (await page.locator('.progress-pill').innerText()).includes('33%'));
   check('进行中任务合计 6 项', await page.locator('.task-card:not(.completed)').count() === 6);
