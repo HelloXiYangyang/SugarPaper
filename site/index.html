@@ -8,11 +8,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>糖纸 · SugarPaper — 作业管理小助手</title>
-  <meta name="description" content="糖纸 · SugarPaper 是一款离线优先的跨平台作业管理小助手：秒级录入、截止分级、番茄专注、日历统计，全部本地可用、端到端加密同步。">
-  <meta name="keywords" content="糖纸,SugarPaper,作业管理,作业清单,番茄钟,白噪音,截止提醒,离线,端到端加密">
-  <meta property="og:title" content="糖纸 · SugarPaper — 作业管理小助手">
-  <meta property="og:description" content="让作业管理像糖果一样甜美简单：秒级录入、截止分级、番茄专注、私有同步。">
+  <title>糖纸 · SugarPaper — 一款功能强、可定制、跨平台的作业管理小助手</title>
+  <meta name="description" content="糖纸 · SugarPaper 是一款离线优先的跨平台作业管理小助手：粘贴自动解析、截止分级、番茄专注、白噪音、便签提醒、日历统计、激励体系、好友直连与端到端加密同步，支持 Android、Web PWA 与 Windows 桌面版。">
+  <meta name="keywords" content="糖纸,SugarPaper,作业管理,作业清单,番茄钟,白噪音,截止提醒,秒级录入,教师模式,统计报告,激励,连胜,徽章,好友直连,端到端加密,离线,零服务器,Android,Windows,PWA,开源">
+  <meta property="og:title" content="糖纸 · SugarPaper — 一款功能强、可定制、跨平台的作业管理小助手">
+  <meta property="og:description" content="让作业管理像糖果一样甜美简单：秒级录入、截止分级、番茄专注、私有同步、好友直连。">
   <meta property="og:image" content="assets/icon.svg">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/theme.css">
@@ -87,6 +87,9 @@
             <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/LICENSE" target="_blank" rel="noopener">
               <img src="https://img.shields.io/github/license/HelloXiYangyang/SugarPaper?style=flat-square" alt="开源许可证">
             </a>
+            <a href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">
+              <img src="https://img.shields.io/github/v/release/HelloXiYangyang/SugarPaper?style=flat-square" alt="最新版本">
+            </a>
           </div>
           <div class="d-flex ga-4 flex-wrap mt-8 intro-seq" style="--intro-delay:280ms;">
             <a class="fluent-button fluent-button--primary" href="#download">
@@ -109,7 +112,7 @@
             </a>
           </div>
           <p class="mt-4 platform-requirement intro-seq" style="--intro-delay:330ms;">
-            支持在 Android · Web PWA 上运行，Windows 工程就绪，鸿蒙 / 微信小程序规划中。
+            支持在 Android · Web PWA · Windows 上运行，鸿蒙 / 微信小程序规划中。
           </p>
         </div>
         <div class="img-col">
@@ -123,82 +126,315 @@
       </div>
     </div>
 
-    <!-- ======== 核心功能 · 功能强 ======== -->
+    <!-- ======== 内容板块一：功能强 ======== -->
     <div class="content" id="features">
       <div class="margin-x">
         <div class="headline-wrap text-center">
           <h2 class="headline-feature">一款<span class="gradient-base" style="background-image: linear-gradient(135deg, #01FFFD, #00bdfd);">功能强</span>的作业管理助手</h2>
-          <p class="opacity-75 section-sub">以下功能均已在网页版与安卓版实现，详见 README 功能清单</p>
+          <p class="opacity-75 section-sub">网页版、安卓版与 Windows 版功能完全对齐，以下均已在 v0.33.0 实现</p>
         </div>
-        <div class="feature-grid feature-grid--cyan">
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 9h2a3 3 0 0 1 0 6h-2"/><path d="M7 3v2M11 3v2M15 3v2"/></svg></div>
-              <h3 class="fluent-card__title">秒级录入</h3>
+
+        <div class="feature-block reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #66ccff;">#主界面</p>
+              <h3 class="feature-header">直观的信息显示</h3>
             </div>
-            <div class="fluent-card__content">粘贴老师消息自动解析为结构化作业清单；支持 .txt / .md 文件导入、拖拽文本与语音速记（zh-CN）。</div>
+            <p class="feature-block__desc">
+              打开糖纸，今日作业、完成进度、连胜激励与科目筛选一览无余。已逾期作业自动置顶标红并显示逾期天数，
+              今天 / 明天 / 本周 / 长期自动分组，一眼就能看清先做哪件事、还剩多少时间。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">今日概览</span>
+              <span class="feature-point">逾期置顶标红</span>
+              <span class="feature-point">截止自动分级</span>
+              <span class="feature-point">科目筛选</span>
+              <span class="feature-point">完成进度环</span>
+            </div>
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
-              <h3 class="fluent-card__title">截止分级</h3>
-            </div>
-            <div class="fluent-card__content">已逾期 / 今天 / 明天 / 本周 / 长期自动分组，逾期置顶标红并显示逾期天数。</div>
+          <div class="feature-block__media">
+            <figure class="media-shot">
+              <img src="assets/screenshots/home-desktop.png" loading="lazy" width="1200" height="800" alt="主界面：今日概览与作业清单">
+              <figcaption class="media-caption">主界面：今日概览 + 作业清单（网页版 / Windows 桌面版同源界面）</figcaption>
+            </figure>
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
-              <h3 class="fluent-card__title">日历与统计</h3>
+        </div>
+
+        <div class="feature-block feature-block--reverse reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #7CFC8D;">#秒级录入</p>
+              <h3 class="feature-header">把老师的话变成作业清单</h3>
             </div>
-            <div class="fluent-card__content">月 / 周视图、考试便签标记、专注分钟标签；进度环 / 柱状 / 饼图 / 折线图、准时率与科目欠账排行，可导出 TXT 或 PNG。</div>
+            <p class="feature-block__desc">
+              直接粘贴老师在群里发的作业消息，糖纸自动解析为结构化作业（科目 / 标题 / 截止日期 / 优先级），
+              逐条核对后一键加入清单。也支持 .txt / .md 文件导入与中文语音速记；教师模式还能把作业一键生成标准文本发回班级群，
+              学生粘贴即可秒级导入，从此告别手抄。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">粘贴自动解析</span>
+              <span class="feature-point">.txt / .md 导入</span>
+              <span class="feature-point">语音速记</span>
+              <span class="feature-point">教师模式一键生成</span>
+              <span class="feature-point">图片附件</span>
+            </div>
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c.8 2.5-.8 3.7-.8 5.5a2.8 2.8 0 0 0 5.6 0C19 9.5 21 12.5 21 16a9 9 0 1 1-18 0c0-3.5 2-6.5 2-6.5s1.4 1.2 1.4 3A5.4 5.4 0 0 1 12 2z"/></svg></div>
-              <h3 class="fluent-card__title">番茄专注</h3>
-            </div>
-            <div class="fluent-card__content">番茄钟四档预设 + 9 种白噪音环境、自定义声音上传、主 / 叠加双音轨混音、呼吸引导与今日专注统计。</div>
+          <div class="feature-block__media">
+            <figure class="media-shot">
+              <img src="assets/screenshots/import-modal.png" loading="lazy" width="1200" height="800" alt="导入预览：粘贴文本自动解析为作业条目">
+              <figcaption class="media-caption">导入预览：解析结果逐条核对后一键加入</figcaption>
+            </figure>
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
-              <h3 class="fluent-card__title">便签与提醒</h3>
+        </div>
+
+        <div class="feature-block reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #FFB802;">#专注模式</p>
+              <h3 class="feature-header">番茄钟与白噪音</h3>
             </div>
-            <div class="fluent-card__content">便签支持 Markdown、待办清单一键转作业、图片附件；作业截止与便签定时提醒，时间可自定义，本地通知同条只提醒一次。</div>
+            <p class="feature-block__desc">
+              番茄钟提供四档时长预设，搭配 9 种内置白噪音环境与呼吸引导，进入状态只需一次点击。
+              支持上传自己的声音（≤2MB）作为主场景或叠加场景，主 / 叠加音量独立调节，场景氛围渐变随声音同步切换；
+              今日专注分钟数与番茄数在专注页顶部实时更新，与统计页联动。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">四档番茄钟</span>
+              <span class="feature-point">9 种白噪音</span>
+              <span class="feature-point">自定义声音</span>
+              <span class="feature-point">双音轨混音</span>
+              <span class="feature-point">呼吸引导</span>
+              <span class="feature-point">今日专注统计</span>
+            </div>
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 5.7 4 9s-1.5 6.4-4 9c-2.5-2.6-4-5.7-4-9s1.5-6.4 4-9z"/></svg></div>
-              <h3 class="fluent-card__title">私有同步</h3>
+          <div class="feature-block__media">
+            <figure class="media-shot">
+              <img src="assets/screenshots/focus-page-wide.png" loading="lazy" width="1200" height="800" alt="专注模式：番茄钟与白噪音场景">
+              <figcaption class="media-caption">专注模式：场景氛围 + 番茄钟倒计时</figcaption>
+            </figure>
+            <div class="demo-placeholder">
+              <div class="demo-placeholder__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5z"/></svg>
+              </div>
+              <div class="demo-placeholder__title">动画演示占位：专注模式操作演示</div>
+              <div class="demo-placeholder__desc">
+                建议录制内容：进入专注页 → 选择「雨声」场景 → 开始 25 分钟专注 → 倒计时动画 → 完成后专注统计更新。
+                录好后保存为 <code>site/assets/demos/focus-demo.mp4</code> 并告知我，即可替换本占位。
+              </div>
             </div>
-            <div class="fluent-card__content">12 词助记词即账号，AES-256-GCM 端到端加密 + Ed25519 签名；Nostr 中继或 WebRTC 直连，网页版与安卓版可跨端互通。</div>
+            <!-- TODO: 提供 site/assets/demos/focus-demo.mp4 后替换上方占位为：
+            <video class="demo-video" src="assets/demos/focus-demo.mp4" controls preload="metadata" poster="assets/screenshots/focus-page-wide.png"></video>
+            -->
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
-              <h3 class="fluent-card__title">拍照存档</h3>
+        </div>
+
+        <div class="feature-block feature-block--reverse reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #FF8AA5;">#便签与提醒</p>
+              <h3 class="feature-header">醒目的提醒系统</h3>
             </div>
-            <div class="fluent-card__content">作业可附最多 4 张图片（自动压缩至最长边 512px，仅存本机），卡片缩略图 + 点击查看大图。</div>
+            <p class="feature-block__desc">
+              便签支持 Markdown 排版、待办清单与图片附件，待办勾选后还可一键转为作业。
+              提醒时间可自定义（前一晚 / 当天早上），到点通过系统通知提醒，同一提醒只弹一次，不打扰也不遗漏；
+              Android 8.0+ 自动适配系统通知渠道，Windows 桌面版使用原生 toast 展示。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">Markdown 便签</span>
+              <span class="feature-point">待办一键转作业</span>
+              <span class="feature-point">图片附件</span>
+              <span class="feature-point">定时提醒</span>
+              <span class="feature-point">本地通知</span>
+            </div>
           </div>
-          <div class="fluent-card feature-card reveal">
-            <div class="fluent-card__header">
-              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
-              <h3 class="fluent-card__title">教师与家庭模式</h3>
+          <div class="feature-block__media">
+            <figure class="media-shot">
+              <img src="assets/screenshots/notes-desktop.png" loading="lazy" width="1200" height="800" alt="便签页：Markdown 便签与待办清单">
+              <figcaption class="media-caption">便签页：Markdown 排版 + 待办清单</figcaption>
+            </figure>
+            <div class="demo-placeholder">
+              <div class="demo-placeholder__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5-11-6.5z"/></svg>
+              </div>
+              <div class="demo-placeholder__title">动画演示占位：截止提醒通知演示</div>
+              <div class="demo-placeholder__desc">
+                建议录制内容：设置一条今晚截止的作业 → 到点收到系统通知横幅 → 点击通知进入糖纸对应任务。
+                录好后保存为 <code>site/assets/demos/reminder-demo.mp4</code> 并告知我，即可替换本占位。
+              </div>
             </div>
-            <div class="fluent-card__content">教师模式一键生成标准作业文本发班级群；家庭模式成员档案切换与打印任务家长确认。</div>
+            <!-- TODO: 提供 site/assets/demos/reminder-demo.mp4 后替换上方占位为：
+            <video class="demo-video" src="assets/demos/reminder-demo.mp4" controls preload="metadata" poster="assets/screenshots/notes-desktop.png"></video>
+            -->
+          </div>
+        </div>
+
+        <div class="feature-block reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #B7A6FF;">#日历与统计</p>
+              <h3 class="feature-header">一切进度一目了然</h3>
+            </div>
+            <p class="feature-block__desc">
+              月 / 周视图双模式，考试类便签在日期格显示「考」标记，专注分钟以角标呈现；
+              日期快捷规划（今天 / 明天 / 本周内 / 下周 / 长期）让新建作业一步到位。
+              统计页提供进度环、柱状、饼图、折线图与准时率、科目欠账排行、每日趋势，一键导出 TXT 或 PNG 报告卡片，
+              家长会、期末复盘都能直接使用。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">月 / 周视图</span>
+              <span class="feature-point">考试标记</span>
+              <span class="feature-point">专注分钟角标</span>
+              <span class="feature-point">日期快捷规划</span>
+              <span class="feature-point">多图表统计</span>
+              <span class="feature-point">PNG 报告导出</span>
+            </div>
+          </div>
+          <div class="feature-block__media">
+            <div class="media-grid">
+              <figure class="media-shot">
+                <img src="assets/screenshots/calendar-desktop.png" loading="lazy" width="1200" height="800" alt="日历页：月视图与考试标记">
+                <figcaption class="media-caption">日历：考试标记 + 专注角标</figcaption>
+              </figure>
+              <figure class="media-shot">
+                <img src="assets/screenshots/stats-desktop.png" loading="lazy" width="1200" height="800" alt="统计页：进度环与科目分布">
+                <figcaption class="media-caption">统计：进度环 / 柱状 / 饼图 / 折线</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-block feature-block--reverse reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #FFD966;">#激励体系</p>
+              <h3 class="feature-header">让坚持看得见</h3>
+            </div>
+            <p class="feature-block__desc">
+              完成作业获得 XP，连续打卡累积连胜，12 枚徽章记录每一个里程碑。
+              每日目标可自选分段（轻松 / 标准 / 挑战），首页进度条与连胜火焰让每天的进步都看得见；
+              还可一键生成 640×880 的学期报告卡片，分享给家长或打印存档。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">XP 成长</span>
+              <span class="feature-point">连胜火焰</span>
+              <span class="feature-point">12 枚徽章</span>
+              <span class="feature-point">每日目标分段</span>
+              <span class="feature-point">完成进度条</span>
+              <span class="feature-point">报告卡片分享</span>
+            </div>
+          </div>
+          <div class="feature-block__media">
+            <figure class="media-shot">
+              <img src="assets/screenshots/settings-desktop.png" loading="lazy" width="1200" height="800" alt="设置页：激励与成就、徽章墙与更新入口">
+              <figcaption class="media-caption">设置页：激励与成就 · 徽章墙</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="feature-block reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #7CE7C8;">#好友直连</p>
+              <h3 class="feature-header">去中心化好友系统</h3>
+            </div>
+            <p class="feature-block__desc">
+              生成邀请链接（含共享密钥）发给好友，对方导入后自动双向确认成为好友。
+              消息与作业分享经 AES-256-GCM 端到端加密后通过 Nostr 中继转发，无中心服务器，只有你们双方能解密；
+              好友确认后即可把加密分享的作业一键导入自己的清单（科目 / 标题 / 截止 / 优先级 / 图片完整保留）。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">邀请导入</span>
+              <span class="feature-point">端到端加密消息</span>
+              <span class="feature-point">作业加密分享</span>
+              <span class="feature-point">双向确认</span>
+              <span class="feature-point">无中心服务器</span>
+            </div>
+          </div>
+          <div class="feature-block__media">
+            <figure class="media-shot">
+              <img src="assets/screenshots/account-modal.png" loading="lazy" width="1200" height="800" alt="账号：12 词助记词与好友直连">
+              <figcaption class="media-caption">账号体系：12 词助记词 + 好友直连</figcaption>
+            </figure>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ======== 下载与更新 · 可定制 ======== -->
-    <div class="content section-alt" id="download">
+    <!-- ======== 内容板块二：可定制 ======== -->
+    <div class="content section-alt" id="customize">
       <div class="margin-x">
         <div class="headline-wrap text-center">
           <h2 class="headline-feature">一款<span class="gradient-base" style="background-image: var(--cyrene-gradient);">可定制</span>的作业管理助手</h2>
-          <p class="opacity-75 section-sub">安装包托管在 GitHub Releases，按钮自动指向最新版本，与仓库同步</p>
+          <p class="opacity-75 section-sub">从界面主题到同步方式，全部按你的习惯来</p>
         </div>
-        <div class="d-flex flex-1-1 align-content-start margin-x flex-wrap ga-8 mt-12 download-update-grid">
+
+        <div class="feature-block reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #EBA2FD;">#主题</p>
+              <h3 class="feature-header">自由的主题系统</h3>
+            </div>
+            <p class="feature-block__desc">
+              内置七套主题配色，深浅色随意切换；主题化图标配色让底部导航、卡片标题、场景选中与主按钮渐变
+              随主题同步换色，界面处处协调统一。深色为主的 Fluent 风格在暗光环境下也清晰舒适。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">七套主题</span>
+              <span class="feature-point">深浅色切换</span>
+              <span class="feature-point">主题化图标配色</span>
+              <span class="feature-point">全局统一</span>
+            </div>
+          </div>
+          <div class="feature-block__media">
+            <div class="media-grid">
+              <figure class="media-shot">
+                <img src="assets/screenshots/theme-dark.png" loading="lazy" width="1200" height="800" alt="深色主题">
+                <figcaption class="media-caption">深色主题</figcaption>
+              </figure>
+              <figure class="media-shot">
+                <img src="assets/screenshots/theme-bluegreen.png" loading="lazy" width="1200" height="800" alt="蓝绿主题">
+                <figcaption class="media-caption">蓝绿主题</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-block feature-block--reverse reveal">
+          <div class="feature-block__text">
+            <div class="feature-title-row">
+              <p class="feature-tag" style="color: #60CDFF;">#私有同步</p>
+              <h3 class="feature-header">端到端加密的账号体系</h3>
+            </div>
+            <p class="feature-block__desc">
+              不需要注册手机号或邮箱，12 词助记词就是你的账号，创建后妥善保存即可跨设备恢复。
+              数据经 AES-256-GCM 端到端加密 + Ed25519 签名后，再通过 Nostr 中继或 WebRTC 在线直连同步，
+              中继只能看到密文；网页版、安卓版、Windows 版使用同一句助记词即可跨端互通。
+            </p>
+            <div class="feature-points">
+              <span class="feature-point">12 词助记词即账号</span>
+              <span class="feature-point">AES-256-GCM 加密</span>
+              <span class="feature-point">Ed25519 签名</span>
+              <span class="feature-point">Nostr 中继</span>
+              <span class="feature-point">WebRTC 直连</span>
+              <span class="feature-point">跨端互通</span>
+            </div>
+          </div>
+          <div class="feature-block__media">
+            <div class="media-grid">
+              <figure class="media-shot">
+                <img src="assets/screenshots/home-mobile.png" loading="lazy" width="1200" height="800" alt="手机端界面">
+                <figcaption class="media-caption">手机端（Web PWA / Android 同源）</figcaption>
+              </figure>
+              <figure class="media-shot">
+                <img src="assets/screenshots/home-desktop.png" loading="lazy" width="1200" height="800" alt="桌面端界面">
+                <figcaption class="media-caption">桌面端（Windows / 宽屏网页版）</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+
+        <!-- 零服务器更新 / 下载 -->
+        <div class="d-flex flex-1-1 align-content-start margin-x flex-wrap ga-8 mt-12 download-update-grid" id="download">
           <div class="download-col">
             <div class="fluent-card download-card">
               <div class="fluent-card__header">
@@ -209,7 +445,7 @@
               <div class="dl-list">
                 <a class="dl-row" id="dl-android" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
                   <div class="dl-row-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 3.7 8.2 1.5M14.4 3.7l1.4-2.2"/><path d="M6.2 13.2V8.8a5.8 5.8 0 0 1 11.6 0v6.4a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M9.2 10.4v1.8M14.8 10.4v1.8"/><path d="M6.2 15.2l-3.4 1.8M17.8 15.2l3.4 1.8"/></svg>
                   </div>
                   <div class="dl-row-main">
                     <div class="dl-name" id="dl-android-name">Android APK</div>
@@ -221,11 +457,11 @@
                 </a>
                 <a class="dl-row" id="dl-windows" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
                   <div class="dl-row-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 5.5 10.5 4.5V11.5H3V5.5ZM3 18.5V12.5H10.5V19.5L3 18.5ZM11.5 11.5V4.4L21 3V11.5H11.5ZM11.5 12.5H21V21L11.5 19.6V12.5Z"/></svg>
                   </div>
                   <div class="dl-row-main">
                     <div class="dl-name" id="dl-windows-name">Windows</div>
-                    <div class="dl-desc">工程已就绪 · setup.exe / 绿色版待发布</div>
+                    <div class="dl-desc">setup.exe / 绿色版可下载 · Windows 10+</div>
                   </div>
                   <span class="dl-go">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -233,7 +469,7 @@
                 </a>
                 <a class="dl-row" id="dl-hap" href="https://github.com/HelloXiYangyang/SugarPaper/releases/latest" target="_blank" rel="noopener">
                   <div class="dl-row-icon">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h3l2-5 4 10 2-5h5"/></svg>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M19 12a7 7 0 1 1-7-7"/></svg>
                   </div>
                   <div class="dl-row-main">
                     <div class="dl-name" id="dl-hap-name">鸿蒙 HAP</div>
@@ -256,14 +492,14 @@
                 <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></div>
                 <h3 class="fluent-card__title">零服务器更新机制</h3>
               </div>
-              <div class="fluent-card__content opacity-75">GitHub Releases 存安装包，GitHub Pages 存元数据，GitHub Actions 自动发布。</div>
+              <div class="fluent-card__content opacity-75">GitHub Releases 存安装包，GitHub Pages 存元数据，GitHub Actions 自动发布，无需任何云服务器。</div>
             </div>
             <div class="fluent-card feature-card-divided reveal">
               <div class="fluent-card__header">
                 <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></div>
                 <h3 class="fluent-card__title">客户端如何检查更新？</h3>
               </div>
-              <div class="fluent-card__content opacity-75">安卓版启动后或手动「检查更新」时读取 <code>updates/latest.json</code>，比较 build 号，发现新版后流式下载并校验 SHA-256，再交给系统安装器。</div>
+              <div class="fluent-card__content opacity-75">安卓版 / Windows 版启动后或手动「检查更新」时读取 <code>updates/latest.json</code>，比较 build 号，发现新版后流式下载并校验 SHA-256，再交给系统安装器。</div>
             </div>
             <div class="fluent-card feature-card-divided reveal">
               <div class="fluent-card__header">
@@ -277,19 +513,19 @@
                 <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
                 <h3 class="fluent-card__title">发布流程是怎样的？</h3>
               </div>
-              <div class="fluent-card__content opacity-75">推送 <code>v*</code> 标签后，GitHub Actions 自动构建 Android APK、上传到 Releases、计算 SHA-256 并回写 latest.json，官网下载按钮随之自动指向新版本。</div>
+              <div class="fluent-card__content opacity-75">推送 <code>v*</code> 标签后，GitHub Actions 自动构建 Android APK、Windows 安装包，上传到 Releases、计算 SHA-256 并回写 latest.json，官网下载按钮随之自动指向新版本。</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ======== 多平台支持 · 跨平台 ======== -->
+    <!-- ======== 内容板块三：跨平台 ======== -->
     <div class="content" id="platforms">
       <div class="margin-x">
         <div class="headline-wrap text-center">
           <h2 class="headline-feature">一款<span class="gradient-base" style="background-image: linear-gradient(135deg, #ffb802, #ffb802);">跨平台</span>的作业管理助手</h2>
-          <p class="opacity-75 section-sub">状态以 README「版本一览」为准</p>
+          <p class="opacity-75 section-sub">同一套代码与数据模型，网页版 / 安卓版 / Windows 桌面版功能完全对齐</p>
         </div>
         <div class="platforms-grid">
           <div class="fluent-card platform-card reveal">
@@ -305,7 +541,7 @@
           <div class="fluent-card platform-card reveal">
             <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 5.5 10.5 4.5V11.5H3V5.5ZM3 18.5V12.5H10.5V19.5L3 18.5ZM11.5 11.5V4.4L21 3V11.5H11.5ZM11.5 12.5H21V21L11.5 19.6V12.5Z"/></svg></div>
             <div class="platform-name">Windows</div>
-            <div class="platform-status">工程就绪</div>
+            <div class="platform-status ok">可下载</div>
           </div>
           <div class="fluent-card platform-card reveal">
             <div class="platform-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="M19 12a7 7 0 1 1-7-7"/></svg></div>
@@ -318,13 +554,49 @@
             <div class="platform-status">规划中</div>
           </div>
         </div>
+        <p class="opacity-75 text-center mt-4 platform-requirement">
+          Android 5.0+ 兼容，Android 8.0+ 开放通知提醒；网页版可安装为 PWA 离线使用；
+          Windows 桌面版提供 setup.exe 安装包与绿色版 zip。状态以 README「版本一览」为准。
+        </p>
       </div>
     </div>
 
     <!-- ======== 除了这些… ======== -->
-    <div class="content section-alt" id="update">
+    <div class="content section-alt" id="more">
       <div class="margin-x">
         <h2 class="headline-feature text-center">除了这些…</h2>
+        <div class="feature-grid mt-8">
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H5C6.1 2 7 2.9 7 4V13.5C7 12.67 6.33 12 5.5 12H2V3.5ZM9 4C9 2.9 9.9 2 11 2H13.5C14.33 2 15 2.67 15 3.5V12H10.5C9.67 12 9 12.67 9 13.5V4ZM13.5 14.5C14.33 14.5 15 13.83 15 13V13.5H1V13C1 13.83 1.67 14.5 2.5 14.5H13.5Z" fill="currentColor"/></svg></div>
+              <h3 class="fluent-card__title">#教程 · 手把手的入门教程</h3>
+            </div>
+            <div class="fluent-card__content">快速上手教程、开发文档与常见问题都在文档站，从「粘贴第一条作业」到「跨端同步」全程图文指引。</div>
+            <div class="d-flex ga-4 flex-wrap mt-3">
+              <a class="fluent-button fluent-button--hyperlink" href="docs/get-started.html"><span class="fluent-button__text">快速上手教程</span></a>
+              <a class="fluent-button fluent-button--hyperlink" href="docs/dev.html"><span class="fluent-button__text">开发文档</span></a>
+            </div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10z"/><path d="M9 11.5l2 2 4-4"/></svg></div>
+              <h3 class="fluent-card__title">#可靠 · 离线优先，数据只在本机</h3>
+            </div>
+            <div class="fluent-card__content">所有核心功能离线可用，数据默认只存本机；开启同步也是端到端加密，中继只能看到密文。本地加密快照与助记词恢复，换机不丢数据。</div>
+          </div>
+          <div class="fluent-card feature-card reveal">
+            <div class="fluent-card__header">
+              <div class="fluent-card__icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg></div>
+              <h3 class="fluent-card__title">#开源 · GNU AGPL-3.0</h3>
+            </div>
+            <div class="fluent-card__content">完整源码托管在 GitHub，欢迎提交 Issue 与 PR。自动更新、官网、网页版全部零服务器运行，公开仓库即可免费获得全部能力。</div>
+            <div class="d-flex ga-4 flex-wrap mt-3">
+              <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener"><span class="fluent-button__text">GitHub 仓库</span></a>
+              <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/issues" target="_blank" rel="noopener"><span class="fluent-button__text">反馈问题</span></a>
+            </div>
+          </div>
+        </div>
+
         <div class="d-flex flex-1-1 align-content-start margin-x flex-wrap ga-8 mt-12">
           <div class="flex-grow-1 d-flex flex-column gap-4" id="faq" style="flex-basis: 375px;">
             <div class="feature-title-row">
@@ -354,8 +626,8 @@
                 <div class="faq-body">不会。数据默认只存本机；开启同步后经 AES-256-GCM 端到端加密上传到 Nostr 中继或经 WebRTC 直连传输，中继只能看到密文，且带 Ed25519 签名防篡改。</div>
               </details>
               <details class="faq-item">
-                <summary>网页版和安卓版能互通吗？</summary>
-                <div class="faq-body">可以。两端使用同一套助记词账号与加密算法（v0.26.1 起完成跨端互通修复），同一句助记词即可互相同步数据。</div>
+                <summary>网页版、安卓版和 Windows 版能互通吗？</summary>
+                <div class="faq-body">可以。三端使用同一套助记词账号与加密算法，同一句助记词即可跨端互相同步数据；好友直连还支持加密作业分享。</div>
               </details>
               <details class="faq-item">
                 <summary>需要账号吗？</summary>
@@ -365,11 +637,12 @@
                 <summary>下载慢怎么办？</summary>
                 <div class="faq-body">GitHub 在中国大陆可能较慢，可在设置页配置镜像源；网页版也可通过免费 CDN 加速访问。</div>
               </details>
+              <details class="faq-item">
+                <summary>Windows 安装包会提示 SmartScreen 吗？</summary>
+                <div class="faq-body">未签名 exe 首次运行会有 SmartScreen 提示，这是 Windows 安全机制，选择「仍要运行」即可；绿色版 zip 解压即可用，无此提示。</div>
+              </details>
             </div>
             <div class="d-flex ga-4 flex-wrap">
-              <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/issues" target="_blank" rel="noopener">
-                <span class="fluent-button__text">反馈问题</span>
-              </a>
               <a class="fluent-button fluent-button--hyperlink" href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/🧁%20糖纸%20·%20SugarPaper%20——%20用户协议.md" target="_blank" rel="noopener">
                 <span class="fluent-button__text">用户协议</span>
               </a>
@@ -378,6 +651,31 @@
               </a>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== 社区认可 ======== -->
+    <div class="content section-alt" id="community">
+      <div class="margin-x text-center">
+        <h2 class="headline-feature">社区认可</h2>
+        <p class="opacity-75 section-sub">感谢每一位使用、反馈与贡献的同学</p>
+        <div class="badge-row mt-6">
+          <a href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/stars/HelloXiYangyang/SugarPaper" alt="GitHub Stars">
+          </a>
+          <a href="https://github.com/HelloXiYangyang/SugarPaper/network" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/forks/HelloXiYangyang/SugarPaper?style=flat-square" alt="GitHub Forks">
+          </a>
+          <a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/LICENSE" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/license/HelloXiYangyang/SugarPaper?style=flat-square" alt="开源许可证">
+          </a>
+          <a href="https://github.com/HelloXiYangyang/SugarPaper/commits/main" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/last-commit/HelloXiYangyang/SugarPaper?style=flat-square" alt="最近提交">
+          </a>
+          <a href="https://github.com/HelloXiYangyang/SugarPaper/releases" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/v/release/HelloXiYangyang/SugarPaper?style=flat-square" alt="最新版本">
+          </a>
         </div>
       </div>
     </div>
