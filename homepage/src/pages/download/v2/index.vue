@@ -21,12 +21,39 @@ const isWebVersionEnabled = false;
 const releasesPage = 'https://github.com/HelloXiYangyang/SugarPaper/releases';
 const releasesLatest = 'https://github.com/HelloXiYangyang/SugarPaper/releases/latest';
 
-const androidSvg =
-  '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 3.7 8.2 1.5M14.4 3.7l1.4-2.2"/><path d="M6.2 13.2V8.8a5.8 5.8 0 0 1 11.6 0v6.4a1.6 1.6 0 0 1-1.6 1.6H7.8a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M9.2 10.4v1.8M14.8 10.4v1.8"/><path d="M6.2 15.2l-3.4 1.8M17.8 15.2l3.4 1.8"/></svg>';
+// 三个平台图标取自微信官网（weixin.qq.com）同款图标（白色实心版），
+// 填充色改为 currentColor 以适配官网明暗主题；尺寸由 .platform-svg 统一控制（56px）。
+const androidSvg = `
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='40' height='40' viewBox='0 0 40 40'>
+  <defs>
+    <path id='wx-android-mask-a' d='M0 0h33.684v18.947H0z'/>
+  </defs>
+  <g fill='none' fill-rule='evenodd'>
+    <path d='M0 0h40v40H0z'/>
+    <g opacity='1' transform='translate(3.158 11.158)'>
+      <mask id='wx-android-mask-b' fill='#fff'>
+        <use xlink:href='#wx-android-mask-a'/>
+      </mask>
+      <path fill='currentColor' d='M24.594 14.156a1.402 1.402 0 1 1-.003-2.803 1.402 1.402 0 0 1 .003 2.803m-15.504 0a1.402 1.402 0 1 1-.002-2.803 1.402 1.402 0 0 1 .002 2.803M25.097 5.72L27.9.874a.584.584 0 0 0-1.01-.583L24.05 5.2c-2.17-.989-4.608-1.54-7.21-1.54-2.6 0-5.038.552-7.209 1.54L6.794.291a.584.584 0 0 0-1.01.582l2.803 4.848C3.774 8.335.482 13.2 0 18.947h33.684C33.202 13.2 29.91 8.335 25.097 5.721' mask='url(#wx-android-mask-b)'/>
+    </g>
+  </g>
+</svg>`;
 const webSvg =
-  '<svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="2.2"/><path d="M2.5 8.5h19"/><path d="M6 6.5h.01M8.5 6.5h.01"/></svg>';
-const harmonySvg =
-  '<svg viewBox="0 0 24 24" stroke-width="3.2" stroke-linecap="round"><path d="M19 12a7 7 0 1 1-7-7"/></svg>';
+  '<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="16" rx="2.2"/><path d="M2.5 8.5h19"/><path d="M6 6.5h.01M8.5 6.5h.01"/></svg>';
+const windowsSvg = `
+<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>
+  <g fill='currentColor' fill-rule='evenodd'>
+    <path d='M6.316 21.826v9.025l10.99 1.539V21.826zm12.045 0v10.712l14.463 2.026V21.826zM6.316 11.767v9.004h10.99V10.205zM32.824 8l-14.463 2.055v10.716h14.463z' opacity='1'/>
+    <path fill='none' d='M0 0h40v40H0z'/>
+  </g>
+</svg>`;
+const harmonySvg = `
+<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>
+  <g fill='currentColor' fill-rule='evenodd'>
+    <path fill-rule='nonzero' d='M0 0h40v40H0z' opacity='0'/>
+    <path d='M15.2 23.2c-.4-.2-.8-.3-1.3-.3s-.9.1-1.3.3c-.4.2-.7.5-.9.9-.2.4-.3.8-.3 1.3s.1.9.3 1.3c.2.4.5.7.9.9.4.2.8.3 1.3.3s.9-.1 1.3-.3c.4-.2.7-.5.9-.9.2-.4.3-.8.3-1.3s-.1-.9-.3-1.3c-.2-.4-.5-.7-.9-.9zM11.6 5C8 5 5 7.9 5 11.6v16.8C5 32 7.9 35 11.6 35h16.8c3.6 0 6.6-2.9 6.6-6.6V11.6C35 8 32.1 5 28.4 5H11.6zm-.9 5.3h1.5v3.2h3.5v-3.2h1.5v8h-1.5v-3.4h-3.5v3.4h-1.5v-8zm6.1 22h-5.7V31h5.7v1.3zm.7-4.8c-.4.6-.9 1.1-1.5 1.5-.6.4-1.3.5-2.1.5s-1.5-.2-2.1-.5c-.6-.4-1.1-.9-1.5-1.5-.4-.6-.5-1.3-.5-2.1s.2-1.5.5-2.1c.4-.6.9-1.1 1.5-1.5.6-.4 1.3-.5 2.1-.5s1.5.2 2.1.5c.6.4 1.1.9 1.5 1.5.4.6.5 1.3.5 2.1s-.2 1.5-.5 2.1zm10.6 1.1c-.2.4-.6.6-1 .8-.4.2-.9.3-1.4.3-.5 0-1.3-.1-1.9-.4-.5-.3-.9-.6-1.1-1.1V28h.1l.7-.4.2-.1.2.3.6.6c.3.2.7.3 1 .3.3 0 .7 0 1-.3.2-.2.3-.4.3-.7 0-.3 0-.4-.2-.5-.2-.2-.4-.3-.8-.4l-1.1-.3c-1.3-.4-2-1.1-2-2.3 0-1.2.1-.9.4-1.3.2-.4.6-.6 1-.8.4-.2.9-.3 1.4-.3.5 0 1.2.1 1.7.4.4.2.8.6 1 1v.3c.1 0 0 .1 0 .1l-.9.6-.2-.3c-.1-.2-.3-.4-.5-.5-.3-.2-.6-.2-.9-.2-.3 0-.7 0-.9.3-.2.2-.3.4-.3.7 0 .3 0 .4.2.5.2.2.4.3.8.4l1.1.3c1.3.4 1.9 1.1 1.9 2.3 0 1.2-.1.9-.3 1.3l-.1-.4zm-.2-10.4V13l-2 3.2h-.7l-2-3.2v5.1h-1.4v-8h1.4l2.5 4 2.5-4h1.3v8h-1.4l-.2.1z'/>
+  </g>
+</svg>`;
 
 useHead({
   title: '下载 SugarPaper | 糖纸 · SugarPaper',
@@ -130,7 +157,7 @@ const androidOptions = computed(() =>
 
         <DownloadPlatformCard
           platform-name="Windows"
-          platform-icon="windows"
+          :platform-icon-svg="windowsSvg"
           description="Windows 10 及更高版本"
           :version="version"
           class="flex-grow-1 platform"

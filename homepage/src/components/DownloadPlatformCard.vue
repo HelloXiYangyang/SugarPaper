@@ -71,12 +71,6 @@ const props = defineProps({
   height: 100%;
   display: block;
 }
-.platform-svg :deep(path),
-.platform-svg :deep(rect),
-.platform-svg :deep(circle) {
-  stroke: currentColor;
-  fill: none;
-}
 
 .platform-name {
   font-size: 24px;
