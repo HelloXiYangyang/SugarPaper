@@ -4,148 +4,141 @@
 -->
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>开发文档 — 糖纸 · SugarPaper 文档</title>
   <meta name="description" content="糖纸开发文档：项目结构、技术栈、本地运行与构建、架构说明与参与贡献。">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/docs.css">
+  <script>
+    (function () {
+      var mode;
+      try { mode = localStorage.getItem('sugarpaper-docs-theme'); } catch (e) {}
+      var dark = mode === 'dark' || (mode !== 'light' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    })();
+  </script>
 </head>
-<body class="v-theme--dark">
-  <header class="fluent-app-bar">
-    <div class="fluent-app-bar__content">
-      <div class="fluent-app-bar__left">
-        <button class="fluent-button fluent-button--text nav-icon" id="nav-open" aria-label="打开导航">
-          <span class="fluent-button__icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3H14.5M1.5 8H14.5M1.5 13H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-        </button>
-        <a class="fluent-app-bar__title-link" href="index.html">
-          <img src="../assets/icon.svg" width="26" height="26" alt="糖纸图标" class="app-bar-logo">
-          <h1 class="fluent-app-bar__title">糖纸文档</h1>
-        </a>
-        <nav class="fluent-selector-bar app-bar-tabs" id="app-bar-tabs" aria-label="文档导航">
-          <a class="fluent-selector-bar__item" href="index.html">首页<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="get-started.html">快速上手<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="app.html">应用帮助<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="management.html">管理<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item router-link-active" href="dev.html">开发文档<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="community.html">讨论社区<span class="fluent-selector-bar__pill"></span></a>
-        </nav>
-      </div>
-      <a class="fluent-footer__social-link docs-nav-github" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub 仓库">
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+<body>
+  <header class="vp-navbar">
+    <div class="vp-navbar-inner">
+      <button class="vp-toggle-sidebar" id="docs-menu-btn" type="button" aria-label="打开目录">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="vp-brand" href="index.html">
+        <img src="../assets/icon.svg" alt="糖纸图标">
+        <span class="vp-site-name">糖纸 · SugarPaper 文档</span>
       </a>
+      <nav class="vp-nav-links" aria-label="文档导航">
+        <a href="index.html"><span data-icon="home"></span>首页</a>
+        <a href="get-started.html"><span data-icon="rocket"></span>快速上手</a>
+        <a href="app.html"><span data-icon="bulb"></span>应用帮助</a>
+        <a href="management.html"><span data-icon="server"></span>管理</a>
+        <a href="dev.html" class="active"><span data-icon="code"></span>开发文档</a>
+        <a href="community.html"><span data-icon="users"></span>讨论社区</a>
+        <a href="../index.html" class="external" target="_blank" rel="noopener"><span data-icon="arrow"></span>返回官网</a>
+      </nav>
+      <div class="vp-nav-actions">
+        <a class="vp-icon-btn" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener"
+           aria-label="GitHub 仓库" title="GitHub 仓库">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z"/></svg>
+        </a>
+        <button class="vp-icon-btn vp-theme-toggle" id="theme-toggle" type="button" aria-label="切换深浅色主题" title="切换深浅色主题">
+          <svg class="icon-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"/></svg>
+          <svg class="icon-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="fluent-drawer-overlay" id="drawer-overlay" hidden>
-    <div class="fluent-drawer">
-      <div class="fluent-drawer__header">
-        <a class="fluent-app-bar__title-link" href="index.html">
-          <img src="../assets/icon.svg" width="24" height="24" alt="糖纸图标">
-          <h1 class="fluent-app-bar__title">糖纸文档</h1>
-        </a>
-      </div>
-      <nav class="fluent-drawer__content" id="drawer-nav" aria-label="移动端导航">
-        <a class="fluent-side-nav__item" href="index.html"><div class="fluent-side-nav__item-base">首页</div></a>
-        <a class="fluent-side-nav__item" href="get-started.html"><div class="fluent-side-nav__item-base">快速上手</div></a>
-        <a class="fluent-side-nav__item" href="app.html"><div class="fluent-side-nav__item-base">应用帮助</div></a>
-        <a class="fluent-side-nav__item" href="management.html"><div class="fluent-side-nav__item-base">管理</div></a>
-        <a class="fluent-side-nav__item" href="dev.html"><div class="fluent-side-nav__item-base">开发文档</div></a>
-        <a class="fluent-side-nav__item" href="community.html"><div class="fluent-side-nav__item-base">讨论社区</div></a>
-        <a class="fluent-side-nav__item" href="../index.html"><div class="fluent-side-nav__item-base">返回官网</div></a>
+  <div class="vp-backdrop" id="docs-backdrop"></div>
+
+  <aside class="vp-sidebar" id="docs-sidebar">
+    <div class="vp-sidebar-group">
+      <p class="vp-sidebar-group-title">本节内容</p>
+      <nav class="vp-sidebar-links">
+        <a href="#structure" class="vp-sidebar-link active"><span class="vp-sidebar-icon" data-icon="doc"></span>项目结构</a>
+        <a href="#stack" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="code"></span>技术栈</a>
+        <a href="#build" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="rocket"></span>运行与构建</a>
+        <a href="#tree" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="doc"></span>目录结构</a>
+        <a href="#arch" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="shield"></span>架构说明</a>
+        <a href="#contributing" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="users"></span>参与贡献</a>
       </nav>
     </div>
-  </div>
+    <div class="vp-sidebar-group">
+      <p class="vp-sidebar-group-title">文档分区</p>
+      <nav class="vp-sidebar-links">
+        <a href="index.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="home"></span>首页</a>
+        <a href="get-started.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="rocket"></span>快速上手</a>
+        <a href="app.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="bulb"></span>应用帮助</a>
+        <a href="management.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="server"></span>管理</a>
+        <a href="community.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="users"></span>讨论社区</a>
+      </nav>
+    </div>
+  </aside>
 
-  <div class="docs-backdrop" id="docs-backdrop"></div>
-
-  <div class="docs-shell">
-    <aside class="docs-sidebar" id="docs-sidebar">
-      <div class="docs-sidebar-group">
-        <div class="docs-sidebar-group-title">开发文档</div>
-        <a class="docs-sidebar-link active" href="#structure"><span class="dot"></span>项目结构</a>
-        <a class="docs-sidebar-link" href="#stack"><span class="dot"></span>技术栈</a>
-        <a class="docs-sidebar-link" href="#build"><span class="dot"></span>运行与构建</a>
-        <a class="docs-sidebar-link" href="#tree"><span class="dot"></span>目录结构</a>
-        <a class="docs-sidebar-link" href="#arch"><span class="dot"></span>架构说明</a>
-        <a class="docs-sidebar-link" href="#contributing"><span class="dot"></span>参与贡献</a>
+  <main class="vp-page">
+    <div class="vp-content">
+      <h1><span data-icon="code" data-icon-size="26"></span>开发文档</h1>
+      <p class="vp-lead">面向开发者的项目说明与构建指南</p>
+      <div class="vp-page-meta">
+        <span>作者：<a href="https://github.com/HelloXiYangyang" target="_blank" rel="noopener">HelloXiYangyang</a></span>
+        <span>最后更新：2026-08-08</span>
       </div>
-      <div class="docs-sidebar-group">
-        <div class="docs-sidebar-group-title">其他分区</div>
-        <a class="docs-sidebar-link" href="get-started.html"><span class="dot"></span>快速上手</a>
-        <a class="docs-sidebar-link" href="app.html"><span class="dot"></span>应用帮助</a>
-        <a class="docs-sidebar-link" href="management.html"><span class="dot"></span>管理</a>
-        <a class="docs-sidebar-link" href="community.html"><span class="dot"></span>讨论社区</a>
-      </div>
-    </aside>
 
-    <main class="docs-main">
-      <div class="docs-content">
-        <button class="fluent-button fluent-button--standard docs-toc-btn" id="docs-toc-btn" type="button">
-          <span class="fluent-button__icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3H14.5M1.5 8H14.5M1.5 13H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-          <span class="fluent-button__text">目录</span>
-        </button>
+      <h2 id="structure">项目结构</h2>
+      <p>仓库采用「单一 README · 多版本分区」管理，包含以下主要目录：</p>
+      <table>
+        <thead><tr><th>目录</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>web/</code></td><td>网页版（PWA）：原生 HTML5 + CSS3 + JavaScript，零构建、零依赖</td></tr>
+          <tr><td><code>app/</code></td><td>Flutter 多平台工程：一套代码编译至 Android / Windows</td></tr>
+          <tr><td><code>site/</code></td><td>官网（本网站）与文档站源码</td></tr>
+          <tr><td><code>updates/</code></td><td>更新元数据 <code>latest.json</code>（供客户端自动更新）</td></tr>
+          <tr><td><code>.github/workflows/</code></td><td>Pages 部署与版本发布流水线</td></tr>
+        </tbody>
+      </table>
 
-        <h1>开发文档</h1>
-        <p class="docs-lead">面向开发者的项目说明与构建指南</p>
+      <h2 id="stack">技术栈</h2>
+      <table>
+        <thead><tr><th>版本</th><th>技术路线</th></tr></thead>
+        <tbody>
+          <tr><td>网页版</td><td>原生 HTML5 + CSS3 + JavaScript（零构建、零依赖）</td></tr>
+          <tr><td>安卓 / Windows</td><td>Flutter（共享 <code>app/lib/</code> 核心代码）</td></tr>
+          <tr><td>加密同步</td><td>PBKDF2 → Ed25519，AES-256-GCM 端到端加密 + 签名</td></tr>
+          <tr><td>传输</td><td>Nostr 中继（密文转发）+ WebRTC DataChannel（P2P 直连）</td></tr>
+          <tr><td>测试</td><td>网页版：node 单元测试 + Playwright e2e；Flutter：flutter_test</td></tr>
+        </tbody>
+      </table>
 
-        <h2 id="structure">项目结构</h2>
-        <p>仓库采用「单一 README · 多版本分区」管理，包含以下主要目录：</p>
-        <table>
-          <thead><tr><th>目录</th><th>说明</th></tr></thead>
-          <tbody>
-            <tr><td><code>web/</code></td><td>网页版（PWA）：原生 HTML5 + CSS3 + JavaScript，零构建、零依赖</td></tr>
-            <tr><td><code>app/</code></td><td>Flutter 多平台工程：一套代码编译至 Android / Windows</td></tr>
-            <tr><td><code>site/</code></td><td>官网（本网站）与文档站源码</td></tr>
-            <tr><td><code>updates/</code></td><td>更新元数据 <code>latest.json</code>（供客户端自动更新）</td></tr>
-            <tr><td><code>.github/workflows/</code></td><td>Pages 部署与版本发布流水线</td></tr>
-          </tbody>
-        </table>
-
-        <h2 id="stack">技术栈</h2>
-        <table>
-          <thead><tr><th>版本</th><th>技术路线</th></tr></thead>
-          <tbody>
-            <tr><td>网页版</td><td>原生 HTML5 + CSS3 + JavaScript（零构建、零依赖）</td></tr>
-            <tr><td>安卓 / Windows</td><td>Flutter（共享 <code>app/lib/</code> 核心代码）</td></tr>
-            <tr><td>加密同步</td><td>PBKDF2 → Ed25519，AES-256-GCM 端到端加密 + 签名</td></tr>
-            <tr><td>传输</td><td>Nostr 中继（密文转发）+ WebRTC DataChannel（P2P 直连）</td></tr>
-            <tr><td>测试</td><td>网页版：node 单元测试 + Playwright e2e；Flutter：flutter_test</td></tr>
-          </tbody>
-        </table>
-
-        <h2 id="build">本地运行与构建</h2>
-        <h3>网页版（零依赖）</h3>
-        <pre><code># 方式一：直接用浏览器打开
+      <h2 id="build">本地运行与构建</h2>
+      <h3>网页版（零依赖）</h3>
+      <pre><code># 方式一：直接用浏览器打开
 web/index.html
 
 # 方式二：本地静态服务
 node web/serve.js 8080
 # 打开 http://localhost:8080</code></pre>
-        <h3>Flutter 版（安卓 / Windows）</h3>
-        <pre><code># 环境要求：Flutter 3.22+、JDK 17、Android SDK
+      <h3>Flutter 版（安卓 / Windows）</h3>
+      <pre><code># 环境要求：Flutter 3.22+、JDK 17、Android SDK
 cd app
 flutter pub get
 flutter test                 # 单元测试
 flutter build apk --release  # 正式包
 flutter build windows        # Windows 桌面版</code></pre>
-        <p>APK 输出：<code>app/build/app/outputs/flutter-apk/app-release.apk</code>。</p>
+      <p>APK 输出：<code>app/build/app/outputs/flutter-apk/app-release.apk</code>。Windows 安装包可用 <code>app/build_installer_windows.ps1</code> 配合 Inno Setup 生成。</p>
 
-        <h3>运行测试</h3>
-        <pre><code>node web/test/unit.test.js          # 解析器 + 统计引擎单元测试
+      <h3>运行测试</h3>
+      <pre><code>node web/test/unit.test.js          # 解析器 + 统计引擎单元测试
 node web/test/e2e.test.js           # 端到端交互测试（需本机 Edge/Chrome + Playwright）
 node web/test/screenshot.js         # 生成多断点界面截图
 node web/test/verify_docs.js        # 文档同步校验（16 科 + 头像三方一致）</code></pre>
 
-        <h2 id="tree">目录结构（Flutter）</h2>
-        <pre><code>app/
+      <h2 id="tree">目录结构（Flutter）</h2>
+      <pre><code>app/
 ├── lib/                          # ★ 共享核心代码（各平台版本共用）
 │   ├── main.dart                 # 入口 + 主题 + 帧率检测
 │   ├── core/                     # 主题 Token / 矢量图标 / 动画常量
@@ -157,47 +150,46 @@ node web/test/verify_docs.js        # 文档同步校验（16 科 + 头像三方
 ├── assets/avatar-default.jpg     # 默认头像
 └── pubspec.yaml                  # 依赖与资源声明</code></pre>
 
-        <h2 id="arch">架构说明</h2>
-        <p>
-          糖纸坚持<strong>离线优先</strong>：数据默认只存本机，账号 = 本地密钥（12 词助记词），
-          不做自建服务器，也不引入社交 / 排行榜。同步时数据在本地完成端到端加密，中继只转发密文；
-          两台在线设备之间则通过 WebRTC 建立点对点直连，信令经中继交换后即脱离服务器。
-        </p>
-
-        <h2 id="contributing">参与贡献</h2>
-        <p>
-          欢迎任何形式的贡献：提交 Issue 反馈问题、发起 Pull Request 修复与改进、
-          完善文档或翻译。详细规范与版本管理规则见<a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener">仓库 README</a>。
-        </p>
-
-        <div class="docs-prev-next">
-          <a href="management.html">
-            <span class="pn-label">上一篇</span>
-            <span class="pn-title">← 管理</span>
-          </a>
-          <a class="pn-next" href="community.html">
-            <span class="pn-label">下一篇</span>
-            <span class="pn-title">讨论社区 →</span>
-          </a>
-        </div>
+      <h2 id="arch">架构说明</h2>
+      <p>
+        糖纸坚持<strong>离线优先</strong>：数据默认只存本机，账号 = 本地密钥（12 词助记词），
+        不做自建服务器，也不引入社交 / 排行榜。同步时数据在本地完成端到端加密，中继只转发密文；
+        两台在线设备之间则通过 WebRTC 建立点对点直连，信令经中继交换后即脱离服务器。
+      </p>
+      <div class="vp-note vp-note--info">
+        <span class="vp-note__title"><span data-icon="doc" data-icon-size="15"></span> 参考</span>
+        <span>更完整的零服务器发布 / 自动更新 / 官网方案见仓库根目录《零服务器多平台发布 · 自动更新 · 官网方案 v2.0》。</span>
       </div>
-    </main>
-  </div>
 
-  <footer class="fluent-footer">
-    <div class="fluent-footer__content">
-      <span class="fluent-footer__text">© 2026 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖</span>
-      <div class="fluent-footer__social">
-        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener" aria-label="GitHub 仓库" title="GitHub 仓库">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
-        </a>
-        <a class="fluent-footer__social-link" href="../download.html" aria-label="下载" title="下载">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h2 id="contributing">参与贡献</h2>
+      <p>
+        欢迎任何形式的贡献：提交 Issue 反馈问题、发起 Pull Request 修复与改进、
+        完善文档或翻译。详细规范与版本管理规则见<a href="https://github.com/HelloXiYangyang/SugarPaper/blob/main/README.md" target="_blank" rel="noopener">仓库 README</a>。
+      </p>
+
+      <div class="vp-edit-link">
+        <a href="https://github.com/HelloXiYangyang/SugarPaper/edit/main/site/docs/dev.html" target="_blank" rel="noopener">
+          <span data-icon="doc" data-icon-size="14"></span>编辑此页面
         </a>
       </div>
+
+      <nav class="vp-prev-next">
+        <a href="management.html">
+          <span class="label">上一篇</span>
+          <span class="title">← 管理</span>
+        </a>
+        <a class="next" href="community.html">
+          <span class="label">下一篇</span>
+          <span class="title">讨论社区 →</span>
+        </a>
+      </nav>
     </div>
+  </main>
+
+  <footer class="vp-footer">
+    Copyright © 2026 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖 · 文档风格参考 ClassIsland
   </footer>
 
-  <script src="../js/site.js"></script>
+  <script src="../js/docs.js"></script>
 </body>
 </html>

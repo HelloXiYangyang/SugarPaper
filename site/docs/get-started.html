@@ -4,193 +4,186 @@
 -->
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>快速上手 — 糖纸 · SugarPaper 文档</title>
-  <meta name="description" content="从零开始的糖纸之旅：下载安装、首次启动、创建账号、秒级录入第一条作业。">
+  <meta name="description" content="从零开始的糖纸之旅：下载安装、首次启动、创建账号、秒级录入第一条作业、跨设备同步。">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../css/theme.css">
   <link rel="stylesheet" href="../css/docs.css">
+  <script>
+    (function () {
+      var mode;
+      try { mode = localStorage.getItem('sugarpaper-docs-theme'); } catch (e) {}
+      var dark = mode === 'dark' || (mode !== 'light' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    })();
+  </script>
 </head>
-<body class="v-theme--dark">
-  <header class="fluent-app-bar">
-    <div class="fluent-app-bar__content">
-      <div class="fluent-app-bar__left">
-        <button class="fluent-button fluent-button--text nav-icon" id="nav-open" aria-label="打开导航">
-          <span class="fluent-button__icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3H14.5M1.5 8H14.5M1.5 13H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-        </button>
-        <a class="fluent-app-bar__title-link" href="index.html">
-          <img src="../assets/icon.svg" width="26" height="26" alt="糖纸图标" class="app-bar-logo">
-          <h1 class="fluent-app-bar__title">糖纸文档</h1>
-        </a>
-        <nav class="fluent-selector-bar app-bar-tabs" id="app-bar-tabs" aria-label="文档导航">
-          <a class="fluent-selector-bar__item" href="index.html">首页<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item router-link-active" href="get-started.html">快速上手<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="app.html">应用帮助<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="management.html">管理<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="dev.html">开发文档<span class="fluent-selector-bar__pill"></span></a>
-          <a class="fluent-selector-bar__item" href="community.html">讨论社区<span class="fluent-selector-bar__pill"></span></a>
-        </nav>
-      </div>
-      <a class="fluent-footer__social-link docs-nav-github" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub 仓库">
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
+<body>
+  <header class="vp-navbar">
+    <div class="vp-navbar-inner">
+      <button class="vp-toggle-sidebar" id="docs-menu-btn" type="button" aria-label="打开目录">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="vp-brand" href="index.html">
+        <img src="../assets/icon.svg" alt="糖纸图标">
+        <span class="vp-site-name">糖纸 · SugarPaper 文档</span>
       </a>
+      <nav class="vp-nav-links" aria-label="文档导航">
+        <a href="index.html"><span data-icon="home"></span>首页</a>
+        <a href="get-started.html" class="active"><span data-icon="rocket"></span>快速上手</a>
+        <a href="app.html"><span data-icon="bulb"></span>应用帮助</a>
+        <a href="management.html"><span data-icon="server"></span>管理</a>
+        <a href="dev.html"><span data-icon="code"></span>开发文档</a>
+        <a href="community.html"><span data-icon="users"></span>讨论社区</a>
+        <a href="../index.html" class="external" target="_blank" rel="noopener"><span data-icon="arrow"></span>返回官网</a>
+      </nav>
+      <div class="vp-nav-actions">
+        <a class="vp-icon-btn" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener"
+           aria-label="GitHub 仓库" title="GitHub 仓库">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z"/></svg>
+        </a>
+        <button class="vp-icon-btn vp-theme-toggle" id="theme-toggle" type="button" aria-label="切换深浅色主题" title="切换深浅色主题">
+          <svg class="icon-light" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"/></svg>
+          <svg class="icon-dark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="fluent-drawer-overlay" id="drawer-overlay" hidden>
-    <div class="fluent-drawer">
-      <div class="fluent-drawer__header">
-        <a class="fluent-app-bar__title-link" href="index.html">
-          <img src="../assets/icon.svg" width="24" height="24" alt="糖纸图标">
-          <h1 class="fluent-app-bar__title">糖纸文档</h1>
-        </a>
-      </div>
-      <nav class="fluent-drawer__content" id="drawer-nav" aria-label="移动端导航">
-        <a class="fluent-side-nav__item" href="index.html"><div class="fluent-side-nav__item-base">首页</div></a>
-        <a class="fluent-side-nav__item" href="get-started.html"><div class="fluent-side-nav__item-base">快速上手</div></a>
-        <a class="fluent-side-nav__item" href="app.html"><div class="fluent-side-nav__item-base">应用帮助</div></a>
-        <a class="fluent-side-nav__item" href="management.html"><div class="fluent-side-nav__item-base">管理</div></a>
-        <a class="fluent-side-nav__item" href="dev.html"><div class="fluent-side-nav__item-base">开发文档</div></a>
-        <a class="fluent-side-nav__item" href="community.html"><div class="fluent-side-nav__item-base">讨论社区</div></a>
-        <a class="fluent-side-nav__item" href="../index.html"><div class="fluent-side-nav__item-base">返回官网</div></a>
+  <div class="vp-backdrop" id="docs-backdrop"></div>
+
+  <aside class="vp-sidebar" id="docs-sidebar">
+    <div class="vp-sidebar-group">
+      <p class="vp-sidebar-group-title">本节内容</p>
+      <nav class="vp-sidebar-links">
+        <a href="#install" class="vp-sidebar-link active"><span class="vp-sidebar-icon" data-icon="download"></span>下载与安装</a>
+        <a href="#first-run" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="check"></span>首次启动</a>
+        <a href="#account" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="shield"></span>创建账号</a>
+        <a href="#input" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="note"></span>秒级录入</a>
+        <a href="#manage" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="check"></span>完成与管理</a>
+        <a href="#sync" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="sync"></span>跨设备同步</a>
+        <a href="#next" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="flag"></span>下一步</a>
       </nav>
     </div>
-  </div>
-
-  <div class="docs-backdrop" id="docs-backdrop"></div>
-
-  <div class="docs-shell">
-    <aside class="docs-sidebar" id="docs-sidebar">
-      <div class="docs-sidebar-group">
-        <div class="docs-sidebar-group-title">快速上手</div>
-        <a class="docs-sidebar-link active" href="#install"><span class="dot"></span>下载与安装</a>
-        <a class="docs-sidebar-link" href="#first-run"><span class="dot"></span>首次启动</a>
-        <a class="docs-sidebar-link" href="#account"><span class="dot"></span>创建账号</a>
-        <a class="docs-sidebar-link" href="#input"><span class="dot"></span>秒级录入</a>
-        <a class="docs-sidebar-link" href="#manage"><span class="dot"></span>完成与管理</a>
-        <a class="docs-sidebar-link" href="#sync"><span class="dot"></span>跨设备同步</a>
-        <a class="docs-sidebar-link" href="#next"><span class="dot"></span>下一步</a>
-      </div>
-      <div class="docs-sidebar-group">
-        <div class="docs-sidebar-group-title">其他分区</div>
-        <a class="docs-sidebar-link" href="app.html"><span class="dot"></span>应用帮助</a>
-        <a class="docs-sidebar-link" href="management.html"><span class="dot"></span>管理</a>
-        <a class="docs-sidebar-link" href="dev.html"><span class="dot"></span>开发文档</a>
-        <a class="docs-sidebar-link" href="community.html"><span class="dot"></span>讨论社区</a>
-      </div>
-    </aside>
-
-    <main class="docs-main">
-      <div class="docs-content">
-        <button class="fluent-button fluent-button--standard docs-toc-btn" id="docs-toc-btn" type="button">
-          <span class="fluent-button__icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3H14.5M1.5 8H14.5M1.5 13H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-          <span class="fluent-button__text">目录</span>
-        </button>
-
-        <h1>快速上手</h1>
-        <p class="docs-lead">从零开始的糖纸之旅</p>
-
-        <div class="docs-note docs-note--tip">
-          <strong>提示：</strong>本部分的教程适用于第一次接触糖纸，和对作业管理应用了解不多的用户。如果您已经熟悉同类工具，可以直接跳到<a href="app.html">应用帮助</a>。
-        </div>
-
-        <p>
-          欢迎来到从零开始的糖纸之旅！糖纸是一款适用于小初高学生的多平台作业管理助手，可以一目了然地管理每天的作业。
-          在本系列教程中，每当您看见 👉 符号，就说明您应该做一些事情，其余内容仅供您参考和更深入的理解。
-        </p>
-
-        <h2 id="install">下载与安装</h2>
-        <p>糖纸目前提供以下平台版本：</p>
-        <table>
-          <thead><tr><th>平台</th><th>状态</th><th>说明</th></tr></thead>
-          <tbody>
-            <tr><td>Android</td><td>✅ 可下载</td><td>APK 安装包，Android 7.0+</td></tr>
-            <tr><td>Web PWA</td><td>✅ 在线可用</td><td>零安装，可离线使用，可安装到桌面</td></tr>
-            <tr><td>Windows</td><td>🔧 工程就绪</td><td>Flutter Windows 桌面版，安装包待发布</td></tr>
-            <tr><td>鸿蒙 / 小程序</td><td>⬜ 规划中</td><td>—</td></tr>
-          </tbody>
-        </table>
-        <p>👉 前往<a href="../download.html">下载页</a>，选择适合您的平台开始下载。</p>
-
-        <h2 id="first-run">首次启动：同意协议</h2>
-        <p>
-          首次打开糖纸时，必须阅读并勾选同意《用户协议》和《隐私政策》后才能进入使用（不同意则无法进入）。
-          协议内容随时可以在「我的 → 法律与隐私」中查看。
-        </p>
-
-        <h2 id="account">创建账号：12 词助记词</h2>
-        <p>
-          糖纸<strong>不需要注册</strong>。进入应用后创建一个「12 词助记词」即完成注册：
-          助记词经 PBKDF2 派生密钥、Ed25519 签名，配合 AES-256-GCM 端到端加密，账号与数据完全由您自己掌握。
-        </p>
-        <div class="docs-note docs-note--warn">
-          <strong>重要：</strong>助记词只在创建时完整展示一次，请妥善抄写保存。助记词就是账号本身，丢失后无法找回，任何持有助记词的人都能恢复您的数据。
-        </div>
-
-        <h2 id="input">秒级录入第一条作业</h2>
-        <p>糖纸的录入设计目标是「粘贴即用」：</p>
-        <ul>
-          <li><strong>粘贴文本</strong>：把老师在班级群里发的作业消息粘贴进来，自动解析为结构化作业清单（支持中文数字编号、打卡/背诵任务自动分类）；</li>
-          <li><strong>文件导入</strong>：支持 .txt / .md 文件导入，也可以直接把文本拖进窗口；</li>
-          <li><strong>语音速记</strong>：说作业、说通知，自动转成文字（Web Speech API · zh-CN）；</li>
-          <li><strong>教师格式</strong>：老师使用「教师模式」生成的标准格式文本，学生粘贴即可秒级导入。</li>
-        </ul>
-        <p>👉 打开糖纸首页，粘贴老师发的第一条作业消息，体验自动解析。</p>
-
-        <h2 id="manage">完成作业与截止管理</h2>
-        <p>
-          录入后，作业会按<strong>已逾期 / 今天 / 明天 / 本周 / 长期</strong>自动分组，逾期置顶标红并显示逾期天数。
-          点击「完成」自动置底，进度一目了然；误操作可随时撤销，也可以设置优先级、日期并拖拽排期。
-        </p>
-
-        <h2 id="sync">跨设备同步</h2>
-        <p>
-          在另一台设备上用<strong>同一句助记词</strong>登录，即可恢复并同步全部数据：
-          数据经 AES-256-GCM 端到端加密后通过 Nostr 中继传输，中继只能看到密文；
-          当两台设备同时在线时，会建立 WebRTC 点对点直连，直接互传加密快照，不经过任何服务器。
-        </p>
-
-        <h2 id="next">下一步</h2>
-        <p>
-          恭喜，您已经完成了糖纸的入门！接下来可以阅读<a href="app.html">应用帮助</a>了解日历统计、番茄专注、便签提醒等进阶功能，
-          或查看<a href="management.html">管理</a>了解自动更新、备份与隐私安全模型。
-        </p>
-
-        <div class="docs-prev-next">
-          <a href="index.html">
-            <span class="pn-label">上一篇</span>
-            <span class="pn-title">← 文档首页</span>
-          </a>
-          <a class="pn-next" href="app.html">
-            <span class="pn-label">下一篇</span>
-            <span class="pn-title">应用帮助 →</span>
-          </a>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <footer class="fluent-footer">
-    <div class="fluent-footer__content">
-      <span class="fluent-footer__text">© 2026 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖</span>
-      <div class="fluent-footer__social">
-        <a class="fluent-footer__social-link" href="https://github.com/HelloXiYangyang/SugarPaper" target="_blank" rel="noopener" aria-label="GitHub 仓库" title="GitHub 仓库">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1C4.13 1 1 4.15 1 8.05C1 11.17 3 13.79 5.8 14.67C6.13 14.74 6.25 14.54 6.25 14.37C6.25 14.22 6.24 13.74 6.24 13.13C4.31 13.56 3.85 12.22 3.85 12.22C3.49 11.31 2.96 11.08 2.96 11.08C2.26 10.66 3.02 10.67 3.02 10.67C3.8 10.73 4.22 11.48 4.22 11.48C4.91 12.73 6.05 12.43 6.27 12.27C6.34 11.74 6.55 11.38 6.77 11.17C5.2 11 3.55 10.39 3.55 7.69C3.55 6.92 3.84 6.29 4.29 5.8C4.21 5.62 3.95 4.9 4.34 3.94C4.34 3.94 4.9 3.76 6.23 4.66C6.76 4.5 7.33 4.42 7.9 4.42C8.47 4.42 9.04 4.5 9.57 4.66C10.9 3.76 11.46 3.94 11.46 3.94C11.85 4.9 11.59 5.62 11.51 5.8C11.96 6.29 12.25 6.92 12.25 7.69C12.25 10.4 10.59 11 9.02 11.16C9.3 11.42 9.54 11.93 9.54 12.72C9.54 13.84 9.53 14.73 9.53 14.37C9.53 14.54 9.65 14.75 9.98 14.67C12.78 13.79 14.8 11.17 14.8 8.05C14.8 4.15 11.87 1 8 1Z" fill="currentColor"/></svg>
-        </a>
-        <a class="fluent-footer__social-link" href="../download.html" aria-label="下载" title="下载">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5V10.5M4.5 7L8 10.5L11.5 7M2.5 14.5H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-      </div>
+    <div class="vp-sidebar-group">
+      <p class="vp-sidebar-group-title">文档分区</p>
+      <nav class="vp-sidebar-links">
+        <a href="index.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="home"></span>首页</a>
+        <a href="app.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="bulb"></span>应用帮助</a>
+        <a href="management.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="server"></span>管理</a>
+        <a href="dev.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="code"></span>开发文档</a>
+        <a href="community.html" class="vp-sidebar-link"><span class="vp-sidebar-icon" data-icon="users"></span>讨论社区</a>
+      </nav>
     </div>
+  </aside>
+
+  <main class="vp-page">
+    <div class="vp-content">
+      <h1><span data-icon="rocket" data-icon-size="26"></span>快速上手</h1>
+      <p class="vp-lead">从零开始的糖纸之旅</p>
+      <div class="vp-page-meta">
+        <span>作者：<a href="https://github.com/HelloXiYangyang" target="_blank" rel="noopener">HelloXiYangyang</a></span>
+        <span>最后更新：2026-08-08</span>
+      </div>
+
+      <div class="vp-note vp-note--tip">
+        <span class="vp-note__title"><span data-icon="bulb" data-icon-size="15"></span> 提示</span>
+        <span>本部分教程适用于第一次接触糖纸、对作业管理应用了解不多的用户。如果您已经熟悉同类工具，可以直接跳到<a href="app.html">应用帮助</a>。</span>
+      </div>
+
+      <p>
+        欢迎来到从零开始的糖纸之旅！糖纸是一款适用于小初高学生的多平台作业管理助手，可以一目了然地管理每天的作业。
+        在本系列教程中，每当您看见 👉 符号，就说明您应该做一些事情，其余内容仅供您参考和更深入的理解。
+      </p>
+
+      <h2 id="install">下载与安装</h2>
+      <p>糖纸目前提供以下平台版本：</p>
+      <table>
+        <thead><tr><th>平台</th><th>状态</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Android</td><td>✅ 可下载</td><td>APK 安装包，Android 7.0+</td></tr>
+          <tr><td>Web PWA</td><td>✅ 在线可用</td><td>零安装，可离线使用，可安装到桌面</td></tr>
+          <tr><td>Windows</td><td>✅ 可下载</td><td>setup.exe 安装包 / 绿色版 zip，Windows 10+</td></tr>
+          <tr><td>鸿蒙 / 小程序</td><td>⬜ 规划中</td><td>主流道分别为 AppGallery 与微信平台</td></tr>
+        </tbody>
+      </table>
+      <div class="vp-note vp-note--info">
+        <span class="vp-note__title"><span data-icon="download" data-icon-size="15"></span> 去下载</span>
+        <span>👉 前往<a href="../download.html">下载页</a>，选择适合您的平台开始下载。官网下载按钮会自动指向最新版本并校验 SHA-256。</span>
+      </div>
+
+      <h2 id="first-run">首次启动：同意协议</h2>
+      <p>
+        首次打开糖纸时，必须阅读并勾选同意《用户协议》和《隐私政策》后才能进入使用（不同意则无法进入）。
+        协议内容随时可以在「我的 → 法律与隐私」中查看。
+      </p>
+
+      <h2 id="account">创建账号：12 词助记词</h2>
+      <p>
+        糖纸<strong>不需要注册</strong>。进入应用后创建一个「12 词助记词」即完成注册：
+        助记词经 PBKDF2 派生密钥、Ed25519 签名，配合 AES-256-GCM 端到端加密，账号与数据完全由您自己掌握。
+      </p>
+      <div class="vp-note vp-note--warning">
+        <span class="vp-note__title"><span data-icon="shield" data-icon-size="15"></span> 重要</span>
+        <span>助记词只在创建时完整展示一次，请妥善抄写保存。助记词就是账号本身，丢失后无法找回，任何持有助记词的人都能恢复您的数据。</span>
+      </div>
+
+      <h2 id="input">秒级录入第一条作业</h2>
+      <p>糖纸的录入设计目标是「粘贴即用」：</p>
+      <ul>
+        <li><strong>粘贴文本</strong>：把老师在班级群里发的作业消息粘贴进来，自动解析为结构化作业清单（支持中文数字编号、打卡/背诵任务自动分类）；</li>
+        <li><strong>文件导入</strong>：支持 .txt / .md 文件导入，也可以直接把文本拖进窗口；</li>
+        <li><strong>语音速记</strong>：说作业、说通知，自动转成文字（Web Speech API · zh-CN）；</li>
+        <li><strong>教师格式</strong>：老师使用「教师模式」生成的标准格式文本，学生粘贴即可秒级导入。</li>
+      </ul>
+      <p>👉 打开糖纸首页，粘贴老师发的第一条作业消息，体验自动解析。</p>
+
+      <h2 id="manage">完成作业与截止管理</h2>
+      <p>
+        录入后，作业会按<strong>已逾期 / 今天 / 明天 / 本周 / 长期</strong>自动分组，逾期置顶标红并显示逾期天数。
+        点击「完成」自动置底，进度一目了然；误操作可随时撤销，也可以设置优先级、日期并拖拽排期。
+      </p>
+
+      <h2 id="sync">跨设备同步</h2>
+      <p>
+        在另一台设备上用<strong>同一句助记词</strong>登录，即可恢复并同步全部数据：
+        数据经 AES-256-GCM 端到端加密后通过 Nostr 中继传输，中继只能看到密文；
+        当两台设备同时在线时，会建立 WebRTC 点对点直连，直接互传加密快照，不经过任何服务器。
+      </p>
+
+      <h2 id="next">下一步</h2>
+      <p>
+        恭喜，您已经完成了糖纸的入门！接下来可以阅读<a href="app.html">应用帮助</a>了解日历统计、番茄专注、便签提醒等进阶功能，
+        或查看<a href="management.html">管理</a>了解自动更新、备份与隐私安全模型。
+      </p>
+
+      <div class="vp-edit-link">
+        <a href="https://github.com/HelloXiYangyang/SugarPaper/edit/main/site/docs/get-started.html" target="_blank" rel="noopener">
+          <span data-icon="doc" data-icon-size="14"></span>编辑此页面
+        </a>
+      </div>
+
+      <nav class="vp-prev-next">
+        <a href="index.html">
+          <span class="label">上一篇</span>
+          <span class="title">← 文档首页</span>
+        </a>
+        <a class="next" href="app.html">
+          <span class="label">下一篇</span>
+          <span class="title">应用帮助 →</span>
+        </a>
+      </nav>
+    </div>
+  </main>
+
+  <footer class="vp-footer">
+    Copyright © 2026 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖 · 文档风格参考 ClassIsland
   </footer>
 
-  <script src="../js/site.js"></script>
+  <script src="../js/docs.js"></script>
 </body>
 </html>
