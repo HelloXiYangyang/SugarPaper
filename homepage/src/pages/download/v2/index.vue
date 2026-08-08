@@ -192,7 +192,7 @@ const androidOptions = computed(() =>
         </DownloadPlatformCard>
 
         <DownloadPlatformCard
-          platform-name="鸿蒙 HAP"
+          platform-name="HarmonyOS"
           :platform-icon-svg="harmonySvg"
           description="规划中 · 主流道为 AppGallery"
           class="flex-grow-1 platform"
