@@ -15,6 +15,9 @@ const windowsUrl = ref('');
 const webUrl = ref('');
 const isHelpDialogActive = ref(false);
 
+// 网页版入口卡片：代码保留，当前按需求在下载页隐藏（改为 true 即可恢复显示）
+const isWebVersionEnabled = false;
+
 const releasesPage = 'https://github.com/HelloXiYangyang/SugarPaper/releases';
 const releasesLatest = 'https://github.com/HelloXiYangyang/SugarPaper/releases/latest';
 
@@ -31,7 +34,7 @@ useHead({
     {
       name: 'description',
       content:
-        '下载糖纸 · SugarPaper：Android APK、网页版 PWA、Windows 桌面版，安装包托管在 GitHub Releases，按钮自动指向最新版本。'
+        '下载糖纸 · SugarPaper：Android APK、Windows 桌面版，安装包托管在 GitHub Releases，按钮自动指向最新版本。'
     }
   ]
 });
@@ -146,6 +149,7 @@ const androidOptions = computed(() =>
         </DownloadPlatformCard>
 
         <DownloadPlatformCard
+          v-if="isWebVersionEnabled"
           platform-name="Web PWA"
           :platform-icon-svg="webSvg"
           description="在线可用 · 零安装 · 可离线"
@@ -219,6 +223,17 @@ const androidOptions = computed(() =>
 </template>
 
 <style scoped lang="scss">
+.platforms-container {
+  align-items: stretch;
+}
+
+@media (min-width: 960px) {
+  .platforms-container > .platform {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
 .fluent-title {
   font-family: var(--font-family-base);
   color: var(--fill-color-text-primary);

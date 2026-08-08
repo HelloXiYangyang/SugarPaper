@@ -46,6 +46,7 @@ const props = defineProps({
   padding: 16px 0; /* Adjusted padding */
   gap: 8px;
   flex-grow: 1;
+  height: 100%;
 }
 
 .icon-container {
@@ -104,7 +105,8 @@ const props = defineProps({
 .actions {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: auto;
+  padding-top: 14px;
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
