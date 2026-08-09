@@ -43,12 +43,19 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm docs:build
 
-      - name: 组装站点（官网 → 根路径，文档 → /docs/，网页版 → /app/，元数据 → /updates/）
+      - name: 构建网页版预览（Vue 3 + TS，重构中的新版本）
+        working-directory: web-app
+        run: |
+          npm ci
+          npm run build
+
+      - name: 组装站点（官网 → 根路径，文档 → /docs/，网页版 → /app/，预览 → /app-preview/，元数据 → /updates/）
         run: |
           mkdir -p _site
           cp -r homepage/dist/* _site/
           cp -r docs-src/src/.vuepress/dist _site/docs
           cp -r web _site/app
+          cp -r web-app/dist _site/app-preview
           cp -r updates _site/updates
 
       - uses: actions/configure-pages@v5

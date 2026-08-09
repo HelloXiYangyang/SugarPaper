@@ -1,5 +1,15 @@
 {
   "app": "SugarPaper",
+  "channels": {
+    "stable": {
+      "name": "稳定版",
+      "description": "经过完整测试的正式版本，推荐所有用户使用"
+    },
+    "preview": {
+      "name": "预览版",
+      "description": "正在重构开发中的新版本（各端独立技术栈：Vue3 / Kotlin / Avalonia），可提前体验，部分功能仍在完善"
+    }
+  },
   "latest": {
     "version": "0.34.0",
     "build": 53,
@@ -19,5 +29,41 @@
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
       "sha256": ""
     }
-  }
+  },
+  "versions": [
+    {
+      "version": "0.34.0",
+      "build": 53,
+      "channels": ["stable"],
+      "published_at": "2026-08-09T00:00:00Z",
+      "notes": "- 品牌升级：新 Logo（现代蓝）与全平台图标资源\n- PWA 清单品牌色更新",
+      "platforms": {
+        "android": {
+          "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.34.0/SugarPaper-v0.34.0-android.apk",
+          "sha256": ""
+        },
+        "windows": {
+          "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.34.0/SugarPaper-v0.34.0-windows-x64.exe",
+          "sha256": ""
+        },
+        "web": {
+          "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
+          "sha256": ""
+        }
+      }
+    },
+    {
+      "version": "0.35.0-preview",
+      "build": 54,
+      "channels": ["preview"],
+      "published_at": "2026-08-10T00:00:00Z",
+      "notes": "- 全新重构（预览版）：网页版 Vue 3 + TS（视觉基准）\n- 安卓 Kotlin + Compose / Windows C# + Avalonia 独立技术栈\n- 设计系统（design-system）与业务契约（contracts）落地\n- 同形态界面一致原则：手机端（网页/安卓/鸿蒙手机）与桌面端（网页/Windows/鸿蒙电脑）各自界面统一",
+      "platforms": {
+        "web": {
+          "url": "https://helloxiyangyang.github.io/SugarPaper/app-preview/",
+          "sha256": ""
+        }
+      }
+    }
+  ]
 }

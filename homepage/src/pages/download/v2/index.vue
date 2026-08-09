@@ -18,6 +18,11 @@ const version = ref('');
 const androidUrl = ref('');
 const windowsUrl = ref('');
 const webUrl = ref('');
+const selectedChannel = ref('stable');
+const channels = ref<{ id: string; name: string; description: string }[]>([]);
+const allVersions = ref<any[]>([]);
+const channelNotes = ref('');
+const isPreview = computed(() => selectedChannel.value === 'preview');
 const isHelpDialogActive = ref(false);
 
 // 网页版入口卡片：代码保留，当前按需求在下载页隐藏（改为 true 即可恢复显示）
@@ -76,10 +81,13 @@ async function init() {
     const res = await fetch(import.meta.env.BASE_URL + 'updates/latest.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('bad status');
     const data = await res.json();
-    version.value = data.latest?.version || '';
-    androidUrl.value = data.platforms?.android?.url || '';
-    windowsUrl.value = data.platforms?.windows?.url || '';
-    webUrl.value = data.platforms?.web?.url || '';
+    channels.value = Object.entries(data.channels || {}).map(([id, c]: [string, any]) => ({
+      id,
+      name: c.name,
+      description: c.description
+    }));
+    allVersions.value = data.versions || [];
+    applyChannel(selectedChannel.value, data.latest, data.platforms);
   } catch (e) {
     isError.value = true;
     console.error(e);
@@ -88,6 +96,27 @@ async function init() {
 }
 
 onMounted(() => init());
+
+function applyChannel(ch: string, fallbackLatest?: any, fallbackPlatforms?: any) {
+  selectedChannel.value = ch;
+  const v = allVersions.value.find((x: any) => (x.channels || []).includes(ch));
+  if (!v) {
+    if (fallbackLatest) {
+      version.value = fallbackLatest.version || '';
+      channelNotes.value = fallbackLatest.notes || '';
+      androidUrl.value = fallbackPlatforms?.android?.url || '';
+      windowsUrl.value = fallbackPlatforms?.windows?.url || '';
+      webUrl.value = fallbackPlatforms?.web?.url || '';
+    }
+    return;
+  }
+  version.value = v.version;
+  channelNotes.value = v.notes || '';
+  const p = v.platforms || {};
+  androidUrl.value = p.android?.url || '';
+  windowsUrl.value = p.windows?.url || '';
+  webUrl.value = p.web?.url || '';
+}
 
 const downloadRouteRoot = computed(() => {
   const u = androidUrl.value || windowsUrl.value;
@@ -131,16 +160,32 @@ const androidOptions = computed(() =>
       <p class="text-center align-self-center mb-12 fluent-subtitle">首先，选择适合您的平台和打包方式</p>
 
       <div class="mb-4 align-self-center d-flex flex-column">
-        <v-skeleton-loader v-if="isLoading" width="200px" height="19.5px" />
-        <p v-else class="text-center fluent-description" style="opacity: 75%; font-size: 13px">
-          最新版本 v{{ version }} · 稳定版通道 · SHA-256 自动校验 · 官网按钮自动指向最新版本
+        <v-skeleton-loader v-if="isLoading" width="260px" height="36px" />
+        <div v-else class="channel-switch d-flex align-self-center">
+          <button
+            v-for="c in channels"
+            :key="c.id"
+            class="channel-btn"
+            :class="{ on: selectedChannel === c.id }"
+            @click="applyChannel(c.id)"
+          >
+            {{ c.name }}
+          </button>
+        </div>
+        <p v-if="!isLoading" class="text-center fluent-description mt-2" style="opacity: 75%; font-size: 13px">
+          最新版本 v{{ version }} · {{ channels.find((c) => c.id === selectedChannel)?.name || '稳定版' }}通道 · SHA-256 自动校验 · 按钮自动指向最新版本
+        </p>
+        <p v-if="!isLoading && channelNotes" class="text-center fluent-description mt-1" style="opacity: 75%; font-size: 12px; max-width: 680px">
+          {{ channelNotes }}
         </p>
       </div>
 
       <div
+        v-if="!isPreview"
         class="align-self-stretch d-flex ga-4 justify-center platforms-container flex-column flex-md-row flex-row align-content-start"
       >
         <DownloadPlatformCard
+          v-if="androidUrl"
           platform-name="Android"
           :platform-icon-svg="androidSvg"
           description="Android 7.0+ · 通用安装包"
@@ -161,6 +206,7 @@ const androidOptions = computed(() =>
         </DownloadPlatformCard>
 
         <DownloadPlatformCard
+          v-if="windowsUrl"
           platform-name="Windows"
           :platform-icon-svg="windowsSvg"
           description="Windows 10 及更高版本"
@@ -205,6 +251,56 @@ const androidOptions = computed(() =>
           <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
             <FluentButton variant="hyperlink" :href="releasesLatest" target="_blank">
               <template #prepend><FluentSystemIcon name="bookOpen" /></template>
+              查看发布
+            </FluentButton>
+          </div>
+        </DownloadPlatformCard>
+      </div>
+
+      <div
+        v-else
+        class="align-self-stretch d-flex ga-4 justify-center platforms-container flex-column flex-md-row flex-row align-content-start"
+      >
+        <DownloadPlatformCard
+          platform-name="Web 预览"
+          :platform-icon-svg="webSvg"
+          description="重构中的全新网页版（Vue 3 + TS）· 预览通道"
+          :version="version"
+          class="flex-grow-1 platform"
+        >
+          <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
+            <FluentButton variant="primary" :href="webUrl || '/SugarPaper/app-preview/'" target="_blank">
+              <template #prepend><FluentSystemIcon name="documentSparkle" /></template>
+              在线体验预览版
+            </FluentButton>
+          </div>
+        </DownloadPlatformCard>
+
+        <DownloadPlatformCard
+          platform-name="Android"
+          :platform-icon-svg="androidSvg"
+          description="预览版 Android 构建即将推出"
+          :version="version"
+          class="flex-grow-1 platform"
+        >
+          <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
+            <FluentButton variant="hyperlink" :href="releasesPage" target="_blank">
+              <template #prepend><FluentSystemIcon name="archive" /></template>
+              查看发布
+            </FluentButton>
+          </div>
+        </DownloadPlatformCard>
+
+        <DownloadPlatformCard
+          platform-name="Windows"
+          :platform-icon-svg="windowsSvg"
+          description="预览版 Windows 构建即将推出"
+          :version="version"
+          class="flex-grow-1 platform"
+        >
+          <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
+            <FluentButton variant="hyperlink" :href="releasesPage" target="_blank">
+              <template #prepend><FluentSystemIcon name="archive" /></template>
               查看发布
             </FluentButton>
           </div>
@@ -280,5 +376,34 @@ const androidOptions = computed(() =>
 .fluent-description {
   font-family: var(--font-family-base);
   color: var(--fill-color-text-secondary);
+}
+
+.channel-switch {
+  gap: 8px;
+  background: var(--fill-color-control-alt-secondary);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.channel-btn {
+  border: none;
+  background: transparent;
+  color: var(--fill-color-text-secondary);
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  padding: 8px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms var(--ease-out, ease-out), color 160ms var(--ease-out, ease-out);
+}
+
+.channel-btn:hover {
+  color: var(--fill-color-text-primary);
+}
+
+.channel-btn.on {
+  background: var(--fill-color-accent-default, #1677ff);
+  color: #fff;
+  font-weight: 600;
 }
 </style>
