@@ -8,7 +8,7 @@
 'use strict';
 
 // v0.31.0：自动升级弹窗/版本兼容分级；bump 缓存名强制旧客户端重新拉取新外壳
-const CACHE_NAME = 'sugarpaper-shell-v0.32.0';
+const CACHE_NAME = 'sugarpaper-shell-v0.34.0';
 const APP_SHELL = [
   './',
   './index.html',

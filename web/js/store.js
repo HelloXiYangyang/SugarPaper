@@ -8,9 +8,9 @@
   'use strict';
 
   const KEY = 'sugarpaper:v1';
-  const APP_VERSION = '0.32.0';
+  const APP_VERSION = '0.34.0';
 
-  // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致
+  // 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，各端保持一致
   const DEFAULT_SUBJECTS = [
     { name: '语文', color: '#F4B8CE', enabled: true },
     { name: '数学', color: '#B3D4F0', enabled: true },

@@ -1,19 +1,19 @@
 {
   "app": "SugarPaper",
   "latest": {
-    "version": "0.33.0",
-    "build": 52,
-    "published_at": "2026-08-08T00:00:00Z",
-    "notes": "- 好友直连（S18 模块二）：去中心化好友系统 + 端到端加密消息 + 作业分享\n- 安卓版、Windows 版与网页版功能对齐"
+    "version": "0.34.0",
+    "build": 53,
+    "published_at": "2026-08-09T00:00:00Z",
+    "notes": "- 品牌升级：新 Logo（圆角蓝底 + 白色对勾，现代蓝）\n- 全平台图标资源同步（Web / 安卓 / Windows）\n- PWA 清单品牌色更新，确立「白色为主 + 深色」两套主题方向"
   },
   "platforms": {
     "android": {
-      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.33.0/SugarPaper-v0.33.0-android.apk",
-      "sha256": "7ed1688ecaee9be5f482b23072c4d5b513e3a9f7e5caaee5434ac7aa601f40e1"
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.34.0/SugarPaper-v0.34.0-android.apk",
+      "sha256": ""
     },
     "windows": {
-      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.33.0/SugarPaper-v0.33.0-windows-x64.exe",
-      "sha256": "cba447b72d080eb3ce7c5518c040bd9da74095f8ba104d0c0a5cf86347e681ec"
+      "url": "https://github.com/HelloXiYangyang/SugarPaper/releases/download/v0.34.0/SugarPaper-v0.34.0-windows-x64.exe",
+      "sha256": ""
     },
     "web": {
       "url": "https://helloxiyangyang.github.io/SugarPaper/app/",
