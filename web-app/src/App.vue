@@ -1,29 +1,36 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import HomeView from './views/HomeView.vue';
+import CalendarView from './views/CalendarView.vue';
+import FocusView from './views/FocusView.vue';
+import StatsView from './views/StatsView.vue';
+import MeView from './views/MeView.vue';
 import BottomNav from './components/BottomNav.vue';
 import SideNav from './components/SideNav.vue';
+import { store } from './store';
 
 type Tab = 'home' | 'calendar' | 'focus' | 'stats' | 'me';
-const active = ref<Tab>('home');
-const dark = ref(false);
+const current = ref<Tab>('home');
+const dark = computed(() => store.dark);
 </script>
 
 <template>
   <div class="app-shell" :data-theme="dark ? 'dark' : 'light'">
-    <SideNav :active="active" @select="active = $event" />
+    <SideNav :active="current" @select="current = $event as Tab" />
     <main class="app-main">
-      <HomeView v-if="active === 'home'" :dark="dark" @toggle-dark="dark = !dark" />
-      <div v-else class="placeholder">{{ active }} 视图（重写中）</div>
+      <HomeView v-if="current === 'home'" :dark="dark" @toggle-dark="store.toggleDark()" />
+      <CalendarView v-else-if="current === 'calendar'" />
+      <FocusView v-else-if="current === 'focus'" />
+      <StatsView v-else-if="current === 'stats'" />
+      <MeView v-else />
     </main>
-    <BottomNav :active="active" @select="active = $event" />
+    <BottomNav :active="current" @select="current = $event as Tab" />
   </div>
 </template>
 
 <style scoped>
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .app-main { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: 0 var(--space-lg) 96px; }
-.placeholder { padding: 40px 16px; color: var(--text-2); text-align: center; }
 
 @media (min-width: 900px) {
   .app-shell { flex-direction: row; }

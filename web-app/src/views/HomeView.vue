@@ -2,18 +2,12 @@
 import { ref } from 'vue';
 import OverviewCard from '../components/OverviewCard.vue';
 import TaskCard, { type Task } from '../components/TaskCard.vue';
+import { store } from '../store';
 
 defineProps<{ dark: boolean }>();
 const emit = defineEmits<{ (e: 'toggle-dark'): void }>();
 
-const tasks = ref<Task[]>([
-  { id: '1', title: '试卷订正', subject: '数学', color: '#D9577A', due: '今天 18:00' },
-  { id: '2', title: '背诵第 3 课', subject: '语文', color: '#E05A5A', due: '今天' },
-  { id: '3', title: '单词抄写', subject: '英语', color: '#E06A9A', due: '今天' },
-  { id: '4', title: '实验报告', subject: '物理', color: '#E88A3C', due: '2 天', overdue: true },
-  { id: '5', title: '历史练习册', subject: '历史', color: '#5FA84F', due: '周五' },
-  { id: '6', title: '地理图册', subject: '地理', color: '#0FA47F', due: '周日' }
-]);
+const tasks = store.tasks;
 const quick = ref('');
 const expanded = ref(true);
 </script>
@@ -28,7 +22,7 @@ const expanded = ref(true);
 
     <OverviewCard :percent="68" :streak="3" :xp="45" />
 
-    <form class="quick-add" @submit.prevent="tasks.unshift({ id: String(Date.now()), title: quick, subject: '语文', color: '#E05A5A', due: '今天' }); quick = ''">
+    <form class="quick-add" @submit.prevent="store.addTask({ id: String(Date.now()), title: quick, subject: '语文', color: '#E05A5A', due: '今天' }); quick = ''">
       <input v-model="quick" placeholder="添加作业…" />
       <button type="submit" class="add-btn">＋</button>
     </form>
