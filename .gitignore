@@ -11,6 +11,7 @@ build/
 coverage/
 bin/
 obj/
+.gradle/
 
 # ========== 测试截图（自动生成，不需要上传） ==========
 web/test/shots/

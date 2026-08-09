@@ -22,7 +22,7 @@ const selectedChannel = ref('stable');
 const channels = ref<{ id: string; name: string; description: string }[]>([]);
 const allVersions = ref<any[]>([]);
 const channelNotes = ref('');
-const isPreview = computed(() => selectedChannel.value === 'preview');
+const isPreview = computed(() => selectedChannel.value !== 'stable');
 const isHelpDialogActive = ref(false);
 
 // 网页版入口卡片：代码保留，当前按需求在下载页隐藏（改为 true 即可恢复显示）
@@ -174,6 +174,9 @@ const androidOptions = computed(() =>
         </div>
         <p v-if="!isLoading" class="text-center fluent-description mt-2" style="opacity: 75%; font-size: 13px">
           最新版本 v{{ version }} · {{ channels.find((c) => c.id === selectedChannel)?.name || '稳定版' }}通道 · SHA-256 自动校验 · 按钮自动指向最新版本
+        </p>
+        <p v-if="!isLoading" class="text-center fluent-description mt-1" style="opacity: 75%; font-size: 12px">
+          {{ channels.find((c) => c.id === selectedChannel)?.description || '' }}
         </p>
         <p v-if="!isLoading && channelNotes" class="text-center fluent-description mt-1" style="opacity: 75%; font-size: 12px; max-width: 680px">
           {{ channelNotes }}
