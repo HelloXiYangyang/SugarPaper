@@ -1,0 +1,21 @@
+{
+  "durations": {
+    "instant": 0,
+    "fast": 100,
+    "base": 180,
+    "page": 220,
+    "pageIn": 260,
+    "sheet": 200,
+    "xpFloat": 800,
+    "badge": 400
+  },
+  "curves": {
+    "easeOut": "cubic-bezier(0, 0, 0.2, 1)",
+    "easeInOut": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "spring": "cubic-bezier(0.34, 1.56, 0.64, 1)"
+  },
+  "rules": {
+    "onlyTransformOpacity": true,
+    "respectReducedMotion": true
+  }
+}

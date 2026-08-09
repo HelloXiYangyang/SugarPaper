@@ -1,0 +1,11 @@
+{
+  "description": "XP 计算：打卡 10 / 背诵 15 / 书面 20；高优先级 +50%；逾期完成双倍（欠账补完）。",
+  "cases": [
+    { "id": "xp-01", "kind": "checkin", "priority": 0, "overdue": false, "expected": 10 },
+    { "id": "xp-02", "kind": "recite", "priority": 0, "overdue": false, "expected": 15 },
+    { "id": "xp-03", "kind": "written", "priority": 0, "overdue": false, "expected": 20 },
+    { "id": "xp-04", "kind": "written", "priority": 3, "overdue": false, "expected": 30 },
+    { "id": "xp-05", "kind": "written", "priority": 0, "overdue": true, "expected": 40 },
+    { "id": "xp-06", "kind": "checkin", "priority": 3, "overdue": true, "expected": 30 }
+  ]
+}

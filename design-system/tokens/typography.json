@@ -1,0 +1,22 @@
+{
+  "fontFamily": {
+    "base": "-apple-system, 'Segoe UI', 'HarmonyOS Sans', 'Microsoft YaHei', 'PingFang SC', sans-serif",
+    "mono": "'JetBrains Mono', 'Cascadia Code', Consolas, monospace"
+  },
+  "scale": {
+    "xs": 12,
+    "sm": 13,
+    "base": 14,
+    "md": 16,
+    "lg": 18,
+    "xl": 20,
+    "2xl": 24,
+    "3xl": 28
+  },
+  "lineHeight": { "tight": 1.25, "normal": 1.5, "loose": 1.75 },
+  "weights": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700 },
+  "density": {
+    "mobile": { "baseScale": 1.0, "minTouch": 48 },
+    "desktop": { "baseScale": 1.0, "minTouch": 40 }
+  }
+}

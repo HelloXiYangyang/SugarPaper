@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task",
+  "type": "object",
+  "required": ["id", "title", "subject", "priority", "status", "createdAt", "updatedAt"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "subject": { "type": "string" },
+    "dueDate": { "type": ["string", "null"], "description": "YYYY-MM-DD，null 表示长期" },
+    "dueTime": { "type": ["string", "null"], "description": "HH:mm" },
+    "priority": { "type": "integer", "minimum": 0, "maximum": 3, "description": "0 无 / 1 低 / 2 中 / 3 高" },
+    "status": { "enum": ["todo", "done"] },
+    "kind": { "enum": ["checkin", "recite", "written"], "description": "打卡 / 背诵 / 书面（影响 XP）" },
+    "notes": { "type": "string" },
+    "images": { "type": "array", "items": { "type": "string" }, "maxItems": 4 },
+    "reminder": { "type": ["string", "null"] },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" }
+  },
+  "additionalProperties": true
+}

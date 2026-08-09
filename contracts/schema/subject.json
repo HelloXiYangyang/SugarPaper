@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Subject",
+  "type": "object",
+  "required": ["name", "color", "enabled"],
+  "properties": {
+    "name": { "type": "string" },
+    "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+    "enabled": { "type": "boolean" }
+  }
+}
