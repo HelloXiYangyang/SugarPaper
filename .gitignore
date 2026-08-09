@@ -9,6 +9,8 @@ pnpm-debug.log*
 dist/
 build/
 coverage/
+bin/
+obj/
 
 # ========== 测试截图（自动生成，不需要上传） ==========
 web/test/shots/

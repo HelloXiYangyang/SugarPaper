@@ -12,7 +12,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="10" Margin="8,8,8,16">
                     <Border Width="28" Height="28" CornerRadius="8" Background="#1677FF">
                         <Path Data="M 11,18 L 15,22 L 24,12" Stroke="White" StrokeThickness="3"
-                              StrokeLineCap="Round" StrokeLineJoin="Round" VerticalAlignment="Center"
+                              StrokeLineCap="Round" VerticalAlignment="Center"
                               HorizontalAlignment="Center" Stretch="Fill"/>
                     </Border>
                     <TextBlock Text="糖纸" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
