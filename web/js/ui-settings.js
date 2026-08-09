@@ -293,7 +293,7 @@
       '<div class="about-name">糖纸 · SugarPaper</div>' +
       '<div class="about-ver">v' + store.APP_VERSION + '（Web 版）</div>' +
       '<div class="about-slogan">让作业管理像糖果一样甜美简单。</div>' +
-      '<div class="about-slogan">离线优先 · 设备直连 · 马卡龙美学 · 零服务器依赖</div>' +
+'<div class="about-slogan">离线优先 · 设备直连 · 现代简洁美学 · 零服务器依赖</div>' +
       '</div></div>' +
 
       '<input type="file" id="import-file" accept=".json,application/json" hidden>';

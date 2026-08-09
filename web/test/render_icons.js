@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+/*
  * 生成正式 Logo 全套资源（PNG / ICO）：
  * node test/render_icons.js（需本机已安装 Playwright Chromium / Edge）
  */
@@ -109,8 +114,13 @@ async function main() {
   buildIco(sizes, icoDir, path.join(root, 'app', 'windows', 'runner', 'resources', 'app_icon.ico'));
   fs.rmSync(icoDir, { recursive: true, force: true });
 
+  // 5) Flutter 应用内 Logo 源资源（flutter_launcher_icons 与关于页/顶栏共用）
+  const appIconDir = path.join(root, 'app', 'assets', 'icon');
+  await shot(page, SVG_FULL, 1024, path.join(appIconDir, 'app_icon.png'));
+  await shot(page, SVG_FORE, 1024, path.join(appIconDir, 'icon_foreground.png'));
+
   await browser.close();
-  console.log('done: web/icons/*.png, android ic_launcher*, windows app_icon.ico');
+  console.log('done: web/icons/*.png, android ic_launcher*, windows app_icon.ico, app/assets/icon/*.png');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
