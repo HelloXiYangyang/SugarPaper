@@ -8,31 +8,28 @@ import { onMounted, ref, computed } from 'vue';
 import DownloadPlatformCard from '../../../components/DownloadPlatformCard.vue';
 import SplitDownloadButton from '../../../components/SplitDownloadButton.vue';
 import FluentButton from '../../../components/fluent/FluentButton.vue';
+import FluentComboBox from '../../../components/fluent/FluentComboBox.vue';
 import FluentDialog from '../../../components/fluent/FluentDialog.vue';
+import FluentInfoBar from '../../../components/fluent/FluentInfoBar.vue';
 import FluentSystemIcon from '../../../components/FluentSystemIcon.vue';
 import { useHead } from '@unhead/vue';
 
 const isLoading = ref(true);
 const isError = ref(false);
-const version = ref('');
+const isHelpDialogActive = ref(false);
+
+// 与 ClassIsland 官网同款结构：Channels + Versions，下载页按通道切换
+const downloadIndex = ref<{ Channels: Record<string, any>; Versions: any[] }>({ Channels: {}, Versions: [] });
+const selectedChannel = ref('stable');
+const latestVersionInfo = ref<{ Version: string; Title: string }>({ Version: '', Title: '' });
+const platformsMap = ref<Record<string, any>>({});
 const androidUrl = ref('');
 const windowsUrl = ref('');
 const webUrl = ref('');
-const selectedChannel = ref('stable');
-const channels = ref<{ id: string; name: string; description: string }[]>([]);
-const allVersions = ref<any[]>([]);
-const channelNotes = ref('');
-const isPreview = computed(() => selectedChannel.value !== 'stable');
-const isHelpDialogActive = ref(false);
-
-// 网页版入口卡片：代码保留，当前按需求在下载页隐藏（改为 true 即可恢复显示）
-const isWebVersionEnabled = false;
 
 const releasesPage = 'https://github.com/HelloXiYangyang/SugarPaper/releases';
 const releasesLatest = 'https://github.com/HelloXiYangyang/SugarPaper/releases/latest';
 
-// 三个平台图标取自微信官网（weixin.qq.com）同款图标（白色实心版），
-// 填充色改为 currentColor 以适配官网明暗主题；尺寸由 .platform-svg 统一控制（56px）。
 const androidSvg = `
 <svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='40' height='40' viewBox='0 0 40 40'>
   <defs>
@@ -60,7 +57,6 @@ const windowsSvg = `
 const harmonySvg = `
 <svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'>
   <g fill='currentColor' fill-rule='evenodd'>
-    <path fill-rule='nonzero' d='M0 0h40v40H0z' opacity='0'/>
     <path d='M15.2 23.2c-.4-.2-.8-.3-1.3-.3s-.9.1-1.3.3c-.4.2-.7.5-.9.9-.2.4-.3.8-.3 1.3s.1.9.3 1.3c.2.4.5.7.9.9.4.2.8.3 1.3.3s.9-.1 1.3-.3c.4-.2.7-.5.9-.9.2-.4.3-.8.3-1.3s-.1-.9-.3-1.3c-.2-.4-.5-.7-.9-.9zM11.6 5C8 5 5 7.9 5 11.6v16.8C5 32 7.9 35 11.6 35h16.8c3.6 0 6.6-2.9 6.6-6.6V11.6C35 8 32.1 5 28.4 5H11.6zm-.9 5.3h1.5v3.2h3.5v-3.2h1.5v8h-1.5v-3.4h-3.5v3.4h-1.5v-8zm6.1 22h-5.7V31h5.7v1.3zm.7-4.8c-.4.6-.9 1.1-1.5 1.5-.6.4-1.3.5-2.1.5s-1.5-.2-2.1-.5c-.6-.4-1.1-.9-1.5-1.5-.4-.6-.5-1.3-.5-2.1s.2-1.5.5-2.1c.4-.6.9-1.1 1.5-1.5.6-.4 1.3-.5 2.1-.5s1.5.2 2.1.5c.6.4 1.1.9 1.5 1.5.4.6.5 1.3.5 2.1s-.2 1.5-.5 2.1zm10.6 1.1c-.2.4-.6.6-1 .8-.4.2-.9.3-1.4.3-.5 0-1.3-.1-1.9-.4-.5-.3-.9-.6-1.1-1.1V28h.1l.7-.4.2-.1.2.3.6.6c.3.2.7.3 1 .3.3 0 .7 0 1-.3.2-.2.3-.4.3-.7 0-.3 0-.4-.2-.5-.2-.2-.4-.3-.8-.4l-1.1-.3c-1.3-.4-2-1.1-2-2.3 0-1.2.1-.9.4-1.3.2-.4.6-.6 1-.8.4-.2.9-.3 1.4-.3.5 0 1.2.1 1.7.4.4.2.8.6 1 1v.3c.1 0 0 .1 0 .1l-.9.6-.2-.3c-.1-.2-.3-.4-.5-.5-.3-.2-.6-.2-.9-.2-.3 0-.7 0-.9.3-.2.2-.3.4-.3.7 0 .3 0 .4.2.5.2.2.4.3.8.4l1.1.3c1.3.4 1.9 1.1 1.9 2.3 0 1.2-.1.9-.3 1.3l-.1-.4zm-.2-10.4V13l-2 3.2h-.7l-2-3.2v5.1h-1.4v-8h1.4l2.5 4 2.5-4h1.3v8h-1.4l-.2.1z'/>
   </g>
 </svg>`;
@@ -71,7 +67,7 @@ useHead({
     {
       name: 'description',
       content:
-        '下载糖纸 · SugarPaper：Android APK、Windows 桌面版，安装包托管在 GitHub Releases，按钮自动指向最新版本。'
+        '下载糖纸 · SugarPaper：Android APK、Windows 桌面版，支持稳定 / 测试 / 发布预览三个发行通道，安装包托管在 GitHub Releases，按钮自动指向各通道最新版本。'
     }
   ]
 });
@@ -81,13 +77,22 @@ async function init() {
     const res = await fetch(import.meta.env.BASE_URL + 'updates/latest.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('bad status');
     const data = await res.json();
-    channels.value = Object.entries(data.channels || {}).map(([id, c]: [string, any]) => ({
-      id,
-      name: c.name,
-      description: c.description
+
+    // 映射为 ClassIsland 同款结构：Channels（Name/Description）+ Versions（Version/Channels）
+    const channels: Record<string, any> = {};
+    for (const [id, c] of Object.entries(data.channels || {})) {
+      const ch = c as any;
+      channels[id] = { Name: ch.name, Description: ch.description, Warning: '' };
+    }
+    const versions = (data.versions || []).map((v: any) => ({
+      Version: v.version,
+      Title: v.version,
+      Channels: v.channels || []
     }));
-    allVersions.value = data.versions || [];
-    applyChannel(selectedChannel.value, data.latest, data.platforms);
+    downloadIndex.value = { Channels: channels, Versions: versions };
+    platformsMap.value = Object.fromEntries((data.versions || []).map((v: any) => [v.version, v.platforms || {}]));
+
+    await loadCurrentChannel();
   } catch (e) {
     isError.value = true;
     console.error(e);
@@ -95,28 +100,39 @@ async function init() {
   isLoading.value = false;
 }
 
+async function getSelectedVersion(index: any) {
+  for (const i of index.Versions) {
+    if (i.Channels.includes(selectedChannel.value)) return i;
+  }
+  return null;
+}
+
+async function loadCurrentChannel() {
+  const v = await getSelectedVersion(downloadIndex.value);
+  if (v) {
+    latestVersionInfo.value = v;
+    const p = platformsMap.value[v.Version] || {};
+    androidUrl.value = p.android?.url || '';
+    windowsUrl.value = p.windows?.url || '';
+    webUrl.value = p.web?.url || '';
+  }
+}
+
+async function updateChannelSelection() {
+  isLoading.value = true;
+  isError.value = false;
+  await loadCurrentChannel();
+  isLoading.value = false;
+}
+
 onMounted(() => init());
 
-function applyChannel(ch: string, fallbackLatest?: any, fallbackPlatforms?: any) {
-  selectedChannel.value = ch;
-  const v = allVersions.value.find((x: any) => (x.channels || []).includes(ch));
-  if (!v) {
-    if (fallbackLatest) {
-      version.value = fallbackLatest.version || '';
-      channelNotes.value = fallbackLatest.notes || '';
-      androidUrl.value = fallbackPlatforms?.android?.url || '';
-      windowsUrl.value = fallbackPlatforms?.windows?.url || '';
-      webUrl.value = fallbackPlatforms?.web?.url || '';
-    }
-    return;
-  }
-  version.value = v.version;
-  channelNotes.value = v.notes || '';
-  const p = v.platforms || {};
-  androidUrl.value = p.android?.url || '';
-  windowsUrl.value = p.windows?.url || '';
-  webUrl.value = p.web?.url || '';
-}
+const comboBoxItems = computed(() =>
+  Object.entries(downloadIndex.value.Channels).map(([id, c]) => ({
+    text: c.Name,
+    value: id
+  }))
+);
 
 const downloadRouteRoot = computed(() => {
   const u = androidUrl.value || windowsUrl.value;
@@ -125,18 +141,6 @@ const downloadRouteRoot = computed(() => {
 
 const androidApkName = computed(() => androidUrl.value.split('/').pop() || '');
 const windowsExeName = computed(() => windowsUrl.value.split('/').pop() || '');
-
-const windowsOptions = computed(() =>
-  windowsUrl.value
-    ? (() => {
-        const exe = windowsExeName.value;
-        return {
-          [exe]: { title: '安装包 setup.exe' },
-          [exe.replace(/\.exe$/, '.zip')]: { title: '绿色版 zip' }
-        };
-      })()
-    : {}
-);
 
 const androidOptions = computed(() =>
   androidUrl.value
@@ -151,40 +155,46 @@ const androidOptions = computed(() =>
       })()
     : {}
 );
+
+const windowsOptions = computed(() =>
+  windowsUrl.value
+    ? (() => {
+        const exe = windowsExeName.value;
+        return {
+          [exe]: { title: '安装包 setup.exe' },
+          [exe.replace(/\.exe$/, '.zip')]: { title: '绿色版 zip' }
+        };
+      })()
+    : {}
+);
 </script>
 
 <template>
   <div class="d-flex download-container flex-column page-margin-x-wide">
-    <div v-if="!isError" class="d-flex flex-column mt-8">
+    <div class="loading-mask d-flex" v-if="isLoading">
+      <div class="align-self-center">
+        <v-progress-circular size="48" indeterminate color="fill-color-accent-default" />
+      </div>
+    </div>
+
+    <div v-else-if="!isError" class="d-flex flex-column mt-8">
       <h2 class="align-self-center text-center mb-4 text-h3 font-weight-bold fluent-title">下载 SugarPaper</h2>
       <p class="text-center align-self-center mb-12 fluent-subtitle">首先，选择适合您的平台和打包方式</p>
 
-      <div class="mb-4 align-self-center d-flex flex-column">
-        <v-skeleton-loader v-if="isLoading" width="260px" height="36px" />
-        <div v-else class="channel-switch d-flex align-self-center">
-          <button
-            v-for="c in channels"
-            :key="c.id"
-            class="channel-btn"
-            :class="{ on: selectedChannel === c.id }"
-            @click="applyChannel(c.id)"
-          >
-            {{ c.name }}
-          </button>
-        </div>
-        <p v-if="!isLoading" class="text-center fluent-description mt-2" style="opacity: 75%; font-size: 13px">
-          最新版本 v{{ version }} · {{ channels.find((c) => c.id === selectedChannel)?.name || '稳定版' }}通道 · SHA-256 自动校验 · 按钮自动指向最新版本
-        </p>
-        <p v-if="!isLoading" class="text-center fluent-description mt-1" style="opacity: 75%; font-size: 12px">
-          {{ channels.find((c) => c.id === selectedChannel)?.description || '' }}
-        </p>
-        <p v-if="!isLoading && channelNotes" class="text-center fluent-description mt-1" style="opacity: 75%; font-size: 12px; max-width: 680px">
-          {{ channelNotes }}
-        </p>
+      <div class="mb-4 fill-height" v-if="downloadIndex.Channels[selectedChannel]?.Warning">
+        <FluentInfoBar severity="warning" :message="downloadIndex.Channels[selectedChannel].Warning" />
+      </div>
+
+      <div class="mb-4 fill-height" v-if="selectedChannel !== 'stable'">
+        <FluentInfoBar
+          severity="info"
+          title="这是开发中的新版本（各端独立技术栈：Vue 3 / Kotlin / Avalonia）"
+          :message="downloadIndex.Channels[selectedChannel]?.Description"
+          closable
+        />
       </div>
 
       <div
-        v-if="!isPreview"
         class="align-self-stretch d-flex ga-4 justify-center platforms-container flex-column flex-md-row flex-row align-content-start"
       >
         <DownloadPlatformCard
@@ -192,7 +202,7 @@ const androidOptions = computed(() =>
           platform-name="Android"
           :platform-icon-svg="androidSvg"
           description="Android 7.0+ · 通用安装包"
-          :version="version"
+          :version="latestVersionInfo.Title"
           class="flex-grow-1 platform"
         >
           <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
@@ -213,7 +223,7 @@ const androidOptions = computed(() =>
           platform-name="Windows"
           :platform-icon-svg="windowsSvg"
           description="Windows 10 及更高版本"
-          :version="version"
+          :version="latestVersionInfo.Title"
           class="flex-grow-1 platform"
         >
           <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
@@ -230,17 +240,17 @@ const androidOptions = computed(() =>
         </DownloadPlatformCard>
 
         <DownloadPlatformCard
-          v-if="isWebVersionEnabled"
+          v-if="webUrl"
           platform-name="Web PWA"
           :platform-icon-svg="webSvg"
-          description="在线可用 · 零安装 · 可离线"
-          :version="version"
+          :description="selectedChannel === 'stable' ? '在线可用 · 零安装 · 可离线' : '重构中的新版网页（Vue 3 + TS）'"
+          :version="latestVersionInfo.Title"
           class="flex-grow-1 platform"
         >
           <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
-            <FluentButton variant="primary" :href="webUrl || '/SugarPaper/app/'" target="_blank">
+            <FluentButton variant="primary" :href="webUrl" target="_blank">
               <template #prepend><FluentSystemIcon name="documentSparkle" /></template>
-              在线使用网页版
+              在线使用{{ selectedChannel === 'stable' ? '网页版' : '预览版' }}
             </FluentButton>
           </div>
         </DownloadPlatformCard>
@@ -260,57 +270,19 @@ const androidOptions = computed(() =>
         </DownloadPlatformCard>
       </div>
 
-      <div
-        v-else
-        class="align-self-stretch d-flex ga-4 justify-center platforms-container flex-column flex-md-row flex-row align-content-start"
-      >
-        <DownloadPlatformCard
-          platform-name="Web 预览"
-          :platform-icon-svg="webSvg"
-          description="重构中的全新网页版（Vue 3 + TS）· 预览通道"
-          :version="version"
-          class="flex-grow-1 platform"
-        >
-          <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
-            <FluentButton variant="primary" :href="webUrl || '/SugarPaper/app-preview/'" target="_blank">
-              <template #prepend><FluentSystemIcon name="documentSparkle" /></template>
-              在线体验预览版
-            </FluentButton>
-          </div>
-        </DownloadPlatformCard>
-
-        <DownloadPlatformCard
-          platform-name="Android"
-          :platform-icon-svg="androidSvg"
-          description="预览版 Android 构建即将推出"
-          :version="version"
-          class="flex-grow-1 platform"
-        >
-          <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
-            <FluentButton variant="hyperlink" :href="releasesPage" target="_blank">
-              <template #prepend><FluentSystemIcon name="archive" /></template>
-              查看发布
-            </FluentButton>
-          </div>
-        </DownloadPlatformCard>
-
-        <DownloadPlatformCard
-          platform-name="Windows"
-          :platform-icon-svg="windowsSvg"
-          description="预览版 Windows 构建即将推出"
-          :version="version"
-          class="flex-grow-1 platform"
-        >
-          <div class="d-flex flex-row flex-wrap align-center justify-center mt-2 ga-1">
-            <FluentButton variant="hyperlink" :href="releasesPage" target="_blank">
-              <template #prepend><FluentSystemIcon name="archive" /></template>
-              查看发布
-            </FluentButton>
-          </div>
-        </DownloadPlatformCard>
+      <div class="d-flex flex-row flex-wrap ga-4 justify-center align-self-center align-content-center mt-8">
+        <FluentComboBox
+          v-model="selectedChannel"
+          :items="comboBoxItems"
+          item-text="text"
+          item-value="value"
+          placeholder="发行通道"
+          width="250px"
+          @update:model-value="updateChannelSelection"
+        />
       </div>
 
-      <div class="align-self-center d-flex flex-row ga-4 mt-8 flex-wrap justify-center">
+      <div class="d-flex flex-row flex-wrap ga-4 justify-center align-self-center align-content-center mb-4">
         <FluentButton variant="hyperlink" :href="releasesPage" target="_blank">
           <template #prepend><FluentSystemIcon name="archive" /></template>
           查看全部版本
@@ -326,43 +298,64 @@ const androidOptions = computed(() =>
       </div>
 
       <p class="text-center align-self-center fluent-description mt-6" style="opacity: 75%; font-size: 12.5px; max-width: 640px">
-        安装包托管在 GitHub Releases，按钮自动指向最新版本并校验 SHA-256。若 GitHub 下载较慢，可在设置页配置镜像源。
+        安装包托管在 GitHub Releases，按钮自动指向所选通道的最新版本并校验 SHA-256。若 GitHub 下载较慢，可在设置页配置镜像源。
       </p>
     </div>
 
-    <div v-else class="d-flex flex-column mt-12 align-center">
-      <h2 class="text-h4 mb-4 fluent-title">暂时无法读取版本信息</h2>
-      <p class="fluent-description mb-6">请稍后重试，或直接前往 GitHub Releases 查看最新版本。</p>
-      <FluentButton variant="primary" :href="releasesLatest" target="_blank">
-        <template #prepend><FluentSystemIcon name="arrowDownload" /></template>
-        前往 GitHub Releases
-      </FluentButton>
+    <div v-else-if="isError" class="flex-column mt-12">
+      <div class="page-margin-x">
+        <h2 class="align-self-center text-center mb-6 text-h3 font-weight-bold fluent-title">出错啦！</h2>
+        <p class="text-center align-self-center mb-16 fluent-description">无法获取下载信息，可能是下载服务器目前不可用。</p>
+        <div class="justify-center d-flex flex-row flex-wrap ga-4">
+          <FluentButton variant="primary" @click="location.reload()">
+            <template #prepend><FluentSystemIcon name="arrowClockwise" /></template>
+            刷新页面
+          </FluentButton>
+          <FluentButton :href="releasesPage" target="_blank">
+            <template #prepend><FluentSystemIcon name="bookOpen" /></template>
+            前往 GitHub 下载
+          </FluentButton>
+        </div>
+      </div>
     </div>
 
     <FluentDialog v-model="isHelpDialogActive" title="安装帮助">
-      <ul style="padding-left: 1.2em; line-height: 1.8">
-        <li><strong>Android：</strong>下载 APK 后用文件管理器打开安装；若提示「未知来源」，请在系统设置中允许安装该应用。</li>
-        <li><strong>Windows：</strong>下载 setup.exe 双击安装（未签名会有 SmartScreen 提示，选择「仍要运行」即可）；绿色版 zip 解压后运行 SugarPaper.exe。</li>
-        <li><strong>Web PWA：</strong>直接在浏览器使用，或通过浏览器「安装应用」功能安装到桌面离线使用。</li>
-        <li><strong>数据：</strong>默认保存在本机，账号同步为可选项。</li>
-      </ul>
-      <template #actions>
-        <FluentButton variant="primary" @click="isHelpDialogActive = false">知道了</FluentButton>
+      <div class="fluent-dialog-body">
+        <ul style="margin: 0; padding-left: 18px">
+          <li><strong>Android：</strong>下载 APK 后用文件管理器打开安装；若提示「未知来源」，请在系统设置中允许安装该应用。</li>
+          <li><strong>Windows：</strong>下载 setup.exe 双击安装（未签名会有 SmartScreen 提示，选择「仍要运行」即可）；绿色版 zip 解压后运行 SugarPaper.exe。</li>
+          <li><strong>Web PWA：</strong>直接在浏览器使用，或通过浏览器「安装应用」功能安装到桌面离线使用。</li>
+          <li><strong>数据：</strong>默认保存在本机，账号同步为可选项。</li>
+        </ul>
+      </div>
+      <template #footer>
+        <FluentButton @click="isHelpDialogActive = false">关闭</FluentButton>
       </template>
     </FluentDialog>
   </div>
 </template>
 
 <style scoped lang="scss">
-.platforms-container {
-  align-items: stretch;
+.loading-mask {
+  align-self: center;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-@media (min-width: 960px) {
-  .platforms-container > .platform {
-    flex: 1 1 0;
-    min-width: 0;
-  }
+.download-container {
+  height: 100%;
+}
+
+.platform {
+  flex-basis: 33.3333%;
+  position: relative;
+  z-index: 1;
+}
+
+.platform:hover {
+  z-index: 10;
 }
 
 .fluent-title {
@@ -373,7 +366,6 @@ const androidOptions = computed(() =>
 .fluent-subtitle {
   font-family: var(--font-family-base);
   color: var(--fill-color-text-secondary);
-  font-size: 16px;
 }
 
 .fluent-description {
@@ -381,32 +373,10 @@ const androidOptions = computed(() =>
   color: var(--fill-color-text-secondary);
 }
 
-.channel-switch {
-  gap: 8px;
-  background: var(--fill-color-control-alt-secondary);
-  border-radius: 999px;
-  padding: 4px;
-}
-
-.channel-btn {
-  border: none;
-  background: transparent;
-  color: var(--fill-color-text-secondary);
+.fluent-dialog-body {
   font-family: var(--font-family-base);
   font-size: 14px;
-  padding: 8px 22px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 160ms var(--ease-out, ease-out), color 160ms var(--ease-out, ease-out);
-}
-
-.channel-btn:hover {
+  line-height: 20px;
   color: var(--fill-color-text-primary);
-}
-
-.channel-btn.on {
-  background: var(--fill-color-accent-default, #1677ff);
-  color: #fff;
-  font-weight: 600;
 }
 </style>
