@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /// 专注会话（v5.0 新增）：记录番茄钟/倒计时/无限专注时长。

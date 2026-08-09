@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import 'package:flutter/material.dart';
@@ -53,31 +53,56 @@ class _AppShellState extends ConsumerState<AppShell> {
     final index = _indexOf(state.view).clamp(0, _tabs.length - 1);
     final prevIndex = _prevIndex;
     _prevIndex = index;
+    // v0.32.0：宽屏（≥840px，桌面/平板横屏）使用侧边栏，与网页版断点一致
+    final wide = MediaQuery.sizeOf(context).width >= kMediumMax;
+
+    final content = SafeArea(
+      bottom: false,
+      child: AnimatedSwitcher(
+        duration: theme.animations
+            ? AnimDurations.speed(
+                AnimDurations.pageTransition, theme.frameRate)
+            : Duration.zero,
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, anim) => _PageTransition(
+          anim: anim,
+          index: index,
+          prevIndex: prevIndex,
+          child: child,
+        ),
+        child: KeyedSubtree(
+          key: ValueKey(state.view),
+          child: _pages[index],
+        ),
+      ),
+    );
+
+    if (wide) {
+      return Scaffold(
+        backgroundColor: t.bg,
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Sidebar(
+              state: state,
+              current: index,
+              onTap: (i) => state.navigate(_tabs[i].$1),
+              onSubject: (name) {
+                state.setSubject(name);
+                if (state.view != 'home') state.navigate('home');
+              },
+            ),
+            VerticalDivider(width: 1, thickness: 1, color: t.border),
+            Expanded(child: content),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: t.bg,
-      // SafeArea：避免手机状态栏/刘海遮挡页面顶部按钮
-      body: SafeArea(
-        bottom: false,
-        child: AnimatedSwitcher(
-          duration: theme.animations
-              ? AnimDurations.speed(
-                  AnimDurations.pageTransition, theme.frameRate)
-              : Duration.zero,
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeIn,
-          transitionBuilder: (child, anim) => _PageTransition(
-            child: child,
-            anim: anim,
-            index: index,
-            prevIndex: prevIndex,
-          ),
-          child: KeyedSubtree(
-            key: ValueKey(state.view),
-            child: _pages[index],
-          ),
-        ),
-      ),
+      body: content,
       bottomNavigationBar: _BottomNav(
         current: index,
         onTap: (i) => state.navigate(_tabs[i].$1),
@@ -106,7 +131,8 @@ class _PageTransition extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     final compact = width < kCompactMax;
     final forward = index >= prevIndex;
-    final offset = compact ? Offset(0, 0.05) : Offset(forward ? 0.08 : -0.08, 0);
+    final offset =
+        compact ? const Offset(0, 0.05) : Offset(forward ? 0.08 : -0.08, 0);
     return SlideTransition(
       position: Tween<Offset>(
         begin: offset,
@@ -185,6 +211,172 @@ class _BottomNav extends StatelessWidget {
             }),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 桌面侧边栏（≥840px）：品牌 + 导航 + 科目快捷筛选，对齐网页版侧边栏。
+class _Sidebar extends StatelessWidget {
+  final AppState state;
+  final int current;
+  final ValueChanged<int> onTap;
+  final ValueChanged<String> onSubject;
+
+  const _Sidebar({
+    required this.state,
+    required this.current,
+    required this.onTap,
+    required this.onSubject,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context).extension<SugarTheme>()!.data;
+    final counts = state.subjectCounts;
+    final allCount = state.allTasks.length;
+
+    Widget navItem(int i) {
+      final tab = _tabs[i];
+      final active = i == current;
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1),
+        child: Material(
+          color: active ? t.iconMain.withValues(alpha: 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => onTap(i),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              child: Row(
+                children: [
+                  SugarIcon(
+                    tab.$3,
+                    size: 17,
+                    color: active ? t.iconMain : t.text3,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    tab.$2,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+                      color: active ? t.iconMain : t.text2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget subjectItem(String name, Color dot, int count, {bool active = false}) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1),
+        child: Material(
+          color: active ? t.surface2 : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => onSubject(name),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              child: Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: dot,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                        color: active ? t.text : t.text2,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$count',
+                    style: TextStyle(fontSize: 11, color: t.text3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: 232,
+      color: t.surface,
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 14),
+            child: Row(
+              children: [
+                SugarIcon('candy', size: 22, color: t.iconMain),
+                const SizedBox(width: 8),
+                Text(
+                  '糖纸 · SugarPaper',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: t.text,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                for (var i = 0; i < _tabs.length; i++) navItem(i),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                  child: Text(
+                    '科目',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                      color: t.text3,
+                    ),
+                  ),
+                ),
+                subjectItem(
+                  '全部',
+                  const Color(0xFFE292B4),
+                  allCount,
+                  active: state.subject == '全部',
+                ),
+                for (final s in state.enabledSubjects)
+                  subjectItem(
+                    s.name,
+                    SugarThemeData.hex(s.colorHex),
+                    counts[s.name] ?? 0,
+                    active: state.subject == s.name,
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

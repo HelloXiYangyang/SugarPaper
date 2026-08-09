@@ -1,13 +1,13 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import 'package:flutter/material.dart';
 
 import '../models/subject_config.dart';
 
-/// 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，全平台保持一致。
+/// 默认学科清单（v4.1 统一）：覆盖小学/初中/高中，各端保持一致。
 const List<SubjectConfig> kDefaultSubjects = [
   SubjectConfig(name: '语文', colorHex: '#F4B8CE'),
   SubjectConfig(name: '数学', colorHex: '#B3D4F0'),

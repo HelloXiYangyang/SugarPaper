@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <path d="M80 20 C 44 22 30 46 42 62 C 54 78 84 60 87 78 C 90 94 70 108 46 104" stroke="#1677FF" stroke-width="17" stroke-linecap="round" fill="none"/>
   <circle cx="46" cy="104" r="11" fill="#1677FF"/>

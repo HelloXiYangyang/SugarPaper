@@ -1,3 +1,6 @@
+# Copyright (C) 2026 HelloXiYangyang
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 name: Release
 
 on:
@@ -36,9 +39,37 @@ jobs:
           name: android-apk
           path: SugarPaper-v*-android*.apk
 
+  windows:
+    name: 构建 Windows 安装包
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: app
+      - run: flutter build windows --release
+        working-directory: app
+      - name: 安装 Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: 生成安装包并重命名
+        shell: pwsh
+        run: |
+          $ver = $env:GITHUB_REF_NAME.TrimStart('v')
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' "/DMyAppVersion=$ver" 'packaging\windows\sugarpaper.iss'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item "build\windows\dist\v$ver\SugarPaper-v$ver-windows-x64.exe" "..\SugarPaper-v$ver-windows-x64.exe" -Force
+          Get-FileHash -Algorithm SHA256 "..\SugarPaper-v$ver-windows-x64.exe" | Select-Object -ExpandProperty Hash
+        working-directory: app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-setup
+          path: SugarPaper-v*-windows-x64.exe
+
   publish:
     name: 发布 Release 并更新元数据
-    needs: android
+    needs: [android, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,6 +77,12 @@ jobs:
         with:
           name: android-apk
           path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-setup
+          path: dist
+          pattern: SugarPaper-v*-windows-x64.exe
+          merge-multiple: true
 
       - name: 计算 SHA-256 并提取版本信息
         id: meta
@@ -55,6 +92,12 @@ jobs:
           SHA_A64=$(sha256sum dist/SugarPaper-v${VER}-android-arm64-v8a.apk | awk '{print $1}')
           SHA_A7=$(sha256sum dist/SugarPaper-v${VER}-android-armeabi-v7a.apk | awk '{print $1}')
           SHA_X86=$(sha256sum dist/SugarPaper-v${VER}-android-x86_64.apk | awk '{print $1}')
+          SHA_WIN=""
+          if [ -f "dist/SugarPaper-v${VER}-windows-x64.exe" ]; then
+            SHA_WIN=$(sha256sum "dist/SugarPaper-v${VER}-windows-x64.exe" | awk '{print $1}')
+          fi
+          PLATFORM="安卓版"
+          [ -n "$SHA_WIN" ] && PLATFORM="安卓版 + Windows 版"
           # 主题：从 README 安卓版小节的最新版本日志标题中提取，如「S13 零服务器自动更新」
           THEME=""
           SECTION=$(grep -n "^## 📱 版本二" README.md | head -1 | cut -d: -f1)
@@ -83,6 +126,8 @@ jobs:
             echo "sha_a64=$SHA_A64"
             echo "sha_a7=$SHA_A7"
             echo "sha_x86=$SHA_X86"
+            echo "sha_win=$SHA_WIN"
+            echo "platform=$PLATFORM"
             echo "theme=$THEME"
             echo "log<<GHLOG"
             echo "$LOG"
@@ -97,14 +142,21 @@ jobs:
           SHA_A64: ${{ steps.meta.outputs.sha_a64 }}
           SHA_A7: ${{ steps.meta.outputs.sha_a7 }}
           SHA_X86: ${{ steps.meta.outputs.sha_x86 }}
+          SHA_WIN: ${{ steps.meta.outputs.sha_win }}
           LOG: ${{ steps.meta.outputs.log }}
         run: |
           node - <<'EOF'
           const fs = require('fs');
-          const { VER, THEME, SHA, SHA_A64, SHA_A7, SHA_X86, LOG } = process.env;
+          const { VER, THEME, SHA, SHA_A64, SHA_A7, SHA_X86, SHA_WIN, LOG } = process.env;
+          const winRows = SHA_WIN
+            ? `| [SugarPaper-v${VER}-windows-x64.exe](https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${VER}/SugarPaper-v${VER}-windows-x64.exe) | Windows 桌面版安装包（x64，Inno Setup） |\n`
+            : '';
+          const winShaRows = SHA_WIN
+            ? `| SugarPaper-v${VER}-windows-x64.exe | ${SHA_WIN} |\n`
+            : '';
           const md = `## 版本概览
 
-          糖纸 · SugarPaper 安卓版 v${VER}（${THEME}）：与网页版 v${VER} 功能对齐，正式发布。
+          糖纸 · SugarPaper v${VER}（${THEME}）：与网页版 v${VER} 功能对齐，正式发布。
 
           ## 更新内容
 
@@ -118,6 +170,7 @@ jobs:
           | SugarPaper-v${VER}-android-arm64-v8a.apk | 仅 arm64-v8a（新机型，体积更小） |
           | SugarPaper-v${VER}-android-armeabi-v7a.apk | 仅 armeabi-v7a（较老机型） |
           | SugarPaper-v${VER}-android-x86_64.apk | 仅 x86_64（模拟器 / 部分平板） |
+          ${winRows}
 
           SHA-256 校验值：
 
@@ -127,11 +180,12 @@ jobs:
           | SugarPaper-v${VER}-android-arm64-v8a.apk | ${SHA_A64} |
           | SugarPaper-v${VER}-android-armeabi-v7a.apk | ${SHA_A7} |
           | SugarPaper-v${VER}-android-x86_64.apk | ${SHA_X86} |
+          ${winShaRows}
 
           ## 安装说明
 
-          1. 下载 APK 后用文件管理器打开安装；
-          2. 若提示「未知来源」，请在系统设置中允许安装该应用；
+          1. Android：下载 APK 后用文件管理器打开安装，若提示「未知来源」请在系统设置中允许；
+          2. Windows：下载 setup.exe 双击安装（未签名会有 SmartScreen 提示，属正常安全机制）；
           3. 数据默认保存在本机，账号同步为可选项，可放心试用。
 
           ## 反馈
@@ -146,18 +200,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VER: ${{ steps.meta.outputs.ver }}
           THEME: ${{ steps.meta.outputs.theme }}
+          PLATFORM: ${{ steps.meta.outputs.platform }}
         run: |
+          ARGS="dist/SugarPaper-v${VER}-android.apk dist/SugarPaper-v${VER}-android-arm64-v8a.apk dist/SugarPaper-v${VER}-android-armeabi-v7a.apk dist/SugarPaper-v${VER}-android-x86_64.apk"
+          if [ -f "dist/SugarPaper-v${VER}-windows-x64.exe" ]; then
+            ARGS="$ARGS dist/SugarPaper-v${VER}-windows-x64.exe"
+          fi
           gh release create "${GITHUB_REF_NAME}" \
-            --title "糖纸 · SugarPaper —— 全平台作业管理助手 · v${VER} · 安卓版 · ${THEME}" \
+            --title "糖纸 · SugarPaper —— 多平台作业管理助手 · v${VER} · ${PLATFORM} · ${THEME}" \
             --notes-file notes.md \
-            dist/SugarPaper-v${VER}-android.apk \
-            dist/SugarPaper-v${VER}-android-arm64-v8a.apk \
-            dist/SugarPaper-v${VER}-android-armeabi-v7a.apk \
-            dist/SugarPaper-v${VER}-android-x86_64.apk
+            $ARGS
 
       - name: 更新 updates/latest.json（版本号 / build / sha256）
         env:
           SHA: ${{ steps.meta.outputs.sha }}
+          SHA_WIN: ${{ steps.meta.outputs.sha_win }}
           VER: ${{ steps.meta.outputs.ver }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -172,6 +229,11 @@ jobs:
           j.latest.published_at = new Date().toISOString();
           j.platforms.android.url = `https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${process.env.VER}/SugarPaper-v${process.env.VER}-android.apk`;
           j.platforms.android.sha256 = process.env.SHA;
+          if (process.env.SHA_WIN) {
+            j.platforms.windows = j.platforms.windows || {};
+            j.platforms.windows.url = `https://github.com/HelloXiYangyang/SugarPaper/releases/download/v${process.env.VER}/SugarPaper-v${process.env.VER}-windows-x64.exe`;
+            j.platforms.windows.sha256 = process.env.SHA_WIN;
+          }
           fs.writeFileSync(path, JSON.stringify(j, null, 2) + '\n');
           EOF
           git config user.name "github-actions[bot]"

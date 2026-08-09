@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /* 糖纸 · SugarPaper —— 教师模式：作业文本生成器（v0.25.0）

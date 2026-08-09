@@ -1019,7 +1019,10 @@ SugarPaper-v<版本号>-<平台>[-<ABI>].<扩展名>
 
 ## 📜 开源协议
 
-本项目基于 **GNU Affero General Public License v3.0（AGPLv3）** 开源发布，完整协议文本见 [LICENSE](./LICENSE)。
+本项目基于 **GNU General Public License v3.0（GPLv3）** 开源发布，完整协议文本见 [LICENSE](./LICENSE)。各部分授权如下：
+- 应用代码（`web/`、`app/`、`scripts/` 等）与 Logo：**GPL-3.0-or-later**；
+- 官网（`homepage/`、`site/`）：**GPL-3.0-or-later**，其中界面与交互基于 [ClassIsland 官网](https://github.com/ClassIsland/classisland-web-vuetify)（MIT 许可）改造，保留原项目署名与 MIT 许可文本；
+- 文档站（`docs-src/`、`site/docs/`）：衍生自 [ClassIsland 文档](https://github.com/ClassIsland/classisland-docs-next)（CC BY-NC-SA 4.0），以 **CC BY-NC-SA 4.0** 授权，详见 `docs-src/LICENSE`。
 
 ### 版权声明维护规范
 
@@ -1028,7 +1031,7 @@ SugarPaper-v<版本号>-<平台>[-<ABI>].<扩展名>
 ```c
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 ```
 
@@ -1037,7 +1040,7 @@ HTML / SVG：
 ```html
 <!--
   Copyright (C) 2026 HelloXiYangyang
-  SPDX-License-Identifier: AGPL-3.0-or-later
+  SPDX-License-Identifier: GPL-3.0-or-later
 -->
 ```
 

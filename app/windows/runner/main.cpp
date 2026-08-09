@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 #include <flutter/dart_project.h>
@@ -31,8 +31,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  Win32Window::Size size(1280, 720);
-  if (!window.Create(L"sugarpaper", origin, size)) {
+  Win32Window::Size size(1280, 800);
+  if (!window.Create(L"糖纸 · SugarPaper", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /* 官网交互：Hero 入场动画、滚动显现、顶部导航高亮、移动端抽屉。 */

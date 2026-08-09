@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /* 文档同步校验：node test/verify_docs.js
@@ -23,7 +23,7 @@ function read(p) {
 const targets = [
   { name: 'store.js 默认科目', file: 'web/js/store.js', min: 1 },
   { name: 'parser.js 词表', file: 'web/js/parser.js', min: 1 },
-  { name: 'PRD v4.1', file: '🧁 糖纸 · SugarPaper —— 全平台作业管理助手.md', min: 2 },
+  { name: 'PRD v4.1', file: '🧁 糖纸 · SugarPaper —— 产品需求文档（PRD v4.13）.md', min: 2 },
   { name: 'README', file: 'README.md', min: 1 }
 ];
 
@@ -39,7 +39,7 @@ for (const t of targets) {
   }
 }
 
-const prd = read('🧁 糖纸 · SugarPaper —— 全平台作业管理助手.md');
+const prd = read('🧁 糖纸 · SugarPaper —— 产品需求文档（PRD v4.13）.md');
 if (!prd.includes('v4.1 变更')) { failed++; console.error('  ❌ PRD 缺少 v4.1 变更记录'); }
 else console.log('  ✅ PRD 含 v4.1 变更记录');
 if (!prd.includes('默认学科清单')) { failed++; console.error('  ❌ PRD 缺少默认学科清单说明'); }

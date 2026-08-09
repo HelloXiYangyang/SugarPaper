@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <a :href="url" target="_blank" class="plugin-card-link">
     <div class="fluent-card plugin-card">

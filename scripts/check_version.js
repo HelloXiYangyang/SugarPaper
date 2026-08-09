@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/*
  * 版本一致性校验：node scripts/check_version.js
  * 校验 web / app / updates / README 四处版本号必须一致，防止再次失同步。
  * 任一不一致则退出码非 0（可接入 CI）。

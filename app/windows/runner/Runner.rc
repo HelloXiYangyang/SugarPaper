@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 // Microsoft Visual C++ generated resource script.
@@ -94,13 +94,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.sugarpaper" "\0"
-            VALUE "FileDescription", "sugarpaper" "\0"
+            VALUE "CompanyName", "HelloXiYangyang" "\0"
+            VALUE "FileDescription", "糖纸 · SugarPaper" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "sugarpaper" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.sugarpaper. All rights reserved." "\0"
-            VALUE "OriginalFilename", "sugarpaper.exe" "\0"
-            VALUE "ProductName", "sugarpaper" "\0"
+            VALUE "InternalName", "SugarPaper" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 HelloXiYangyang. All rights reserved." "\0"
+            VALUE "OriginalFilename", "SugarPaper.exe" "\0"
+            VALUE "ProductName", "糖纸 · SugarPaper" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

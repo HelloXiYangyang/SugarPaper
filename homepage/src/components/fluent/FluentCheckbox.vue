@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <label class="fluent-checkbox" :class="{ 'fluent-checkbox--disabled': disabled }">
     <input

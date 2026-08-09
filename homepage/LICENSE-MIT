@@ -1,0 +1,31 @@
+MIT License
+
+本官网（homepage/）的界面、组件、图标体系与动画交互基于 ClassIsland 官网源码
+（https://github.com/ClassIsland/classisland-web-vuetify）改造。该上游仓库在 README.md
+与 package.json 中声明以 MIT License 授权（仓库本身未附带 LICENSE 文件与版权行），
+依据其声明适用 MIT 许可如下：
+
+MIT License
+
+Copyright (c) ClassIsland 官网源码项目（classisland-web-vuetify）
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+本目录中糖纸 · SugarPaper 自行创作的内容（文案、产品内容、定制样式）以
+GNU GPL-3.0-or-later 授权，与仓库主协议一致，见仓库根目录 LICENSE。

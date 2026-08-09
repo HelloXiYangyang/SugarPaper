@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import 'dart:io';
@@ -14,7 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'device_capabilities.dart';
 import '../models/update_info.dart';
 
-/// 零服务器自动更新（v0.27.0，对齐《零服务器全平台发布·自动更新·官网方案 v2.0》）：
+/// 零服务器自动更新（v0.27.0，对齐《零服务器多平台发布·自动更新·官网方案 v2.0》）：
 /// 读 GitHub Pages 上的 updates/latest.json → 比较 build 号 →
 /// 流式下载 → SHA-256 校验 → 交给系统安装器。
 class UpdateService {
@@ -54,9 +54,9 @@ class UpdateService {
     void Function(double progress)? onProgress,
   }) async {
     final dir = await getApplicationDocumentsDirectory();
-    final ext = entry.url.contains('.apk') ? '.apk' : '.bin';
+    final ext = _extFromUrl(entry.url);
     final file = File(
-      '${dir.path}${Platform.pathSeparator}sugarpaper-update$ext',
+      '${dir.path}${Platform.pathSeparator}sugarpaper-update-$ext',
     );
     await Dio().download(
       entry.url,
@@ -82,6 +82,9 @@ class UpdateService {
     UpdatePlatformEntry entry,
     String version,
   ) async {
+    if (!Platform.isAndroid) {
+      throw UnsupportedError('桌面端使用前台下载（update_dialog 内显示进度）');
+    }
     final fileName = 'sugarpaper-update-$version.apk';
     _pendingFile = fileName;
     _pendingSha256 = entry.sha256;
@@ -98,6 +101,7 @@ class UpdateService {
     bool success,
     String fileName,
   ) async {
+    if (!Platform.isAndroid) return; // 仅 Android 系统下载管理器使用
     if (!success || fileName != _pendingFile) return;
     try {
       final dir = await getExternalStorageDirectory();
@@ -116,7 +120,7 @@ class UpdateService {
     }
   }
 
-  /// 交给系统安装器（Android 调起 APK 安装；其余平台后续扩展）。
+  /// 交给系统安装器：Android 调起 APK 安装；Windows 启动 setup.exe 静默安装。
   Future<void> install(File file) async {
     if (Platform.isAndroid) {
       final result = await OpenFilex.open(
@@ -126,13 +130,42 @@ class UpdateService {
       if (result.type != ResultType.done) {
         throw StateError('无法打开安装器：${result.message}');
       }
+    } else if (Platform.isWindows) {
+      if (!file.path.toLowerCase().endsWith('.exe')) {
+        throw StateError('Windows 更新包必须是 .exe 安装器');
+      }
+      // v0.32.0：Inno Setup 静默安装（/VERYSILENT /NORESTART），
+      // detached 启动后本应用可安全退出。
+      await Process.start(
+        file.path,
+        const ['/VERYSILENT', '/NORESTART'],
+        mode: ProcessStartMode.detached,
+      );
     } else {
-      throw UnsupportedError('当前平台安装动作未接入（Windows/Linux 待扩展）');
+      throw UnsupportedError('当前平台不支持自动安装');
     }
   }
 
+  /// 根据下载 URL 推导文件名后缀（无匹配时按平台回退）。
+  static String _extFromUrl(String url) {
+    final lower = url.toLowerCase();
+    if (lower.contains('.apk')) return 'apk';
+    if (lower.contains('.exe')) return 'exe';
+    if (lower.contains('.zip')) return 'zip';
+    if (Platform.isWindows) return 'exe';
+    if (Platform.isAndroid) return 'apk';
+    return 'bin';
+  }
+
   Future<String> _sha256File(File file) async {
-    final hash = await Sha256().hash(await file.readAsBytes());
-    return hash.bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+    // 流式计算，避免大安装包整包读入内存
+    final sink = Sha256().newHashSink();
+    final stream = file.openRead();
+    await for (final chunk in stream) {
+      sink.add(chunk);
+    }
+    sink.close();
+    final digest = await sink.hash();
+    return digest.bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
   }
 }

@@ -2,7 +2,7 @@
   "name": "sugarpaper-docs",
   "description": "糖纸 · SugarPaper 文档（VuePress Theme Hope）",
   "version": "2.0.0",
-  "license": "MIT",
+  "license": "CC-BY-NC-SA-4.0",
   "type": "module",
   "scripts": {
     "docs:build": "vuepress-vite build src",

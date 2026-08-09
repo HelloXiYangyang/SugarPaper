@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <div class="fluent-expander" :class="{ 'fluent-expander--expanded': isExpanded }">
     <div class="fluent-expander__header" @click="toggle">

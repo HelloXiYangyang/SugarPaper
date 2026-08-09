@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: CC-BY-NC-SA-4.0
+ */
+
 import { hopeTheme } from "vuepress-theme-hope";
 import { zhNavbar } from "./navbar/index.js";
 import { zhSidebar } from "./sidebar/index.js";
@@ -38,7 +43,7 @@ export default hopeTheme({
       sidebar: zhSidebar,
 
       //  autocorrect-disable
-      footer: "Copyright © 2026 糖纸 · SugarPaper | GNU AGPL-3.0 开源协议 | 文档风格参考 ClassIsland 文档",
+      footer: "Copyright © 2026 糖纸 · SugarPaper | 文档以 CC BY-NC-SA 4.0 授权 | 文档基于 ClassIsland 文档（CC BY-NC-SA 4.0）改造",
       //  autocorrect-enable
 
       displayFooter: true,

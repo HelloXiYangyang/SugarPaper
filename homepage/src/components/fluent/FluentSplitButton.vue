@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <div class="fluent-split-button" ref="container">
     <button class="fluent-split-button__main" @click="onClick">

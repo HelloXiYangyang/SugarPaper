@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  *
  * 文档站交互：主题切换、移动端目录抽屉、滚动高亮、图标注入与标题锚点。
  * 布局风格参考 ClassIsland 文档（VuePress Theme Hope）。

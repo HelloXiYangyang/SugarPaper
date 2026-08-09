@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <nav class="fluent-side-nav">
     <template v-for="item in items" :key="item.title">

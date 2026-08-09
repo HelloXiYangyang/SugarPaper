@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: CC-BY-NC-SA-4.0
+ */
+
 // .vuepress/vuepress-pdf.config.ts
 import { defineUserConfig } from "@condorhero/vuepress-plugin-export-pdf-v2";
 import theme from "./theme.js";

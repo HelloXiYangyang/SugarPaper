@@ -1,6 +1,6 @@
 ﻿/*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import 'dart:io';
@@ -64,28 +64,57 @@ class _UpdateDialog extends StatefulWidget {
 
 class _UpdateDialogState extends State<_UpdateDialog> {
   bool _starting = false;
+  double? _progress;
   String? _error;
 
-  /// v0.31.0：立即升级 → 系统下载管理器后台下载（通知栏进度，不占前台）
-  Future<void> _startBackground() async {
-    final platform = Platform.isAndroid ? 'android' : 'other';
-    final entry = widget.update.platforms[platform];
+  /// 当前平台在 updates/latest.json 中的 key。
+  static String get _platformKey {
+    if (Platform.isAndroid) return 'android';
+    if (Platform.isWindows) return 'windows';
+    return 'other';
+  }
+
+  /// v0.31.0 起：立即升级。
+  /// Android → 系统下载管理器后台下载（通知栏进度）；
+  /// Windows/桌面 → 前台下载并显示进度，校验后拉起安装器。
+  Future<void> _startUpdate() async {
+    final entry = widget.update.platforms[_platformKey];
     if (entry == null) {
       setState(() => _error = '当前平台暂无可用安装包');
       return;
     }
     setState(() {
       _starting = true;
+      _progress = null;
       _error = null;
     });
     try {
-      await widget.service.startBackgroundDownload(
+      if (Platform.isAndroid) {
+        await widget.service.startBackgroundDownload(
+          entry,
+          widget.update.version,
+        );
+        if (!mounted) return;
+        Navigator.pop(context);
+        showSugarToast(context, '已开始后台下载，可在通知栏查看进度');
+        return;
+      }
+      // 桌面端：前台下载 + 校验 + 拉起安装器
+      final file = await widget.service.downloadAndVerify(
         entry,
-        widget.update.version,
+        onProgress: (p) {
+          if (mounted) setState(() => _progress = p);
+        },
       );
+      await widget.service.install(file);
       if (!mounted) return;
-      Navigator.pop(context);
-      showSugarToast(context, '已开始后台下载，可在通知栏查看进度');
+      if (Platform.isWindows) {
+        // 静默安装器已启动，本应用退出（安装器独立进程）
+        exit(0);
+      } else {
+        Navigator.pop(context);
+        showSugarToast(context, '安装器已启动，安装完成后即可使用新版本');
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -159,13 +188,33 @@ class _UpdateDialogState extends State<_UpdateDialog> {
             const SizedBox(height: 8),
           ],
           if (_starting) ...[
-            Text(
-              '正在启动后台下载…',
-              style: TextStyle(fontSize: 12, color: t.text2),
-            ),
+            if (_progress != null) ...[
+              const SizedBox(height: 2),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: _progress,
+                  minHeight: 8,
+                  backgroundColor: t.surface2,
+                  color: t.iconMain,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '正在下载更新包… ${(_progress! * 100).round()}%',
+                style: TextStyle(fontSize: 12, color: t.text2),
+              ),
+            ] else ...[
+              Text(
+                '正在准备下载…',
+                style: TextStyle(fontSize: 12, color: t.text2),
+              ),
+            ],
           ] else ...[
             Text(
-              '升级将在后台下载，通知栏可查看进度，不影响当前使用。',
+              Platform.isAndroid
+                  ? '升级将在后台下载，通知栏可查看进度，不影响当前使用。'
+                  : '将下载安装包并校验完整性，下载完成后自动启动安装器。',
               style: TextStyle(fontSize: 11.5, color: t.text3),
             ),
           ],
@@ -187,10 +236,14 @@ class _UpdateDialogState extends State<_UpdateDialog> {
               ),
               const SizedBox(width: 6),
               SugarButton(
-                label: _starting ? '启动中…' : '立即升级',
+                label: _starting
+                    ? (_progress != null
+                        ? '下载中 ${(_progress! * 100).round()}%'
+                        : '启动中…')
+                    : '立即升级',
                 iconName: 'download',
                 primary: true,
-                onTap: _starting ? null : _startBackground,
+                onTap: _starting ? null : _startUpdate,
               ),
             ],
           ),

@@ -1,8 +1,13 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <footer class="fluent-footer">
     <div class="fluent-footer__content">
       <div class="fluent-footer__text">
-        &copy; 2026-{{ new Date().getFullYear() }} 糖纸 · SugarPaper · GNU AGPL-3.0 开源协议 · 离线优先 · 零服务器依赖
+        &copy; 2026-{{ new Date().getFullYear() }} 糖纸 · SugarPaper · GPL-3.0 开源协议 · 离线优先 · 零服务器依赖 · 界面基于 ClassIsland 官网（MIT）改造
       </div>
       <div class="fluent-footer__text">
         Build_{{ gitTag }}

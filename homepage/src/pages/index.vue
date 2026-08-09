@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <!-- 主要介绍 -->
   <div class="introduction-container" :class="{ 'intro-enter-active': shouldPlayIntroAnimation }">

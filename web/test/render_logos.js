@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/*
  * 渲染 Logo 预览图：node test/render_logos.js（需本机已安装 Playwright Chromium / Edge）
  */
 'use strict';

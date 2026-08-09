@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 /* 糖纸 · SugarPaper 官网 —— Fluent 暗色主题
-   设计语言对齐 ClassIsland 官网：深色底、Windows 11 强调色、
+   设计语言基于 ClassIsland 官网（MIT）改造，对齐：深色底、Windows 11 强调色、
    4px 圆角、半透明毛玻璃应用栏、Fluent 卡片与分段渐变大标题。 */
 
 :root {

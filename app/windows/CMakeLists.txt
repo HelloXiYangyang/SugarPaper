@@ -1,5 +1,5 @@
 # Copyright (C) 2026 HelloXiYangyang
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
@@ -7,7 +7,7 @@ project(sugarpaper LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "sugarpaper")
+set(BINARY_NAME "SugarPaper")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -43,6 +43,8 @@ add_definitions(-DUNICODE -D_UNICODE)
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
+  # 源码按 UTF-8 解析，避免中文注释/字符串在系统代码页（如 GBK 936）下触发 C4819
+  target_compile_options(${TARGET} PRIVATE /utf-8)
   target_compile_options(${TARGET} PRIVATE /EHsc)
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
@@ -63,8 +65,8 @@ include(flutter/generated_plugins.cmake)
 
 # === Installation ===
 # Support files are copied into place next to the executable, so that it can
-# run in place. This is done instead of making a separate bundle (as on Linux)
-# so that building and running from within Visual Studio will work.
+# run in place. This is done instead of making a separate bundle so that
+# building and running from within Visual Studio will work.
 set(BUILD_BUNDLE_DIR "$<TARGET_FILE_DIR:${BINARY_NAME}>")
 # Make the "install" step default, as it's required to run.
 set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)

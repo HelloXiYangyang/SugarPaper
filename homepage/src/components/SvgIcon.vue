@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <svg aria-hidden="true" :style="{ width: size, height: size }">
     <use :href="symbolId" :fill="color" />

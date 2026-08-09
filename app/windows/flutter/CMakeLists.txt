@@ -1,5 +1,5 @@
 # Copyright (C) 2026 HelloXiYangyang
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # This file controls Flutter-level build steps. It should not be edited.
 cmake_minimum_required(VERSION 3.14)

@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-/// 更新元数据（对齐《零服务器全平台发布·自动更新·官网方案 v2.0》的 update.json）。
+/// 更新元数据（对齐《零服务器多平台发布·自动更新·官网方案 v2.0》的 update.json）。
 class UpdateInfo {
   final String app;
   final String version;

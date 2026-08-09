@@ -24,4 +24,4 @@ yarn build    # 静态构建，产物在 dist/
 
 ## 许可证
 
-源码以 GNU AGPL-3.0 开源协议发布（与主仓库一致）；原 ClassIsland 官网部分以 MIT 许可授权使用。
+源码以 GNU GPL-3.0（SPDX: GPL-3.0-or-later）开源协议发布（与主仓库一致）；官网界面与交互基于 [ClassIsland 官网](https://github.com/ClassIsland/classisland-web-vuetify)（MIT 许可）改造，保留其 MIT 署名与许可文本，详见本目录 [LICENSE-MIT](./LICENSE-MIT)。

@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <div class="fluent-info-bar" :class="[`fluent-info-bar--${severity}`, { 'fluent-info-bar--closable': closable }]">
     <div class="fluent-info-bar__content">

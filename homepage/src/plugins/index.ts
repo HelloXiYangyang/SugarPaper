@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 /**
  * 此文件负责注册并初始化应用程序中使用的所有插件。
  */

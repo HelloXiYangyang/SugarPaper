@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2026 HelloXiYangyang
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import type { FluentIconName } from '@/types/fluent-icon';
 import { icon, type IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {

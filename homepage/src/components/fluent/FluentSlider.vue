@@ -1,3 +1,8 @@
+<!--
+  Copyright (C) 2026 HelloXiYangyang
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+
 <template>
   <div class="fluent-slider" :class="{ 'fluent-slider--disabled': disabled }" ref="sliderRef" @mousedown="onMouseDown">
     <div class="fluent-slider__rail"></div>

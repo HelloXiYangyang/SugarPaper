@@ -1,11 +1,12 @@
 /*
  * Copyright (C) 2026 HelloXiYangyang
- * SPDX-License-Identifier: AGPL-3.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../models/note.dart';
+import 'device_capabilities.dart';
 import 'store.dart';
 
 /// 本地通知提醒引擎（对齐网页版 `reminders.js`，v0.15.0）：
@@ -22,13 +23,22 @@ class ReminderService {
   Future<void> init() async {
     if (_ready) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const settings =
-        InitializationSettings(android: android, iOS: DarwinInitializationSettings());
+    const settings = InitializationSettings(
+      android: android,
+      // v0.32.0：Windows 系统通知（toast）
+      windows: WindowsInitializationSettings(
+        appName: '糖纸 · SugarPaper',
+        appUserModelId: 'HelloXiYangyang.SugarPaper',
+        guid: '9B4F7C2E-3D8A-4E5F-9B1C-2A3D4E5F6A7B',
+      ),
+    );
     await _plugin.initialize(settings);
     _ready = true;
   }
 
   Future<void> requestPermission() async {
+    // Windows 无需申请通知权限（系统通知默认可用）
+    if (DeviceCapabilities.isDesktop) return;
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     await android?.requestNotificationsPermission();
@@ -43,11 +53,17 @@ class ReminderService {
       importance: Importance.high,
       priority: Priority.high,
     );
+    const details = NotificationDetails(
+      android: androidDetails,
+      windows: const WindowsNotificationDetails(
+        subtitle: '糖纸 · SugarPaper',
+      ),
+    );
     await _plugin.show(
       DateTime.now().millisecondsSinceEpoch.remainder(100000),
       title,
       body,
-      NotificationDetails(android: androidDetails),
+      details,
     );
   }
 
